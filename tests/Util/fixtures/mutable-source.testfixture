@@ -1,0 +1,46 @@
+<?php
+
+use SomeNamespace\SomeClass;
+use OtherClass;
+
+// Arbirtary whitespace differences should be preserved
+class ExampleSubclass extends ExampleField implements ExampleInterface
+{
+    function fn(ExampleField $foo, ExampleInterface $bar, $baz) {
+        if($baz instanceof ExampleInterface) {
+            return true;
+        }
+        if(interface_exists('ExampleInterface')) return true;
+    }
+}
+
+ExampleField::doSomething();
+new ExampleField();
+new SomeClass();
+
+
+new OtherClass();
+------
+<?php
+
+use SomeNamespace\SomeClass;
+use OtherClass;
+
+// Arbirtary whitespace differences should be preserved
+class ExampleSubclass extends ExampleField implements ExampleInterface
+{
+    function fn(ExampleField $foo, ExampleInterface $bar, $baz) {
+        if($baz instanceof ExampleInterface) {
+            return true;
+        }
+        if(interface_exists('ExampleInterface')) return true;
+    }
+}
+
+ExampleField::doSomething();
+// replaced with a comment - node that the ; is still preseved: ;
+new SomeClass();
+
+
+// inserted before
+new ReplacedClass();
