@@ -47,6 +47,14 @@ class CodeChangeSet
         }
     }
 
+    public function addWarnings($path, $warnings)
+    {
+        foreach ($warnings as $warning) {
+            list($line, $message) = $warning;
+            $this->addWarning($path, $line, $message);
+        }
+    }
+
     /**
      * Return all the file changes, as a map of path => contents
      * @return array

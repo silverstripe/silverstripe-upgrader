@@ -7,6 +7,8 @@ use Sminnee\Upgrader\CodeChangeSet;
 class DiskCollection implements CollectionInterface
 {
 
+    use ChangeApplier;
+
     private $path;
 
     /**
@@ -39,12 +41,5 @@ class DiskCollection implements CollectionInterface
     public function itemByPath($path)
     {
         return new DiskItem($this->path, $path);
-    }
-
-    public function applyChanges(CodeChangeSet $changes)
-    {
-        foreach ($changes as $path => $contents) {
-            $this->itemByPath($path)->setContents($contents);
-        }
     }
 }

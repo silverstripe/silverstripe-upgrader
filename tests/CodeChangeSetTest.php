@@ -4,7 +4,7 @@ namespace Sminnee\Upgrader\Tests;
 
 use Sminnee\Upgrader\CodeChangeSet;
 
-class CodeeChangeSetTest extends \PHPUnit_Framework_TestCase
+class CodeChangeSetTest extends \PHPUnit_Framework_TestCase
 {
     protected function fixture()
     {

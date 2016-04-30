@@ -18,6 +18,7 @@ class DiskCollectionTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->assertEquals([
+            'ChangeApplier.php',
             'CollectionInterface.php',
             'DiskCollection.php',
             'DiskItem.php',
