@@ -23,5 +23,4 @@ interface ItemInterface
      * @param string $contents
      */
     public function setContents($contents);
-
 }

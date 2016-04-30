@@ -2,8 +2,6 @@
 
 namespace Sminnee\Upgrader\Tests;
 
-require_once(__DIR__ . '/../../vendor/autoload.php');
-
 use Sminnee\Upgrader\CodeChangeSet;
 
 class CodeeChangeSetTest extends \PHPUnit_Framework_TestCase

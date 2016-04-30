@@ -2,8 +2,6 @@
 
 namespace Sminnee\Upgrader\Tests\CodeCollection;
 
-require_once(__DIR__ . '/../../vendor/autoload.php');
-
 use Sminnee\Upgrader\CodeCollection\DiskCollection;
 use Sminnee\Upgrader\CodeCollection\ItemInterface;
 
