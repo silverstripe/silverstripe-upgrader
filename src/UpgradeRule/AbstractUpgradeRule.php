@@ -2,10 +2,6 @@
 
 namespace Sminnee\Upgrader\UpgradeRule;
 
-use PhpParser\ParserFactory;
-use PhpParser\Parser;
-use PhpParser\Lexer;
-use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use PhpParser\NodeTraverser;
 
 /**
@@ -16,6 +12,17 @@ abstract class AbstractUpgradeRule
 
     protected $parameters = [];
     protected $warningCollector = [];
+
+    /**
+     * Upgrades the contents of the given file
+     * Returns two results as a 2-element array:
+     *  - The first item is a string of the new code
+     *  - The second item is an array of warnings, each of which is a 2 element array, for line & message
+     * @param string $contents
+     * @param string $filename
+     * @return array
+     */
+    abstract public function upgradeFile($contents, $filename);
 
     /**
      * Apply the parameters to this object and return $this, for fluent call-style
@@ -33,29 +40,13 @@ abstract class AbstractUpgradeRule
      * @param array $visitors
      * @return string
      */
-    protected function transformWithVisitors($code, array $visitors)
+    protected function transformWithVisitors(array $ast, array $visitors)
     {
-        $parser = $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP5);
-        $prettyPrinter = new PrettyPrinter;
-        $ast = $parser->parse($code);
-
         $traverser = new NodeTraverser;
         foreach ($visitors as $visitor) {
             $traverser->addVisitor($visitor);
         }
 
-        $ast = $traverser->traverse($ast);
-        return '<?php' . "\n\n" . $prettyPrinter->prettyPrint($ast);
+        $traverser->traverse($ast);
     }
-
-    /**
-     * Upgrades the contents of the given file
-     * Returns two results as a 2-element array:
-     *  - The first item is a string of the new code
-     *  - The second item is an array of warnings, each of which is a 2 element array, for line & message
-     * @param string $contents
-     * @param string $filename
-     * @return array
-     */
-    abstract public function upgradeFile($contents, $filename);
 }

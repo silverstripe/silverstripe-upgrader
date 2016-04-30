@@ -71,15 +71,6 @@ class MutableSource
     }
 
     /**
-     * Replace a node with the given replacement string
-     */
-    public function replaceNodeWithString(Node $node, $replacement)
-    {
-        list($start, $length) = $this->nodeRange($node);
-        $this->replace($start, $length, $replacement);
-    }
-
-    /**
      * @param Node $base The node to insert before
      * @param string|Node|array The entity to insert. A string, Node, or array of Nodes
      */

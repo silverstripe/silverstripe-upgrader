@@ -3,6 +3,7 @@
 namespace Sminnee\Upgrader\UpgradeRule;
 
 use PhpParser\NodeVisitor\NameResolver;
+use Sminnee\Upgrader\Util\MutableSource;
 
 class RenameClasses extends AbstractUpgradeRule
 {
@@ -10,13 +11,16 @@ class RenameClasses extends AbstractUpgradeRule
     {
         $this->warningCollector = [];
 
+        $source = new MutableSource($contents);
+
         $visitors = [
-            new NameResolver(),
-            new RenameClassesVisitor($this->parameters['mappings']),
         ];
 
-        $output = $this->transformWithVisitors($contents, $visitors);
+        $this->transformWithVisitors($source->getAst(), [
+            new NameResolver(),
+            new RenameClassesVisitor($source, $this->parameters['mappings']),
+        ]);
 
-        return [ $output, $this->warningCollector ];
+        return [ $source->getModifiedString(), $this->warningCollector ];
     }
 }

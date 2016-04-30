@@ -11,16 +11,20 @@ use PhpParser\Node\Param;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\BuilderFactory;
 
+use Sminnee\Upgrader\Util\MutableSource;
+
 /**
  * PHP-Parser Visitor to handle class renaming upgrade handler for a renamed class
  */
 class RenameClassesVisitor extends NodeVisitorAbstract
 {
     protected $map;
+    protected $source;
     protected $used;
 
-    public function __construct($map)
+    public function __construct(MutableSource $source, $map)
     {
+        $this->source = $source;
         $this->map = $map;
 
         foreach ($this->map as $k => $v) {
@@ -37,10 +41,8 @@ class RenameClassesVisitor extends NodeVisitorAbstract
     protected function handleStringUpdate(Node $stringNode)
     {
         if (array_key_exists($stringNode->value, $this->map)) {
-            $stringNode->value = $this->map[$stringNode->value];
+            $this->source->replaceNode($stringNode, "'" . $this->map[$stringNode->value] . "'");
         }
-
-        return $stringNode;
     }
 
     protected function handleNameUpdate(Node $classNode)
@@ -53,7 +55,10 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         }
 
         if (array_key_exists($className, $this->classAliases)) {
-            return new Name([ $this->classAliases[$className] ], $classNode->getAttributes());
+            $this->source->replaceNode(
+                $classNode,
+                new Name([ $this->classAliases[$className] ])
+            );
         }
 
         return $classNode;
@@ -64,48 +69,40 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         // Class definitions
         if ($node instanceof Stmt\Class_) {
             if ($node->extends !== null) {
-                $node->extends = $this->handleNameUpdate($node->extends);
+                $this->handleNameUpdate($node->extends);
             }
 
             if ($node->implements !== null) {
                 foreach ($node->implements as $i => $part) {
-                    $node->implements[$i] = $this->handleNameUpdate($part);
+                    $this->handleNameUpdate($part);
                 }
             }
         }
 
         // Static method calls
         if ($node instanceof Expr\StaticCall) {
-            $node->class = $this->handleNameUpdate($node->class);
+            $this->handleNameUpdate($node->class);
         }
 
         // Object instantations
         if ($node instanceof Expr\New_) {
-            $node->class = $this->handleNameUpdate($node->class);
+            $this->handleNameUpdate($node->class);
         }
 
         // Typed parameters
         if ($node instanceof Param && $node->type !== null) {
-            $node->type = $this->handleNameUpdate($node->type);
+            $this->handleNameUpdate($node->type);
         }
 
         // instanceof statements
         if ($node instanceof Expr\Instanceof_) {
-            $node->class = $this->handleNameUpdate($node->class);
+            $this->handleNameUpdate($node->class);
         }
 
         // Strings containing only the class name
         if ($node instanceof Scalar\String_) {
-            $node = $this->handleStringUpdate($node);
+            $this->handleStringUpdate($node);
         }
-
-        // use statements need to be added to the class aliases
-        if ($node instanceof Stmt\Use_) {
-            foreach ($node->uses as $use) {
-                $this->addClassAlias($use->name->toString(), $use->alias);
-            }
-        }
-
         return $node;
     }
 
@@ -118,6 +115,8 @@ class RenameClassesVisitor extends NodeVisitorAbstract
             $useNodes[] = $factory->use($from)->as($to)->getNode();
         }
 
-        return array_merge($useNodes, $nodes);
+        $this->source->insertBefore($this->source->getAst()[0], $useNodes);
+
+        return $nodes;
     }
 }
