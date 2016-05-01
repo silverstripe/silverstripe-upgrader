@@ -23,7 +23,7 @@ class MutableSource
         $this->source = new MutableString($source);
         $this->prettyPrinter = new PrettyPrinter\Standard();
 
-        $lexer = new Lexer\Emulative(['usedAttributes' => ['startFilePos', 'endFilePos']]);
+        $lexer = new Lexer\Emulative(['usedAttributes' => ['startFilePos', 'endFilePos', 'startLine', 'endLine']]);
         $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP5, $lexer);
         $this->ast = $parser->parse($source);
     }
@@ -88,6 +88,15 @@ class MutableSource
         return $this->source->insert($this->nodeStart($base), $this->createString($insertion));
     }
 
+    /**
+     * @param Node $base The node to insert after
+     * @param string|Node|array The entity to insert. A string, Node, or array of Nodes
+     */
+    public function insertAfter(Node $base, $insertion)
+    {
+        return $this->source->insert($this->nodeEnd($base)+1, $this->createString($insertion));
+    }
+
     public function remove($pos, $len)
     {
         return $this->source->remove($pos, $len);
@@ -144,11 +153,24 @@ class MutableSource
     protected function nodeStart(Node $node)
     {
         $attributes = $node->getAttributes();
-        if (empty($attributes['startFilePos'])) {
+        if (!isset($attributes['startFilePos'])) {
             throw new \LogicException("replaceNode requires startFilePos and endFilePos to be set. "
-                . "Check your Lexer usedAttributes opton!");
+                . "Check your Lexer usedAttributes option!");
         }
         return $attributes['startFilePos'];
+    }
+
+    /**
+     * @return int start of the given node
+     */
+    protected function nodeEnd(Node $node)
+    {
+        $attributes = $node->getAttributes();
+        if (!isset($attributes['startFilePos'])) {
+            throw new \LogicException("replaceNode requires startFilePos and endFilePos to be set. "
+                . "Check your Lexer usedAttributes option!");
+        }
+        return $attributes['endFilePos'];
     }
 
     /**
@@ -157,9 +179,9 @@ class MutableSource
     protected function nodeRange(Node $node)
     {
         $attributes = $node->getAttributes();
-        if (empty($attributes['startFilePos']) || empty($attributes['endFilePos'])) {
+        if (!isset($attributes['startFilePos']) || !isset($attributes['endFilePos'])) {
             throw new \LogicException("replaceNode requires startFilePos and endFilePos to be set. "
-                . "Check your Lexer usedAttributes opton!");
+                . "Check your Lexer usedAttributes option!");
         }
 
         return [

@@ -21,6 +21,8 @@ class RenameClassesVisitor extends NodeVisitorAbstract
     protected $map;
     protected $source;
     protected $used;
+    protected $useStatements = [];
+    protected $insertUseStatementsAfter = null;
 
     public function __construct(MutableSource $source, $map)
     {
@@ -47,6 +49,18 @@ class RenameClassesVisitor extends NodeVisitorAbstract
 
     protected function handleNameUpdate(Node $classNode)
     {
+        if ($classNode instanceof Expr\StaticPropertyFetch || $classNode instanceof Expr\PropertyFetch) {
+            return $classNode;
+        }
+
+
+        if (!$classNode instanceof Node\Name) {
+            echo get_class($classNode) . "\n";
+            echo " - WARNING: New class instantied by a dynamic value on line "
+                . $classNode->getAttribute('startLine') . "\n";
+            return $classNode;
+        }
+
         $className = $classNode->toString();
 
         if (array_key_exists($className, $this->map)) {
@@ -90,7 +104,7 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         }
 
         // Typed parameters
-        if ($node instanceof Param && $node->type !== null) {
+        if ($node instanceof Param && $node->type instanceof Node) {
             $this->handleNameUpdate($node->type);
         }
 
@@ -103,19 +117,47 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         if ($node instanceof Scalar\String_) {
             $this->handleStringUpdate($node);
         }
+
+        // Defer the insertion of new use statements until after all other namespace or use statements.
+        if ($node instanceof Stmt\Namespace_ || $node instanceof Stmt\Use_) {
+            if ($this->insertUseStatementsAfter === null ||
+                $node->getAttribute('startFilePos') > $this->insertUseStatementsAfter->getAttribute('startFilePos')) {
+                $this->insertUseStatementsAfter = $node;
+            }
+        }
+
+        if ($node instanceof Stmt\Use_) {
+            $mod = false;
+            foreach ($node->uses as $i => $useuse) {
+                $sourceClass = $useuse->name->toString();
+                if (!empty($this->map[$sourceClass])) {
+                    unset($node->uses[$i]);
+                    $mod = true;
+                }
+            }
+            if ($mod) {
+                $this->source->replaceNode($node, $node->uses ? $node : '');
+            }
+        }
+
         return $node;
     }
 
     public function afterTraverse(array $nodes)
     {
-        $factory = new BuilderFactory;
-        $useNodes = [];
+        if ($this->useStatements) {
+            $factory = new BuilderFactory;
+            $useNodes = [];
+            foreach ($this->useStatements as $from => $to) {
+                $useNodes[] = $factory->use($from)->as($to)->getNode();
+            }
 
-        foreach ($this->useStatements as $from => $to) {
-            $useNodes[] = $factory->use($from)->as($to)->getNode();
+            if ($this->insertUseStatementsAfter !== null) {
+                $this->source->insertAfter($this->insertUseStatementsAfter, $useNodes);
+            } else {
+                $this->source->insertBefore($this->source->getAst()[0], $useNodes);
+            }
         }
-
-        $this->source->insertBefore($this->source->getAst()[0], $useNodes);
 
         return $nodes;
     }

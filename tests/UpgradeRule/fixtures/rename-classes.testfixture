@@ -1,14 +1,20 @@
 {
     "mappings": {
         "ExampleField": "SilverStripe\\Fields\\ExampleField",
-        "ExampleInterface": "SilverStripe\\Fields\\RenamedInterface"
+        "ExampleInterface": "SilverStripe\\Fields\\RenamedInterface",
+        "ExampleNamespace\\NextExampleField": "SilverStripe\\Fields\\NextExampleField"
     }
 }
 ------
 <?php
 
+namespace MySpace;
+
 use SomeNamespace\SomeClass;
 use OtherClass;
+use ExampleField;
+use ExampleInterface;
+use ExampleNamespace\NextExampleField;
 
 // Arbirtary whitespace differences should be preserved
 class ExampleSubclass extends ExampleField implements ExampleInterface
@@ -24,16 +30,23 @@ class ExampleSubclass extends ExampleField implements ExampleInterface
 ExampleField::doSomething();
 new ExampleField();
 new SomeClass();
+new NextExampleField();
 
 
 new OtherClass();
 ------
 <?php
 
-use SilverStripe\Fields\ExampleField;
-use SilverStripe\Fields\RenamedInterface;
+namespace MySpace;
+
 use SomeNamespace\SomeClass;
 use OtherClass;
+
+
+use SilverStripe\Fields\ExampleField;
+use SilverStripe\Fields\RenamedInterface;
+use SilverStripe\Fields\NextExampleField;
+
 
 // Arbirtary whitespace differences should be preserved
 class ExampleSubclass extends ExampleField implements RenamedInterface
@@ -49,6 +62,7 @@ class ExampleSubclass extends ExampleField implements RenamedInterface
 ExampleField::doSomething();
 new ExampleField();
 new SomeClass();
+new NextExampleField();
 
 
 new OtherClass();
