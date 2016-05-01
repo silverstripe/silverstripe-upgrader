@@ -49,4 +49,23 @@ abstract class AbstractUpgradeRule
 
         $traverser->traverse($ast);
     }
+
+    /**
+     * Returns true if this upgrad rule applies to the given file
+     * Checks fileExtensions parameters
+     */
+    protected function isApplicableFile($filename)
+    {
+        if (empty($this->parameters['fileExtensions'])) {
+            return true;
+        }
+
+        if (preg_match('/[^\/]*\.(.*)$/', $filename, $matches)) {
+            $extension = $matches[1];
+        } else {
+            $extension = '';
+        }
+
+        return in_array($extension, $this->parameters['fileExtensions']);
+    }
 }

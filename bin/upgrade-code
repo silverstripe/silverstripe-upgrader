@@ -1,0 +1,20 @@
+#!/usr/bin/env php
+<?php
+
+// Root from which to refer to src/. assists with bundling into a phar.
+if (!defined('PACKAGE_ROOT')) {
+    define('PACKAGE_ROOT', dirname(dirname(__FILE__)) . '/');
+}
+
+require(PACKAGE_ROOT . 'vendor/autoload.php');
+
+use Symfony\Component\Console\Application;
+use Sminnee\Upgrader\Console as Upgrader;
+
+$application = new Application();
+$application->setName("SilverStripe Upgrader");
+$application->setVersion("0.0.1");
+
+$application->add(new Upgrader\UpgradeCommand);
+
+$application->run();

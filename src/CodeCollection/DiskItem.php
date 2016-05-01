@@ -62,7 +62,7 @@ class DiskItem implements ItemInterface
      */
     public function getContents()
     {
-        return file_put_contents($this->getFullPath());
+        return file_get_contents($this->getFullPath());
     }
 
     /**

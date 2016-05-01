@@ -17,6 +17,12 @@ class DiskCollection implements CollectionInterface
      */
     public function __construct($path)
     {
+        if (!file_exists($path)) {
+            throw new \InvalidArgumentException("Path '$path' does not exist");
+        }
+        if (!is_dir($path)) {
+            throw new \InvalidArgumentException("Path '$path' is not a directory");
+        }
         $this->path = $path;
     }
 
@@ -26,7 +32,12 @@ class DiskCollection implements CollectionInterface
      */
     public function iterateItems()
     {
-        foreach (glob($this->path . '/*') as $path) {
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->path));
+        foreach ($iterator as $path) {
+            if (is_dir($path) || preg_match('#/.git/#', $path)) {
+                continue;
+            }
+
             if (substr($path, 0, strlen($this->path)) == $this->path) {
                 $path = substr($path, strlen($this->path));
             }
