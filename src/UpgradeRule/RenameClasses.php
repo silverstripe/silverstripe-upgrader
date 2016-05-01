@@ -9,7 +9,7 @@ class RenameClasses extends AbstractUpgradeRule
 {
     public function upgradeFile($contents, $filename)
     {
-        if (!$this->isApplicableFile($filename)) {
+        if (!$this->appliesTo($filename)) {
             return [ $contents, [] ];
         }
         $this->warningCollector = [];

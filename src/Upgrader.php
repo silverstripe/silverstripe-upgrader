@@ -28,15 +28,16 @@ class Upgrader
         $changeset = new CodeChangeSet();
 
         foreach ($code->iterateItems() as $item) {
-            $this->log("Processing " . $item->getPath() . "...");
             $path = $item->getPath();
             $contents = $updatedContents = $item->getContents();
 
             foreach ($this->spec->rules() as $upgradeRule) {
-                //$this->log(" - Applying " . get_class($upgradeRule) . "...");
-                list($updatedContents, $warnings) = $upgradeRule->upgradeFile($updatedContents, $path);
-                if ($warnings) {
-                    $changeset->addWarnings($path, $warnings);
+                if ($upgradeRule->appliesTo($path)) {
+                    $this->log("Applying " . get_class($upgradeRule) . " to " . $item->getPath() . "...");
+                    list($updatedContents, $warnings) = $upgradeRule->upgradeFile($updatedContents, $path);
+                    if ($warnings) {
+                        $changeset->addWarnings($path, $warnings);
+                    }
                 }
             }
 
