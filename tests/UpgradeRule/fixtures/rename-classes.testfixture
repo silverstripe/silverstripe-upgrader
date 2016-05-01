@@ -2,6 +2,7 @@
     "mappings": {
         "ExampleField": "SilverStripe\\Fields\\ExampleField",
         "ExampleInterface": "SilverStripe\\Fields\\RenamedInterface",
+        "MySpace\\SpaceClass": "SpaceClass",
         "ExampleNamespace\\NextExampleField": "SilverStripe\\Fields\\NextExampleField"
     }
 }
@@ -31,6 +32,7 @@ ExampleField::doSomething();
 new ExampleField();
 new SomeClass();
 new NextExampleField();
+new SpaceClass();
 
 
 new OtherClass();
@@ -43,9 +45,11 @@ use SomeNamespace\SomeClass;
 use OtherClass;
 
 
+
 use SilverStripe\Fields\ExampleField;
 use SilverStripe\Fields\RenamedInterface;
 use SilverStripe\Fields\NextExampleField;
+use SpaceClass;
 
 
 // Arbirtary whitespace differences should be preserved
@@ -63,6 +67,7 @@ ExampleField::doSomething();
 new ExampleField();
 new SomeClass();
 new NextExampleField();
+new SpaceClass();
 
 
 new OtherClass();

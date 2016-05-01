@@ -9,6 +9,9 @@ class RenameClasses extends AbstractUpgradeRule
 {
     public function upgradeFile($contents, $filename)
     {
+        if (!$this->isApplicableFile($filename)) {
+            return [ $contents, [] ];
+        }
         $this->warningCollector = [];
 
         $source = new MutableSource($contents);

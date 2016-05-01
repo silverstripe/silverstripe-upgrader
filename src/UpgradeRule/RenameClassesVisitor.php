@@ -30,7 +30,8 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         $this->map = $map;
 
         foreach ($this->map as $k => $v) {
-            $baseName = substr($this->map[$k], strrpos($this->map[$k], '\\')+1);
+            $slashPos = strrpos($this->map[$k], '\\');
+            $baseName = ($slashPos === false) ? $this->map[$k] : substr($this->map[$k], $slashPos + 1);
             $this->addClassAlias($k, $baseName);
         }
     }
@@ -64,7 +65,8 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         $className = $classNode->toString();
 
         if (array_key_exists($className, $this->map)) {
-            $baseName = substr($this->map[$className], strrpos($this->map[$className], '\\')+1);
+            $slashPos = strrpos($this->map[$className], '\\');
+            $baseName = ($slashPos === false) ? $this->map[$className] : substr($this->map[$className], $slashPos + 1);
             $this->useStatements[$this->map[$className]] = $baseName;
         }
 
@@ -88,6 +90,15 @@ class RenameClassesVisitor extends NodeVisitorAbstract
 
             if ($node->implements !== null) {
                 foreach ($node->implements as $i => $part) {
+                    $this->handleNameUpdate($part);
+                }
+            }
+        }
+
+        // Class definitions
+        if ($node instanceof Stmt\Interface_) {
+            if ($node->extends !== null) {
+                foreach ($node->extends as $i => $part) {
                     $this->handleNameUpdate($part);
                 }
             }
@@ -152,10 +163,12 @@ class RenameClassesVisitor extends NodeVisitorAbstract
                 $useNodes[] = $factory->use($from)->as($to)->getNode();
             }
 
+            $useNodesStr = "\n" . $this->source->createString($useNodes);
+
             if ($this->insertUseStatementsAfter !== null) {
-                $this->source->insertAfter($this->insertUseStatementsAfter, $useNodes);
+                $this->source->insertAfter($this->insertUseStatementsAfter, $useNodesStr);
             } else {
-                $this->source->insertBefore($this->source->getAst()[0], $useNodes);
+                $this->source->insertBefore($this->source->getAst()[0], $useNodesStr);
             }
         }
 
