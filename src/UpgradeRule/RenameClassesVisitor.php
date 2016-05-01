@@ -19,15 +19,17 @@ use Sminnee\Upgrader\Util\MutableSource;
 class RenameClassesVisitor extends NodeVisitorAbstract
 {
     protected $map;
+    protected $namespaceCorrections;
     protected $source;
     protected $used;
     protected $useStatements = [];
     protected $insertUseStatementsAfter = null;
 
-    public function __construct(MutableSource $source, $map)
+    public function __construct(MutableSource $source, $map, $namespaceCorrections = null)
     {
         $this->source = $source;
         $this->map = $map;
+        $this->namespaceCorrections = $namespaceCorrections;
 
         foreach ($this->map as $k => $v) {
             $slashPos = strrpos($this->map[$k], '\\');
@@ -43,9 +45,50 @@ class RenameClassesVisitor extends NodeVisitorAbstract
 
     protected function handleStringUpdate(Node $stringNode)
     {
-        if (array_key_exists($stringNode->value, $this->map)) {
-            $this->source->replaceNode($stringNode, "'" . $this->map[$stringNode->value] . "'");
+        $replacement = $this->getReplacementClass($stringNode->value);
+        if ($replacement !== null) {
+            $this->source->replaceNode($stringNode, "'$replacement'");
         }
+    }
+
+    /**
+     * Return the fully-qualified classname to use instead of the given one
+     */
+    protected function getReplacementClass($className)
+    {
+        // Regular remapping
+        if (array_key_exists($className, $this->map)) {
+            return $this->map[$className];
+        }
+
+        // Classes within namespaces to be corrected
+        if ($this->namespaceCorrections) {
+            $slashPos = strrpos($className, '\\');
+            if ($slashPos !== false) {
+                $namespace = substr($className, 0, $slashPos);
+
+                if (array_key_exists($namespace, $this->namespaceCorrections)
+                && !in_array($className, $this->namespaceCorrections[$namespace])) {
+                    // Remove the namespace - it has been added erroneously when shifting classes between namespaces
+
+                    return substr($className, $slashPos+1);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Log a use statement for the given fully-qualified class name
+     */
+    protected function logUseStatement($className)
+    {
+        $slashPos = strrpos($className, '\\');
+        $baseName = ($slashPos === false) ? $className : substr($className, $slashPos + 1);
+        $this->useStatements[$className] = $baseName;
+
+        return $baseName;
     }
 
     protected function handleNameUpdate(Node $classNode)
@@ -53,7 +96,6 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         if ($classNode instanceof Expr\StaticPropertyFetch || $classNode instanceof Expr\PropertyFetch) {
             return $classNode;
         }
-
 
         if (!$classNode instanceof Node\Name) {
             echo get_class($classNode) . "\n";
@@ -64,20 +106,12 @@ class RenameClassesVisitor extends NodeVisitorAbstract
 
         $className = $classNode->toString();
 
-        if (array_key_exists($className, $this->map)) {
-            $slashPos = strrpos($this->map[$className], '\\');
-            $baseName = ($slashPos === false) ? $this->map[$className] : substr($this->map[$className], $slashPos + 1);
-            $this->useStatements[$this->map[$className]] = $baseName;
-        }
+        $replacement = $this->getReplacementClass($className);
 
-        if (array_key_exists($className, $this->classAliases)) {
-            $this->source->replaceNode(
-                $classNode,
-                new Name([ $this->classAliases[$className] ])
-            );
+        if ($replacement !== null) {
+            $baseName = $this->logUseStatement($replacement);
+            $this->source->replaceNode($classNode, new Name([ $baseName ]));
         }
-
-        return $classNode;
     }
 
     public function leaveNode(Node $node)

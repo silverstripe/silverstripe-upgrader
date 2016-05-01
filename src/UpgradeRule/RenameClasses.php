@@ -16,12 +16,21 @@ class RenameClasses extends AbstractUpgradeRule
 
         $source = new MutableSource($contents);
 
-        $visitors = [
-        ];
+        $namespaceCorrections = [];
+        if (isset($this->parameters['namespaceCorrections'])) {
+            foreach ($this->parameters['namespaceCorrections'] as $namespace) {
+                $namespaceCorrections[$namespace] = [];
+                foreach ($this->parameters['mappings'] as $className) {
+                    if (substr($className, 0, strrpos($className, '\\')) === $namespace) {
+                        $namespaceCorrections[$namespace][] = $className;
+                    }
+                }
+            }
+        }
 
         $this->transformWithVisitors($source->getAst(), [
             new NameResolver(),
-            new RenameClassesVisitor($source, $this->parameters['mappings']),
+            new RenameClassesVisitor($source, $this->parameters['mappings'], $namespaceCorrections),
         ]);
 
         return [ $source->getModifiedString(), $this->warningCollector ];

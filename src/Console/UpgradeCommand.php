@@ -56,6 +56,10 @@ class UpgradeCommand extends Command
         $spec = new UpgradeSpec([
             (new \Sminnee\Upgrader\UpgradeRule\RenameClasses())->withParameters([
                 'fileExtensions' => [ 'php' ],
+                'namespaceCorrections' => [
+                    'SilverStripe\Model',
+                    'SilverStripe\Model\Connect',
+                ],
                 'mappings' => [
                     'ArrayList' => 'SilverStripe\Model\ArrayList',
                     'DB' => 'SilverStripe\Model\DB',
@@ -76,11 +80,13 @@ class UpgradeCommand extends Command
                     'UnsavedRelationList' => 'SilverStripe\Model\UnsavedRelationList',
                     'SS_List' => 'SilverStripe\Model\SS_List',
                     'DataModel' => 'SilverStripe\Model\DataModel',
+                    'Relation' => 'SilverStripe\Model\Relation',
 
-                    'Database' => 'SilverStripe\Model\Connect\Database',
-                    'DatabaseException' => 'SilverStripe\Model\Connect\DatabaseException',
+                    'SS_Database' => 'SilverStripe\Model\Connect\Database',
+                    'SS_DatabaseException' => 'SilverStripe\Model\Connect\DatabaseException',
                     'DBConnector' => 'SilverStripe\Model\Connect\DBConnector',
                     'DBQueryManager' => 'SilverStripe\Model\Connect\DBQueryManager',
+                    'DBQueryBuilder' => 'SilverStripe\Model\Connect\DBQueryBuilder',
                     'DBSchemaManager' => 'SilverStripe\Model\Connect\DBSchemaManager',
                     'MySQLDatabase' => 'SilverStripe\Model\Connect\MySQLDatabase',
                     'MySQLiConnector' => 'SilverStripe\Model\Connect\MySQLiConnector',
@@ -90,38 +96,11 @@ class UpgradeCommand extends Command
                     'MySQLStatement' => 'SilverStripe\Model\Connect\MySQLStatement',
                     'PDOConnector' => 'SilverStripe\Model\Connect\PDOConnector',
                     'PDOQuery' => 'SilverStripe\Model\Connect\PDOQuery',
-                    'Query' => 'SilverStripe\Model\Connect\Query',
+                    'SS_Query' => 'SilverStripe\Model\Connect\Query',
 
                     'SS_Filterable' => 'SilverStripe\Model\Filterable',
                     'SS_Sortable' => 'SilverStripe\Model\Sortable',
                     'SS_Limitable' => 'SilverStripe\Model\Limitable',
-                    'SilverStripe\Model\SS_Sortable' => 'SilverStripe\Model\Sortable',
-                    'SilverStripe\Model\SS_Filterable' => 'SilverStripe\Model\Filterable',
-                    'SilverStripe\Model\SS_Limitable' => 'SilverStripe\Model\Limitable',
-
-                    'SilverStripe\Model\SQLSelect' => 'SQLSelect',
-                    'SilverStripe\Model\Connect\SQLSelect' => 'SQLSelect',
-
-                    'SilverStripe\Model\SS_Database' => 'SilverStripe\Model\Connect\SS_Database',
-                    'SilverStripe\Model\FieldList' => 'FieldList',
-
-                    'SilverStripe\Model\ViewableData' => 'ViewableData',
-                    'SilverStripe\Model\i18nEntityProvider' => 'i18nEntityProvider',
-                    'SilverStripe\Model\Object' => 'Object',
-                    'SilverStripe\Model\Extension' => 'Extension',
-                    'SilverStripe\Model\ClassInfo' => 'ClassInfo',
-                    'SilverStripe\Model\ArrayAccess' => 'ArrayAccess',
-                    'SilverStripe\Model\Cookie' => 'Cookie',
-                    'SilverStripe\Model\Injector' => 'Injector',
-                    'SilverStripe\Model\Config' => 'Config',
-                    'SilverStripe\Model\Connect\Config' => 'Config',
-                    'SilverStripe\Model\Connect\Iterator' => 'Iterator',
-                    'SilverStripe\Model\Connect\MySQLi' => 'MySQLi',
-                    'SilverStripe\Model\Connect\mysqli_stmt' => 'mysqli_stmt',
-                    'SilverStripe\Model\Connect\SQLFormatter' => 'SQLFormatter',
-                    'SilverStripe\Model\Connect\Exception' => 'Exception',
-                    'SilverStripe\Model\Connect\Object' => 'Object',
-                    'SilverStripe\Model\Connect\Convert' => 'Convert',
                 ],
             ])
         ]);
