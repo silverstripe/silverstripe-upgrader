@@ -95,7 +95,7 @@ class RenameClassesVisitor extends NodeVisitorAbstract
             }
         }
 
-        // Class definitions
+        // Interface definitions
         if ($node instanceof Stmt\Interface_) {
             if ($node->extends !== null) {
                 foreach ($node->extends as $i => $part) {
@@ -104,8 +104,25 @@ class RenameClassesVisitor extends NodeVisitorAbstract
             }
         }
 
+        // Trait uses
+        if ($node instanceof Stmt\TraitUse) {
+            if ($node->traits !== null) {
+                foreach ($node->traits as $i => $part) {
+                    $this->handleNameUpdate($part);
+                }
+            }
+        }
+
         // Static method calls
         if ($node instanceof Expr\StaticCall) {
+            $this->handleNameUpdate($node->class);
+        }
+
+        if ($node instanceof Expr\StaticPropertyFetch) {
+            $this->handleNameUpdate($node->class);
+        }
+
+        if ($node instanceof Expr\ClassConstFetch) {
             $this->handleNameUpdate($node->class);
         }
 

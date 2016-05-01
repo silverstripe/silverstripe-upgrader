@@ -3,7 +3,11 @@
         "ExampleField": "SilverStripe\\Fields\\ExampleField",
         "ExampleInterface": "SilverStripe\\Fields\\RenamedInterface",
         "MySpace\\SpaceClass": "SpaceClass",
-        "ExampleNamespace\\NextExampleField": "SilverStripe\\Fields\\NextExampleField"
+        "ExampleNamespace\\NextExampleField": "SilverStripe\\Fields\\NextExampleField",
+        "MySpace\\ExampleField3": "SilverStripe\\Fields\\RenamedExampleField3",
+        "MySpace\\A": "MySpace\\Aye",
+        "MySpace\\B": "MySpace\\Bee",
+        "MySpace\\Traitor": "TraitSpace\\Traitee"
     }
 }
 ------
@@ -26,12 +30,21 @@ class ExampleSubclass extends ExampleField implements ExampleInterface
         }
         if(interface_exists('ExampleInterface')) return true;
     }
+
+    use Traitor;
+}
+
+interface RenamedInterface extends A, B {
+}
+
+trait Traitee {
 }
 
 ExampleField::doSomething();
 new ExampleField();
 new SomeClass();
-new NextExampleField();
+NextExampleField::A_CONST === 5;
+ExampleField3::$aStatic === 5;
 new SpaceClass();
 
 
@@ -48,7 +61,11 @@ use OtherClass;
 
 use SilverStripe\Fields\ExampleField;
 use SilverStripe\Fields\RenamedInterface;
+use TraitSpace\Traitee;
+use MySpace\Aye;
+use MySpace\Bee;
 use SilverStripe\Fields\NextExampleField;
+use SilverStripe\Fields\RenamedExampleField3;
 use SpaceClass;
 
 
@@ -61,12 +78,21 @@ class ExampleSubclass extends ExampleField implements RenamedInterface
         }
         if(interface_exists('SilverStripe\Fields\RenamedInterface')) return true;
     }
+
+    use Traitee;
+}
+
+interface RenamedInterface extends Aye, Bee {
+}
+
+trait Traitee {
 }
 
 ExampleField::doSomething();
 new ExampleField();
 new SomeClass();
-new NextExampleField();
+NextExampleField::A_CONST === 5;
+RenamedExampleField3::$aStatic === 5;
 new SpaceClass();
 
 

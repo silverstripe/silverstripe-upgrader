@@ -54,7 +54,7 @@ abstract class AbstractUpgradeRule
      * Returns true if this upgrad rule applies to the given file
      * Checks fileExtensions parameters
      */
-    protected function isApplicableFile($filename)
+    public function appliesTo($filename)
     {
         if (empty($this->parameters['fileExtensions'])) {
             return true;
