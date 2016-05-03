@@ -7,7 +7,8 @@
         "MySpace\\ExampleField3": "SilverStripe\\Fields\\RenamedExampleField3",
         "MySpace\\A": "MySpace\\Aye",
         "MySpace\\B": "MySpace\\Bee",
-        "MySpace\\Traitor": "TraitSpace\\Traitee"
+        "MySpace\\Traitor": "TraitSpace\\Traitee",
+        "Exception": "MySpace\\NewException"
     }
 }
 ------
@@ -20,6 +21,7 @@ use OtherClass;
 use ExampleField;
 use ExampleInterface;
 use ExampleNamespace\NextExampleField;
+use Exception;
 
 // Arbirtary whitespace differences should be preserved
 class ExampleSubclass extends ExampleField implements ExampleInterface
@@ -29,6 +31,10 @@ class ExampleSubclass extends ExampleField implements ExampleInterface
             return true;
         }
         if(interface_exists('ExampleInterface')) return true;
+
+        try {
+            echo 'hello';
+        } catch(Exception $e) {}
     }
 
     use Traitor;
@@ -59,8 +65,10 @@ use OtherClass;
 
 
 
+
 use SilverStripe\Fields\ExampleField;
 use SilverStripe\Fields\RenamedInterface;
+use MySpace\NewException;
 use TraitSpace\Traitee;
 use MySpace\Aye;
 use MySpace\Bee;
@@ -77,6 +85,10 @@ class ExampleSubclass extends ExampleField implements RenamedInterface
             return true;
         }
         if(interface_exists('SilverStripe\Fields\RenamedInterface')) return true;
+
+        try {
+            echo 'hello';
+        } catch(NewException $e) {}
     }
 
     use Traitee;
