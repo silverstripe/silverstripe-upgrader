@@ -8,6 +8,12 @@ namespace SilverStripe\Upgrader;
  */
 class CodeChangeSet
 {
+    /**
+     * List of changes for files.
+     * Each change is an array with keys 'old' and 'new' for prior and after content.
+     *
+     * @var array
+     */
     private $fileChanges = [];
 
     private $warnings = [];
@@ -16,14 +22,21 @@ class CodeChangeSet
 
     /**
      * Add a file change.
+     *
+     * @param string $path
+     * @param string $contents New contents
+     * @param string $original Original contents
      */
-    public function addFileChange($path, $contents)
+    public function addFileChange($path, $contents, $original)
     {
         if (isset($this->fileChanges[$path])) {
             user_error("Already added changes for $path, shouldn't add a 2nd time");
         }
 
-        $this->fileChanges[$path] = $contents;
+        $this->fileChanges[$path] = [
+            'new' => $contents,
+            'old' => $original
+        ];
 
         if (!in_array($path, $this->affectedFiles)) {
             $this->affectedFiles[] = $path;
@@ -33,6 +46,10 @@ class CodeChangeSet
     /**
      * Add a warning about a given file.
      * Usually these warnings highlight upgrade activity that a developer will need to check for themselves
+     *
+     * @param string $path
+     * @param int $line
+     * @param string $warning
      */
     public function addWarning($path, $line, $warning)
     {
@@ -40,7 +57,7 @@ class CodeChangeSet
             $this->warnings[$path] = [];
         }
 
-        $this->warnings[$path][] = "Line $line: $warning";
+        $this->warnings[$path][] = "<info>$path:$line</info> <comment>$warning</comment>";
 
         if (!in_array($path, $this->affectedFiles)) {
             $this->affectedFiles[] = $path;
@@ -56,7 +73,8 @@ class CodeChangeSet
     }
 
     /**
-     * Return all the file changes, as a map of path => contents
+     * Return all the file changes, as a map of path => array(new => '', old => '')
+     *
      * @return array
      */
     public function allChanges()
@@ -95,17 +113,34 @@ class CodeChangeSet
 
     /**
      * Return the file contents for a given path
+     *
      * @param string $path
      * @return string
+     * @throws \InvalidArgumentException
      */
     public function newContents($path)
     {
         if (isset($this->fileChanges[$path])) {
-            return $this->fileChanges[$path];
+            return $this->fileChanges[$path]['new'];
         } else {
             throw new \InvalidArgumentException("No file changes found for $path");
         }
+    }
 
+    /**
+     * Return the prior file contents for a given path
+     *
+     * @param string $path
+     * @return string
+     * @throws \InvalidArgumentException
+     */
+    public function oldContents($path)
+    {
+        if (isset($this->fileChanges[$path])) {
+            return $this->fileChanges[$path]['old'];
+        } else {
+            throw new \InvalidArgumentException("No file changes found for $path");
+        }
     }
 
     /**

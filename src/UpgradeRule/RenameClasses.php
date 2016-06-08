@@ -7,9 +7,9 @@ use SilverStripe\Upgrader\Util\MutableSource;
 
 class RenameClasses extends AbstractUpgradeRule
 {
-    public function upgradeFile($contents, $filename)
+    public function upgradeFile($contents, $file)
     {
-        if (!$this->appliesTo($filename)) {
+        if (!$this->appliesTo($file)) {
             return [ $contents, [] ];
         }
         $this->warningCollector = [];

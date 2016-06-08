@@ -1,0 +1,6 @@
+fileExtensions:
+  - php
+mappings:
+  MyClass: DummyNamespace\MyClass
+  DummyClass: DummyNamespace\DummyClass
+  AnotherDummyClass: Another\DummyClass

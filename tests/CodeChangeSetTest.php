@@ -9,11 +9,11 @@ class CodeChangeSetTest extends \PHPUnit_Framework_TestCase
     protected function fixture()
     {
         $c = new CodeChangeSet();
-        $c->addFileChange('test1.php', 'foo');
+        $c->addFileChange('test1.php', 'foo', 'fo');
         $c->addWarning('test1.php', 15, 'something fishy');
         $c->addWarning('test2.php', 20, 'something to do');
-        $c->addFileChange('test3.php', 'bar');
-        $c->addFileChange('subdir/test3.php', 'baz');
+        $c->addFileChange('test3.php', 'bar', 'ba');
+        $c->addFileChange('subdir/test3.php', 'baz', 'ba');
         return $c;
     }
 
@@ -34,9 +34,9 @@ class CodeChangeSetTest extends \PHPUnit_Framework_TestCase
         $c = $this->fixture();
 
         $this->assertEquals([
-            'test1.php' => 'foo',
-            'test3.php' => 'bar',
-            'subdir/test3.php' => 'baz',
+            'test1.php' => ['old' => 'fo', 'new' => 'foo'],
+            'test3.php' => ['old' => 'ba', 'new' => 'bar'],
+            'subdir/test3.php' => ['old' => 'ba', 'new' => 'baz'],
         ], $c->allChanges());
     }
 
@@ -60,7 +60,7 @@ class CodeChangeSetTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testNewContentsException()
     {
@@ -73,12 +73,12 @@ class CodeChangeSetTest extends \PHPUnit_Framework_TestCase
         $c = $this->fixture();
 
         $this->assertEquals([
-            'Line 15: something fishy'
+            '<info>test1.php:15</info> <comment>something fishy</comment>'
         ], $c->warningsForPath('test1.php'));
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testWarningsException()
     {

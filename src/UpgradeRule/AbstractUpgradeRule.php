@@ -3,6 +3,7 @@
 namespace SilverStripe\Upgrader\UpgradeRule;
 
 use PhpParser\NodeTraverser;
+use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 
 /**
  * An upgrader, that generates a change for a given item
@@ -14,18 +15,43 @@ abstract class AbstractUpgradeRule
     protected $warningCollector = [];
 
     /**
+     * Add a warning message for this upgrade rule
+     *
+     * @param int $line
+     * @param string $message
+     */
+    protected function addWarning($line, $message)
+    {
+        $this->warningCollector[] = [$line, $message];
+    }
+
+    /**
+     * Get name for this rule
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        $reflection = new \ReflectionClass($this);
+        return $reflection->getShortName();
+    }
+
+    /**
      * Upgrades the contents of the given file
      * Returns two results as a 2-element array:
      *  - The first item is a string of the new code
      *  - The second item is an array of warnings, each of which is a 2 element array, for line & message
      * @param string $contents
-     * @param string $filename
+     * @param ItemInterface $file
      * @return array
      */
-    abstract public function upgradeFile($contents, $filename);
+    abstract public function upgradeFile($contents, $file);
 
     /**
      * Apply the parameters to this object and return $this, for fluent call-style
+     *
+     * @param array $parameters
+     * @return $this
      */
     public function withParameters(array $parameters)
     {
@@ -36,7 +62,7 @@ abstract class AbstractUpgradeRule
     /**
      * Apply the given visitors to the given code, returning new code
      *
-     * @param string $code
+     * @param array $ast
      * @param array $visitors
      * @return string
      */
@@ -53,14 +79,17 @@ abstract class AbstractUpgradeRule
     /**
      * Returns true if this upgrad rule applies to the given file
      * Checks fileExtensions parameters
+     *
+     * @param ItemInterface $file
+     * @return bool
      */
-    public function appliesTo($filename)
+    public function appliesTo($file)
     {
         if (empty($this->parameters['fileExtensions'])) {
             return true;
         }
 
-        if (preg_match('/[^\/]*\.(.*)$/', $filename, $matches)) {
+        if (preg_match('/[^\/]*\.(.*)$/', $file->getPath(), $matches)) {
             $extension = $matches[1];
         } else {
             $extension = '';

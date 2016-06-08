@@ -1,0 +1,4 @@
+fileExtensions:
+  - php
+mappings:
+  MyClass: OneClass
