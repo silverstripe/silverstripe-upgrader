@@ -1,6 +1,6 @@
 <?php
 
-namespace Sminnee\Upgrader\UpgradeRule;
+namespace SilverStripe\Upgrader\UpgradeRule;
 
 use PhpParser\NodeTraverser;
 

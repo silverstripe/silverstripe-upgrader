@@ -1,6 +1,6 @@
 <?php
 
-namespace Sminnee\Upgrader\UpgradeRule;
+namespace SilverStripe\Upgrader\UpgradeRule;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt;
@@ -11,7 +11,7 @@ use PhpParser\Node\Param;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\BuilderFactory;
 
-use Sminnee\Upgrader\Util\MutableSource;
+use SilverStripe\Upgrader\Util\MutableSource;
 
 /**
  * PHP-Parser Visitor to handle class renaming upgrade handler for a renamed class

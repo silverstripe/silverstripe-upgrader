@@ -1,6 +1,6 @@
 <?php
 
-namespace Sminnee\Upgrader;
+namespace SilverStripe\Upgrader;
 
 use Symfony\Component\Console\Output\OutputInterface;
 

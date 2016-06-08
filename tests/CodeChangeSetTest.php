@@ -1,8 +1,8 @@
 <?php
 
-namespace Sminnee\Upgrader\Tests;
+namespace SilverStripe\Upgrader\Tests;
 
-use Sminnee\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeChangeSet;
 
 class CodeChangeSetTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sminnee\Upgrader\CodeCollection;
+namespace SilverStripe\Upgrader\CodeCollection;
 
 /**
  * Represents a simple file on disk.

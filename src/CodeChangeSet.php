@@ -1,6 +1,6 @@
 <?php
 
-namespace Sminnee\Upgrader;
+namespace SilverStripe\Upgrader;
 
 /**
  * Represents a set of code changes and warnings.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sminnee\Upgrader\Util;
+namespace SilverStripe\Upgrader\Util;
 
 use PhpParser\Lexer;
 use PhpParser\ParserFactory;

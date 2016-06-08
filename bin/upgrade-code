@@ -9,7 +9,7 @@ if (!defined('PACKAGE_ROOT')) {
 require(PACKAGE_ROOT . 'vendor/autoload.php');
 
 use Symfony\Component\Console\Application;
-use Sminnee\Upgrader\Console as Upgrader;
+use SilverStripe\Upgrader\Console as Upgrader;
 
 $application = new Application();
 $application->setName("SilverStripe Upgrader");
