@@ -1,9 +1,9 @@
 <?php
 
-namespace Sminnee\Upgrader\Tests;
+namespace SilverStripe\Upgrader\Tests;
 
-use Sminnee\Upgrader\Upgrader;
-use Sminnee\Upgrader\UpgradeSpec;
+use SilverStripe\Upgrader\Upgrader;
+use SilverStripe\Upgrader\UpgradeSpec;
 
 class UpgraderTest extends \PHPUnit_Framework_TestCase
 {

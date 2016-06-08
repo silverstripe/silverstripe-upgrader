@@ -1,5 +1,5 @@
 {
-  "name": "sminnee/silverstripe-upgrader",
+  "name": "silverstripe/upgrader",
   "description": "A tool to help upgrade your code to handle API changes in packages you used.",
   "license": "BSD-3-Clause",
   "authors": [
@@ -19,8 +19,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Sminnee\\Upgrader\\": "src/",
-      "Sminnee\\Upgrader\\Tests\\": "tests/"
+      "SilverStripe\\Upgrader\\": "src/",
+      "SilverStripe\\Upgrader\\Tests\\": "tests/"
     }
   }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace Sminnee\Upgrader\Tests\Util;
+namespace SilverStripe\Upgrader\Tests\Util;
 
-use Sminnee\Upgrader\Util\MutableString;
+use SilverStripe\Upgrader\Util\MutableString;
 
 class MutableStringTest extends \PHPUnit_Framework_TestCase
 {

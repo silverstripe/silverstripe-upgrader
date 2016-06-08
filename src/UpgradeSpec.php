@@ -1,8 +1,8 @@
 <?php
 
-namespace Sminnee\Upgrader;
+namespace SilverStripe\Upgrader;
 
-use Sminnee\Upgrader\Upgrader\RenameClass;
+use SilverStripe\Upgrader\Upgrader\RenameClass;
 
 class UpgradeSpec
 {

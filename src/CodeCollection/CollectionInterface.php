@@ -1,8 +1,8 @@
 <?php
 
-namespace Sminnee\Upgrader\CodeCollection;
+namespace SilverStripe\Upgrader\CodeCollection;
 
-use Sminnee\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeChangeSet;
 
 /**
  * Represents a collection of code files, e.g. a module or project codebase

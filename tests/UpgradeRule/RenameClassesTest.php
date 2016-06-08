@@ -1,8 +1,8 @@
 <?php
 
-namespace Sminnee\Upgrader\Tests\UpgradeRule;
+namespace SilverStripe\Upgrader\Tests\UpgradeRule;
 
-use Sminnee\Upgrader\UpgradeRule\RenameClasses;
+use SilverStripe\Upgrader\UpgradeRule\RenameClasses;
 
 class RenameClassesTest extends \PHPUnit_Framework_TestCase
 {

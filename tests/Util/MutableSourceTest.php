@@ -1,8 +1,8 @@
 <?php
 
-namespace Sminnee\Upgrader\Tests\Util;
+namespace SilverStripe\Upgrader\Tests\Util;
 
-use Sminnee\Upgrader\Util\MutableSource;
+use SilverStripe\Upgrader\Util\MutableSource;
 
 class MutableSourceTest extends \PHPUnit_Framework_TestCase
 {

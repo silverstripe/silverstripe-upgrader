@@ -1,9 +1,9 @@
 <?php
 
-namespace Sminnee\Upgrader\Tests;
+namespace SilverStripe\Upgrader\Tests;
 
-use Sminnee\Upgrader\CodeCollection\CollectionInterface;
-use Sminnee\Upgrader\CodeCollection\ChangeApplier;
+use SilverStripe\Upgrader\CodeCollection\CollectionInterface;
+use SilverStripe\Upgrader\CodeCollection\ChangeApplier;
 
 /**
  * Simple mock upgrade rule to be used in test of other system components

@@ -1,8 +1,8 @@
 <?php
 
-namespace Sminnee\Upgrader\Tests;
+namespace SilverStripe\Upgrader\Tests;
 
-use Sminnee\Upgrader\UpgradeRule\AbstractUpgradeRule;
+use SilverStripe\Upgrader\UpgradeRule\AbstractUpgradeRule;
 
 /**
  * Simple mock upgrade rule to be used in test of other system components

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sminnee\Upgrader\Console;
+namespace SilverStripe\Upgrader\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -8,10 +8,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use Sminnee\Upgrader\Upgrader;
-use Sminnee\Upgrader\UpgradeSpec;
-use Sminnee\Upgrader\CodeCollection\DiskCollection;
-use Sminnee\Upgrader\ChangeDisplayer;
+use SilverStripe\Upgrader\Upgrader;
+use SilverStripe\Upgrader\UpgradeSpec;
+use SilverStripe\Upgrader\CodeCollection\DiskCollection;
+use SilverStripe\Upgrader\ChangeDisplayer;
 
 class UpgradeCommand extends Command
 {
@@ -54,7 +54,7 @@ class UpgradeCommand extends Command
         // Load the upgrade spec and create an upgrader
         //$spec = UpgradeSpec::loadFromPath($settings['upgrade-spec']);
         $spec = new UpgradeSpec([
-            (new \Sminnee\Upgrader\UpgradeRule\RenameClasses())->withParameters([
+            (new \SilverStripe\Upgrader\UpgradeRule\RenameClasses())->withParameters([
                 'fileExtensions' => [ 'php' ],
                 'namespaceCorrections' => [
                     'SilverStripe\Model',

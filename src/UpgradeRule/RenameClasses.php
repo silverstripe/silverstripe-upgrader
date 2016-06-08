@@ -1,9 +1,9 @@
 <?php
 
-namespace Sminnee\Upgrader\UpgradeRule;
+namespace SilverStripe\Upgrader\UpgradeRule;
 
 use PhpParser\NodeVisitor\NameResolver;
-use Sminnee\Upgrader\Util\MutableSource;
+use SilverStripe\Upgrader\Util\MutableSource;
 
 class RenameClasses extends AbstractUpgradeRule
 {

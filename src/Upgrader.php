@@ -1,8 +1,8 @@
 <?php
 
-namespace Sminnee\Upgrader;
+namespace SilverStripe\Upgrader;
 
-use Sminnee\Upgrader\CodeCollection\CollectionInterface;
+use SilverStripe\Upgrader\CodeCollection\CollectionInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**

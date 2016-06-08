@@ -1,6 +1,6 @@
 <?php
 
-namespace Sminnee\Upgrader\CodeCollection;
+namespace SilverStripe\Upgrader\CodeCollection;
 
 /**
  * Represents a single item in a collection of code files, i.e., one file
