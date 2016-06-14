@@ -1,0 +1,8 @@
+{
+    "add-namespace": [
+        {
+            "namespace": "Upgrader\\NewNamespace",
+            "path": "/test.php"
+        }
+    ]
+}

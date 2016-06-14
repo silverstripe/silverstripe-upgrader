@@ -7,6 +7,7 @@ use PhpParser\ParserFactory;
 use PhpParser\Parser;
 use PhpParser\PrettyPrinter;
 use PhpParser\Node;
+use PhpParser\PrettyPrinterAbstract;
 
 /**
  * A repesentation of a source file designed to be mutated via nikic/PHP-Parser nodes
@@ -14,8 +15,21 @@ use PhpParser\Node;
 class MutableSource
 {
 
+    /**
+     * @var MutableString
+     */
     private $source = null;
-    private $askt = null;
+
+    /**
+     * Abstract syntax tree
+     *
+     * @var Node[]
+     */
+    private $ast = null;
+
+    /**
+     * @var PrettyPrinterAbstract
+     */
     private $prettyPrinter = null;
 
     public function __construct($source)
@@ -38,14 +52,18 @@ class MutableSource
 
     /**
      * Set the PrettyPrinter used to turn nodes to strings
+     *
+     * @param PrettyPrinterAbstract $prettyPrinter
      */
-    public function setPrettyPrinter(PrettyPrinter $prettyPrinter)
+    public function setPrettyPrinter(PrettyPrinterAbstract $prettyPrinter)
     {
         $this->prettyPrinter = $prettyPrinter;
     }
 
     /**
      * Get the internal MutableString source
+     *
+     * @return MutableString
      */
     public function getSource()
     {
@@ -54,6 +72,8 @@ class MutableSource
 
     /**
      * Get the internal PHP-Parser AST
+     *
+     * @return Node[]
      */
     public function getAst()
     {
@@ -62,21 +82,23 @@ class MutableSource
 
     /**
      * Replace a node with the given replacement
-     * @param string|Node|array The entity to replace with. A string, Node, or array of Nodes
+     *
+     * @param Node $node
+     * @param string|Node|array $replacement The entity to replace with. A string, Node, or array of Nodes
      */
     public function replaceNode(Node $node, $replacement)
     {
         list($start, $length) = $this->nodeRange($node);
-        $this->replace($start, $length, $this->createString($replacement));
+        $this->replace($start, $length, $replacement);
     }
 
     /**
-     * @param Node $base The node to insert before
+     * @param int $pos Position to insert before
      * @param string|Node|array The entity to insert. A string, Node, or array of Nodes
      */
     public function insert($pos, $insertion)
     {
-        return $this->source->insert($pos, $this->createString($insertion));
+        $this->source->insert($pos, $this->createString($insertion));
     }
 
     /**
@@ -85,7 +107,7 @@ class MutableSource
      */
     public function insertBefore(Node $base, $insertion)
     {
-        return $this->source->insert($this->nodeStart($base), $this->createString($insertion));
+        $this->insert($this->nodeStart($base), $insertion);
     }
 
     /**
@@ -94,17 +116,24 @@ class MutableSource
      */
     public function insertAfter(Node $base, $insertion)
     {
-        return $this->source->insert($this->nodeEnd($base)+1, $this->createString($insertion));
+        $this->source->insert($this->nodeEnd($base)+1, $this->createString($insertion));
     }
 
     public function remove($pos, $len)
     {
-        return $this->source->remove($pos, $len);
+        $this->source->remove($pos, $len);
     }
 
-    public function replace($pos, $len, $newString)
+    /**
+     * Replace a range
+     *
+     * @param int $pos
+     * @param int $len
+     * @param string|Node|array $replacement The entity to replace with. A string, Node, or array of Nodes
+     */
+    public function replace($pos, $len, $replacement)
     {
-        return $this->source->replace($pos, $len, $newString);
+        $this->source->replace($pos, $len, $this->createString($replacement));
     }
 
     public function getOrigString()
@@ -120,7 +149,9 @@ class MutableSource
 
     /**
      * Generate a string representation of the given entity
+     *
      * @param string|Node|array $entity The entity to replace with. A string, Node, or array of Nodes
+     * @return string
      */
     public function createString($entity)
     {
@@ -148,6 +179,9 @@ class MutableSource
     }
 
     /**
+     * Gets start index of current node
+     *
+     * @param Node $node
      * @return int start of the given node
      */
     protected function nodeStart(Node $node)
@@ -161,7 +195,10 @@ class MutableSource
     }
 
     /**
-     * @return int start of the given node
+     * Gets end of given node
+     *
+     * @param Node $node
+     * @return int end of the given node
      */
     protected function nodeEnd(Node $node)
     {
@@ -174,6 +211,9 @@ class MutableSource
     }
 
     /**
+     * Gets range of the given node
+     *
+     * @param Node $node
      * @return array [start, len] of the given node
      */
     protected function nodeRange(Node $node)

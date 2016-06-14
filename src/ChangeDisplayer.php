@@ -2,6 +2,7 @@
 
 namespace SilverStripe\Upgrader;
 
+use Diff_Renderer_Text_Unified;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -14,17 +15,21 @@ class ChangeDisplayer
     {
         foreach ($changes->affectedFiles() as $path) {
             if ($changes->hasNewContents($path)) {
-                $output->writeln("New contents for $path:");
-//                $output->writeln($changes->newContents($path));
-//                $output->writeln("------");
+                $output->writeln("New contents for <info>$path</info>");
+
+                // Show actual output if -v
+                $new = preg_split('~\R~u', $changes->newContents($path));
+                $old = preg_split('~\R~u', $changes->oldContents($path));
+                $diff = new \Diff($old, $new);
+                $render = $diff->render(new Diff_Renderer_Text_Unified());
+                $output->writeln("<comment>{$render}</comment>");
             }
 
             if ($changes->hasWarnings($path)) {
                 $output->writeln("Warnings for $path:");
                 foreach ($changes->warningsForPath($path) as $warning) {
-                    $output->writeline(" - $warning");
+                    $output->writeln(" - $warning");
                 }
-                $output->writeln("------");
             }
         }
     }

@@ -9,9 +9,22 @@ namespace SilverStripe\Upgrader\CodeCollection;
 class DiskItem implements ItemInterface
 {
 
+    /**
+     * @var string
+     */
     private $basePath;
+
+    /**
+     * @var string
+     */
     private $relativePath;
 
+    /**
+     * Create a new DiskItem
+     *
+     * @param string $basePath Base directory name (not including trailing slash)
+     * @param string $relativePath Path relative to base path
+     */
     public function __construct($basePath, $relativePath)
     {
         // Validate an normalise inputs
@@ -32,9 +45,6 @@ class DiskItem implements ItemInterface
         $this->relativePath = $relativePath;
     }
 
-    /**
-     * Return the full path of this item
-     */
     public function getFullPath()
     {
         return $this->basePath . '/' . $this->relativePath;
@@ -42,6 +52,8 @@ class DiskItem implements ItemInterface
 
     /**
      * Return the base path of the collection that this item is part of
+     *
+     * @return string
      */
     public function getBasePath()
     {
@@ -50,6 +62,8 @@ class DiskItem implements ItemInterface
 
     /**
      * Return the relative path of this item
+     *
+     * @return string
      */
     public function getPath()
     {
@@ -57,7 +71,18 @@ class DiskItem implements ItemInterface
     }
 
     /**
+     * Get filename
+     *
+     * @return string
+     */
+    public function getFilename()
+    {
+        return basename($this->relativePath);
+    }
+
+    /**
      * Read the contents of this file
+     *
      * @return string
      */
     public function getContents()
@@ -67,6 +92,7 @@ class DiskItem implements ItemInterface
 
     /**
      * Update the contents of this file
+     *
      * @param string $contents
      */
     public function setContents($contents)

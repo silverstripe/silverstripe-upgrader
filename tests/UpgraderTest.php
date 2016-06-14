@@ -32,13 +32,19 @@ class UpgraderTest extends \PHPUnit_Framework_TestCase
         $changes = $u->upgrade($codeCollection);
 
         $this->assertEquals([
-            'test.php' => "bar\nfoo\nthis is my test\n",
-            'bla\other.php' => "bar\nfoo\nthis is another test\n",
+            'test.php' => [
+                'new' => "bar\nfoo\nthis is my test\n",
+                'old' => "this is my test\n",
+            ],
+            'bla\other.php' => [
+                'new' => "bar\nfoo\nthis is another test\n",
+                'old' => "this is another test\n",
+            ],
         ], $changes->allChanges());
 
         $this->assertEquals([
-            'Line 2: test warning',
-            'Line 3: other warning',
+            '<info>test.php:2</info> <comment>test warning</comment>',
+            '<info>test.php:3</info> <comment>other warning</comment>',
         ], $changes->warningsForPath('test.php'));
     }
 }

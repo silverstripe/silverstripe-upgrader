@@ -1,0 +1,112 @@
+{
+    "add-namespace": [
+        {
+            "namespace": "Upgrader\\NewNamespace",
+            "path": "/test.php"
+        }
+    ]
+}
+------
+<?php
+
+use Exception;
+use SomeNamespaced\NamespacedClass;
+use SomeNamespaced\OtherClass as OtherAlias;
+
+// Arbirtary whitespace differences should be preserved
+class ExampleSubclass extends ExampleField implements ExampleInterface
+{
+    function fn(ExampleField $foo, ExampleInterface $bar, $baz) {
+        Upgrader\NewNamespace\ShouldHaveNamespaceRemoved::start();
+        OtherAlias::start();
+        NamespacedClass::start();
+        if   ($baz instanceof ExampleInterface) {
+            return true;
+        }
+        if(interface_exists('ExampleInterface')) return true;
+        parent::fn();
+        new static();
+        new self();
+        try {
+            echo 'hello';
+        } catch(Exception $e) {}
+    }
+
+    use Traitee;
+    use Traitor;
+}
+
+interface RenamedInterface extends A, B {
+}
+
+trait Traitee {
+}
+
+ExampleField::doSomething();
+new ExampleField();
+new SomeClass();
+NextExampleField::A_CONST === 5;
+ExampleField3::$aStatic === 5;
+new SpaceClass();
+
+
+new OtherClass();
+------
+<?php
+
+namespace Upgrader\NewNamespace;
+
+
+use Exception;
+use SomeNamespaced\NamespacedClass;
+use SomeNamespaced\OtherClass as OtherAlias;
+use ExampleField;
+use ExampleInterface;
+use Traitor;
+use A;
+use B;
+use SomeClass;
+use NextExampleField;
+use ExampleField3;
+use SpaceClass;
+use OtherClass;
+
+
+// Arbirtary whitespace differences should be preserved
+class ExampleSubclass extends ExampleField implements ExampleInterface
+{
+    function fn(ExampleField $foo, ExampleInterface $bar, $baz) {
+        ShouldHaveNamespaceRemoved::start();
+        OtherAlias::start();
+        NamespacedClass::start();
+        if   ($baz instanceof ExampleInterface) {
+            return true;
+        }
+        if(interface_exists('ExampleInterface')) return true;
+        parent::fn();
+        new static();
+        new self();
+        try {
+            echo 'hello';
+        } catch(Exception $e) {}
+    }
+
+    use Traitee;
+    use Traitor;
+}
+
+interface RenamedInterface extends A, B {
+}
+
+trait Traitee {
+}
+
+ExampleField::doSomething();
+new ExampleField();
+new SomeClass();
+NextExampleField::A_CONST === 5;
+ExampleField3::$aStatic === 5;
+new SpaceClass();
+
+
+new OtherClass();

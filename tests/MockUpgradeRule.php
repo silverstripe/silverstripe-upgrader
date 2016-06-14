@@ -9,7 +9,7 @@ use SilverStripe\Upgrader\UpgradeRule\AbstractUpgradeRule;
  */
 class MockUpgradeRule extends AbstractUpgradeRule
 {
-    public function upgradeFile($contents, $filename)
+    public function upgradeFile($contents, $file)
     {
         $warnings = [];
         if (!empty($this->parameters['prefix'])) {

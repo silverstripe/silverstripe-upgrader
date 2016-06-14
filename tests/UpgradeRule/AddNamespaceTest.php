@@ -3,9 +3,9 @@
 namespace SilverStripe\Upgrader\Tests\UpgradeRule;
 
 use SilverStripe\Upgrader\Tests\MockCodeCollection;
-use SilverStripe\Upgrader\UpgradeRule\RenameClasses;
+use SilverStripe\Upgrader\UpgradeRule\AddNamespaceRule;
 
-class RenameClassesTest extends \PHPUnit_Framework_TestCase
+class AddNamespaceTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @return array
@@ -13,7 +13,8 @@ class RenameClassesTest extends \PHPUnit_Framework_TestCase
     protected function getFixtures()
     {
         // Get fixture from the file
-        $fixture = file_get_contents(__DIR__ .'/fixtures/rename-classes.testfixture');
+        $fixture = file_get_contents(__DIR__ .'/fixtures/add-namespace.testfixture');
+
         list($parameters, $input, $output) = preg_split('/------+/', $fixture, 3);
         $parameters = json_decode($parameters, true);
         $input = trim($input);
@@ -22,18 +23,31 @@ class RenameClassesTest extends \PHPUnit_Framework_TestCase
         return [$parameters, $input, $output];
     }
 
-    public function testNamespaceAddition()
+    /**
+     * Test applying namespaces to a folder
+     */
+    public function testNamespaceFolder()
     {
         list($parameters, $input, $output) = $this->getFixtures();
-        $updater = (new RenameClasses())->withParameters($parameters);
 
         // Build mock collection
         $code = new MockCodeCollection([
             'test.php' => $input
         ]);
         $file = $code->itemByPath('test.php');
+        $otherfile = $code->itemByPath('otherfile.php');
 
-        list($generated, $warnings) = $updater->upgradeFile($input, $file);
+        // Add spec to rule
+        $namespacer = new AddNamespaceRule();
+        $namespacer
+            ->withParameters($parameters)
+            ->withRoot('');
+
+        // Check loading namespace from config
+        $this->assertEquals('Upgrader\NewNamespace', $namespacer->getNamespaceForFile($file));
+        $this->assertNull($namespacer->getNamespaceForFile($otherfile));
+
+        list($generated, $warnings) = $namespacer->upgradeFile($input, $file);
 
         $this->assertEquals([], $warnings);
         $this->assertEquals($output, $generated);

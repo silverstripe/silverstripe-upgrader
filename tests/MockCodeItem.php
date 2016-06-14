@@ -9,8 +9,17 @@ use SilverStripe\Upgrader\CodeCollection\ItemInterface;
  */
 class MockCodeItem implements ItemInterface
 {
+    /**
+     * @var MockCodeCollection
+     */
+    protected $parent;
 
-    public function __construct($parent, $path)
+    /**
+     * @var string
+     */
+    protected $path;
+
+    public function __construct(MockCodeCollection $parent, $path)
     {
         $this->parent = $parent;
         $this->path = $path;
@@ -20,13 +29,18 @@ class MockCodeItem implements ItemInterface
         return $this->path;
     }
 
+    public function getFullPath()
+    {
+        return '/' . $this->getPath();
+    }
+
     /**
      * Read the contents of this file
      * @return string
      */
     public function getContents()
     {
-        return $this->parent->items[$this->path];
+        return $this->parent->getItemContent($this->path);
     }
 
     /**
@@ -35,6 +49,16 @@ class MockCodeItem implements ItemInterface
      */
     public function setContents($contents)
     {
-        $this->parent->items[$this->path] = $contents;
+        $this->parent->setItemContent($this->path, $contents);
+    }
+
+    /**
+     * Get filename
+     *
+     * @return string
+     */
+    public function getFilename()
+    {
+        return basename($this->getPath());
     }
 }

@@ -1,12 +1,21 @@
 #!/usr/bin/env php
 <?php
 
-// Root from which to refer to src/. assists with bundling into a phar.
-if (!defined('PACKAGE_ROOT')) {
-    define('PACKAGE_ROOT', dirname(dirname(__FILE__)) . '/');
-}
+$paths = [
+    __DIR__ . "/../autoload.php",
+    __DIR__ . "/../vendor/autoload.php",
+    __DIR__ . "/../../vendor/autoload.php",
+    __DIR__ . "/../../../vendor/autoload.php",
+    __DIR__ . "/../../../../vendor/autoload.php",
+];
 
-require(PACKAGE_ROOT . 'vendor/autoload.php');
+// Root from which to refer to src/. assists with bundling into a phar.
+foreach ($paths as $path) {
+    if (file_exists($path)) {
+        require_once($path);
+        break;
+    }
+}
 
 use Symfony\Component\Console\Application;
 use SilverStripe\Upgrader\Console as Upgrader;
@@ -14,7 +23,7 @@ use SilverStripe\Upgrader\Console as Upgrader;
 $application = new Application();
 $application->setName("SilverStripe Upgrader");
 $application->setVersion("0.0.1");
-
-$application->add(new Upgrader\UpgradeCommand);
+$application->add(new Upgrader\UpgradeCommand());
+$application->add(new Upgrader\AddNamespaceCommand());
 
 $application->run();

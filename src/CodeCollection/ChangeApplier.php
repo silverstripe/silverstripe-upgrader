@@ -9,11 +9,19 @@ use SilverStripe\Upgrader\CodeChangeSet;
  */
 trait ChangeApplier
 {
+    /**
+     * Returns a specific item by its relative path
+     *
+     * @param string $path
+     * @return ItemInterface
+     */
+    abstract public function itemByPath($path);
 
     public function applyChanges(CodeChangeSet $changes)
     {
-        foreach ($changes->allChanges() as $path => $contents) {
-            $this->itemByPath($path)->setContents($contents);
+        foreach ($changes->allChanges() as $path => $change) {
+            $item = $this->itemByPath($path);
+            $item->setContents($change['new']);
         }
     }
 }
