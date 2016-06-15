@@ -67,9 +67,11 @@ class AddNamespaceCommand extends AbstractCommand
 
         // Sanity check input
         if (!is_dir($rootPath)) {
+            $rootPath = $settings['root-dir'];
             throw new \InvalidArgumentException("No silverstripe project found in root-dir \"{$rootPath}\"");
         }
         if (!file_exists($filePath)) {
+            $filePath = $settings['path'];
             throw new \InvalidArgumentException("path \"{$filePath}\" specified doesn't exist");
         }
         // Capture missing double-escape in CLI for namespaces. :)
