@@ -3,16 +3,17 @@
 namespace SilverStripe\Upgrader\UpgradeRule;
 
 use PhpParser\NodeVisitor\NameResolver;
+use SilverStripe\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\Util\MutableSource;
 
 class RenameClasses extends AbstractUpgradeRule
 {
-    public function upgradeFile($contents, $file)
+    public function upgradeFile($contents, ItemInterface $file, CodeChangeSet $changeset)
     {
         if (!$this->appliesTo($file)) {
-            return [ $contents, [] ];
+            return $contents;
         }
-        $this->warningCollector = [];
 
         $source = new MutableSource($contents);
 
@@ -33,6 +34,6 @@ class RenameClasses extends AbstractUpgradeRule
             new RenameClassesVisitor($source, $this->parameters['mappings'], $namespaceCorrections),
         ]);
 
-        return [ $source->getModifiedString(), $this->warningCollector ];
+        return $source->getModifiedString();
     }
 }

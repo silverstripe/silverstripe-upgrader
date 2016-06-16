@@ -46,7 +46,7 @@ class AddNamespaceTest extends \PHPUnit_Framework_TestCase
 
         // Test that pre-post hooks detect namespaced classes
         $changeset = new CodeChangeSet();
-        $namespacer->beforeUpgrade($code, $changeset);
+        $namespacer->beforeUpgradeCollection($code, $changeset);
         $this->assertEquals(
             [
                 'ExampleSubclass',
@@ -63,13 +63,13 @@ class AddNamespaceTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($namespacer->getNamespaceForFile($otherfile));
 
         // Test upgrading file1
-        list($generated1, $warnings1) = $namespacer->upgradeFile($input1, $file1);
-        $this->assertEquals([], $warnings1);
+        $generated1 = $namespacer->upgradeFile($input1, $file1, $changeset);
+        $this->assertFalse($changeset->hasWarnings($file1->getPath()));
         $this->assertEquals($output1, $generated1);
 
         // Test upgrading file2
-        list($generated2, $warnings2) = $namespacer->upgradeFile($input2, $file2);
-        $this->assertEquals([], $warnings2);
+        $generated2 = $namespacer->upgradeFile($input2, $file2, $changeset);
+        $this->assertFalse($changeset->hasWarnings($file2->getPath()));
         $this->assertEquals($output2, $generated2);
     }
 }

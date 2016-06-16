@@ -14,7 +14,6 @@ abstract class AbstractUpgradeRule
 {
 
     protected $parameters = [];
-    protected $warningCollector = [];
 
     /**
      * Called on a code collection prior to upgrade
@@ -22,7 +21,7 @@ abstract class AbstractUpgradeRule
      * @param CollectionInterface $code
      * @param CodeChangeSet $changeset
      */
-    public function beforeUpgrade(CollectionInterface $code, CodeChangeSet $changeset)
+    public function beforeUpgradeCollection(CollectionInterface $code, CodeChangeSet $changeset)
     {
     }
 
@@ -32,19 +31,8 @@ abstract class AbstractUpgradeRule
      * @param CollectionInterface $code
      * @param CodeChangeSet $changeset
      */
-    public function afterUpgrade($code, $changeset)
+    public function afterUpgradeCollection(CollectionInterface $code, CodeChangeSet $changeset)
     {
-    }
-
-    /**
-     * Add a warning message for this upgrade rule
-     *
-     * @param int $line
-     * @param string $message
-     */
-    protected function addWarning($line, $message)
-    {
-        $this->warningCollector[] = [$line, $message];
     }
 
     /**
@@ -60,14 +48,14 @@ abstract class AbstractUpgradeRule
 
     /**
      * Upgrades the contents of the given file
-     * Returns two results as a 2-element array:
-     *  - The first item is a string of the new code
-     *  - The second item is an array of warnings, each of which is a 2 element array, for line & message
+     * Returns string containing the new code.
+     *
      * @param string $contents
      * @param ItemInterface $file
-     * @return array
+     * @param CodeChangeSet $changeset Changeset to add warnings to
+     * @return string
      */
-    abstract public function upgradeFile($contents, $file);
+    abstract public function upgradeFile($contents, ItemInterface $file, CodeChangeSet $changeset);
 
     /**
      * Apply the parameters to this object and return $this, for fluent call-style

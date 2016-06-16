@@ -80,7 +80,7 @@ class AddNamespaceRule extends AbstractUpgradeRule
     }
 
 
-    public function beforeUpgrade(CollectionInterface $code, CodeChangeSet $changeset)
+    public function beforeUpgradeCollection(CollectionInterface $code, CodeChangeSet $changeset)
     {
         // Before upgrading, collect all "to be namespaced" classes
         foreach ($code->iterateItems() as $file) {
@@ -116,32 +116,34 @@ class AddNamespaceRule extends AbstractUpgradeRule
         }
     }
 
-    public function upgradeFile($contents, $file)
+    /**
+     * @param string $contents
+     * @param ItemInterface $file
+     * @param CodeChangeSet $changeset
+     * @return string
+     */
+    public function upgradeFile($contents, ItemInterface $file, CodeChangeSet $changeset)
     {
-        $this->warningCollector = [];
         if (!$this->appliesTo($file)) {
-            return [ $contents, $this->warningCollector ];
+            return $contents;
         }
 
-        // Build AST from this file
-        $source = new MutableSource($contents);
-
         // Do initial parse of this file
-        list($fileNamespace, $fileClasses) = $this->findClasses($source);
+        $source = new MutableSource($contents);
+        list($fileNamespace) = $this->findClasses($source);
 
         // We can only add namespace if none is already applied
         $newNamespace = $this->getNamespaceForFile($file);
         if ($fileNamespace) {
             // Validate any already-applied namespace
-            $this->validateNamespaceMatches($fileNamespace, $newNamespace);
-        } else {
-            // Add namespace to this file, but take care not to apply `use` statements
-            // to classes that already exist or will be added to this namespace.
-            $classesInNamespace = $this->getClassesInNamespace($newNamespace);
-            $this->addNamespace($source, $newNamespace, $classesInNamespace);
+            $this->validateNamespaceMatches($fileNamespace, $newNamespace, $file, $changeset);
+            return $contents;
         }
 
-        return [ $source->getModifiedString(), $this->warningCollector ];
+        // Add namespace to this file, but take care not to apply `use` statements
+        // to classes that already exist or will be added to this namespace.
+        $this->addNamespace($source, $newNamespace, $file, $changeset);
+        return $source->getModifiedString();
     }
 
     /**
@@ -167,12 +169,15 @@ class AddNamespaceRule extends AbstractUpgradeRule
      *
      * @param Namespace_ $current
      * @param string $new
+     * @param ItemInterface $item
+     * @param CodeChangeSet $changeset
      */
-    protected function validateNamespaceMatches($current, $new)
+    protected function validateNamespaceMatches($current, $new, ItemInterface $item, CodeChangeSet $changeset)
     {
         // Can't apply namespace to existing namespace
         if ((string)$current->name !== $new) {
-            $this->addWarning(
+            $changeset->addWarning(
+                $item->getPath(),
                 $current->getLine(),
                 "Namespace already declared: \"{$current->name}\", skipping file."
             );
@@ -184,14 +189,17 @@ class AddNamespaceRule extends AbstractUpgradeRule
      *
      * @param MutableSource $source
      * @param string $namespace
-     * @param array $classes List of class names in this file
+     * @param ItemInterface $item
+     * @param CodeChangeSet $changeset
      */
-    protected function addNamespace(MutableSource $source, $namespace, $classes)
+    protected function addNamespace(MutableSource $source, $namespace, ItemInterface $item, CodeChangeSet $changeset)
     {
+        $classes = $this->getClassesInNamespace($namespace);
         $content = $source->getOrigString();
+
         // Sanity check
         if (stripos($content, '<?php') !== 0) {
-            $this->addWarning(0, "File doesn't start with <?php");
+            $changeset->addWarning($item->getPath(), 0, "File doesn't start with <?php");
             return;
         }
 

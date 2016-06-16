@@ -2,6 +2,8 @@
 
 namespace SilverStripe\Upgrader\Tests;
 
+use SilverStripe\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\UpgradeRule\AbstractUpgradeRule;
 
 /**
@@ -9,17 +11,20 @@ use SilverStripe\Upgrader\UpgradeRule\AbstractUpgradeRule;
  */
 class MockUpgradeRule extends AbstractUpgradeRule
 {
-    public function upgradeFile($contents, $file)
+    public function upgradeFile($contents, ItemInterface $file, CodeChangeSet $changeset)
     {
-        $warnings = [];
         if (!empty($this->parameters['prefix'])) {
             $contents = $this->parameters['prefix'] . $contents;
         }
 
         if (!empty($this->parameters['warning'])) {
-            $warnings[] = $this->parameters['warning'];
+            $changeset->addWarning(
+                $file->getPath(),
+                $this->parameters['warning'][0],
+                $this->parameters['warning'][1]
+            );
         }
 
-        return [ $contents, $warnings ];
+        return $contents;
     }
 }
