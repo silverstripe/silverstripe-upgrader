@@ -2,6 +2,7 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule;
 
+use SilverStripe\Upgrader\CodeChangeSet;
 use SilverStripe\Upgrader\Tests\MockCodeCollection;
 use SilverStripe\Upgrader\UpgradeRule\RenameClasses;
 
@@ -32,10 +33,11 @@ class RenameClassesTest extends \PHPUnit_Framework_TestCase
             'test.php' => $input
         ]);
         $file = $code->itemByPath('test.php');
+        $changset = new CodeChangeSet();
 
-        list($generated, $warnings) = $updater->upgradeFile($input, $file);
+        $generated = $updater->upgradeFile($input, $file, $changset);
 
-        $this->assertEquals([], $warnings);
+        $this->assertFalse($changset->hasWarnings('test.php'));
         $this->assertEquals($output, $generated);
     }
 }

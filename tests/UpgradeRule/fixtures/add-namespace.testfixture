@@ -2,7 +2,7 @@
     "add-namespace": [
         {
             "namespace": "Upgrader\\NewNamespace",
-            "path": "/test.php"
+            "path": "/dir"
         }
     ]
 }
@@ -36,12 +36,6 @@ class ExampleSubclass extends ExampleField implements ExampleInterface
     use Traitor;
 }
 
-interface RenamedInterface extends A, B {
-}
-
-trait Traitee {
-}
-
 ExampleField::doSomething();
 new ExampleField();
 new SomeClass();
@@ -63,8 +57,6 @@ use SomeNamespaced\OtherClass as OtherAlias;
 use ExampleField;
 use ExampleInterface;
 use Traitor;
-use A;
-use B;
 use SomeClass;
 use NextExampleField;
 use ExampleField3;
@@ -95,12 +87,6 @@ class ExampleSubclass extends ExampleField implements ExampleInterface
     use Traitor;
 }
 
-interface RenamedInterface extends A, B {
-}
-
-trait Traitee {
-}
-
 ExampleField::doSomething();
 new ExampleField();
 new SomeClass();
@@ -110,3 +96,26 @@ new SpaceClass();
 
 
 new OtherClass();
+------
+<?php
+
+interface RenamedInterface extends A, B {
+}
+
+trait Traitee {
+}
+
+------
+<?php
+
+namespace Upgrader\NewNamespace;
+
+use A;
+use B;
+
+
+interface RenamedInterface extends A, B {
+}
+
+trait Traitee {
+}

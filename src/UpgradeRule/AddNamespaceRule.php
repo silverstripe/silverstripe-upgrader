@@ -6,6 +6,8 @@ use Exception;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\NodeVisitor\NameResolver;
+use SilverStripe\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\CollectionInterface;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\Util\ConfigFile;
 use SilverStripe\Upgrader\Util\MutableSource;
@@ -77,35 +79,89 @@ class AddNamespaceRule extends AbstractUpgradeRule
         return $this;
     }
 
-    public function upgradeFile($contents, $file)
+
+    public function beforeUpgradeCollection(CollectionInterface $code, CodeChangeSet $changeset)
     {
-        $this->warningCollector = [];
+        // Before upgrading, collect all "to be namespaced" classes
+        foreach ($code->iterateItems() as $file) {
+            $this->beforeUpgradeFile($file);
+        }
+    }
+
+    /**
+     * Find and record all classes in this file
+     *
+     * @param ItemInterface $file
+     */
+    protected function beforeUpgradeFile(ItemInterface $file)
+    {
         if (!$this->appliesTo($file)) {
-            return [ $contents, $this->warningCollector ];
+            return;
         }
 
-        // Build AST from this file
+        // Get classes in this file
+        $contents = $file->getContents();
         $source = new MutableSource($contents);
+        list($fileNamespace, $fileClasses) = $this->findClasses($source);
+
+        // Skip if file already namespaced
+        if ($fileNamespace) {
+            return;
+        }
+
+        // Add classes in this file to namespace mapping
+        $newNamespace = $this->getNamespaceForFile($file);
+        foreach ($fileClasses as $class) {
+            $this->renamedClasses[$class] = "{$newNamespace}\\{$class}";
+        }
+    }
+
+    /**
+     * @param string $contents
+     * @param ItemInterface $file
+     * @param CodeChangeSet $changeset
+     * @return string
+     */
+    public function upgradeFile($contents, ItemInterface $file, CodeChangeSet $changeset)
+    {
+        if (!$this->appliesTo($file)) {
+            return $contents;
+        }
 
         // Do initial parse of this file
-        $visitor = $this->findClasses($source);
-        $currentNamespace = $visitor->getNamespace();
-        $classes = $visitor->getClasses();
+        $source = new MutableSource($contents);
+        list($fileNamespace) = $this->findClasses($source);
 
         // We can only add namespace if none is already applied
         $newNamespace = $this->getNamespaceForFile($file);
-        if ($currentNamespace) {
+        if ($fileNamespace) {
             // Validate any already-applied namespace
-            $this->validateNamespaceMatches($currentNamespace, $newNamespace);
-        } else {
-            // add namespace and record mapped classes
-            $this->addNamespace($source, $newNamespace, $classes);
-            foreach ($classes as $class) {
-                $this->renamedClasses[$class] = "{$newNamespace}\\{$class}";
-            }
+            $this->validateNamespaceMatches($fileNamespace, $newNamespace, $file, $changeset);
+            return $contents;
         }
 
-        return [ $source->getModifiedString(), $this->warningCollector ];
+        // Add namespace to this file, but take care not to apply `use` statements
+        // to classes that already exist or will be added to this namespace.
+        $this->addNamespace($source, $newNamespace, $file, $changeset);
+        return $source->getModifiedString();
+    }
+
+    /**
+     * Find all classes being added to the given namespace, across all files
+     * in this upgrade.
+     *
+     * @param string $namespace
+     * @return array
+     */
+    public function getClassesInNamespace($namespace)
+    {
+        $classes = [];
+        foreach ($this->renamedClasses as $class => $fqn) {
+            if ("{$namespace}\\{$class}" === $fqn) {
+                $classes[] = $class;
+            }
+        }
+        return $classes;
     }
 
     /**
@@ -113,12 +169,15 @@ class AddNamespaceRule extends AbstractUpgradeRule
      *
      * @param Namespace_ $current
      * @param string $new
+     * @param ItemInterface $item
+     * @param CodeChangeSet $changeset
      */
-    protected function validateNamespaceMatches($current, $new)
+    protected function validateNamespaceMatches($current, $new, ItemInterface $item, CodeChangeSet $changeset)
     {
         // Can't apply namespace to existing namespace
         if ((string)$current->name !== $new) {
-            $this->addWarning(
+            $changeset->addWarning(
+                $item->getPath(),
                 $current->getLine(),
                 "Namespace already declared: \"{$current->name}\", skipping file."
             );
@@ -130,14 +189,17 @@ class AddNamespaceRule extends AbstractUpgradeRule
      *
      * @param MutableSource $source
      * @param string $namespace
-     * @param array $classes List of class names in this file
+     * @param ItemInterface $item
+     * @param CodeChangeSet $changeset
      */
-    protected function addNamespace(MutableSource $source, $namespace, $classes)
+    protected function addNamespace(MutableSource $source, $namespace, ItemInterface $item, CodeChangeSet $changeset)
     {
+        $classes = $this->getClassesInNamespace($namespace);
         $content = $source->getOrigString();
+
         // Sanity check
         if (stripos($content, '<?php') !== 0) {
-            $this->addWarning(0, "File doesn't start with <?php");
+            $changeset->addWarning($item->getPath(), 0, "File doesn't start with <?php");
             return;
         }
 
@@ -155,16 +217,16 @@ class AddNamespaceRule extends AbstractUpgradeRule
      * Finds namespace and list of classes/traits/interfaces in this file
      *
      * @param MutableSource $source
-     * @return FindClassVisitor
+     * @return array Array with namespace first, and list of classes second
      */
     protected function findClasses(MutableSource $source)
     {
-        $classVisitor = new FindClassVisitor();
+        $visitor = new FindClassVisitor();
         $this->transformWithVisitors($source->getAst(), [
             new NameResolver(),
-            $classVisitor
+            $visitor
         ]);
-        return $classVisitor;
+        return [$visitor->getNamespace(), $visitor->getClasses()];
     }
 
     /**

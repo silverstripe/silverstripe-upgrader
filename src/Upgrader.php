@@ -36,6 +36,12 @@ class Upgrader
     {
         $changeset = new CodeChangeSet();
 
+        // Before-upgrade hook
+        /** @var AbstractUpgradeRule $upgradeRule */
+        foreach ($this->spec->rules() as $upgradeRule) {
+            $upgradeRule->beforeUpgradeCollection($code, $changeset);
+        }
+
         /** @var ItemInterface $item */
         foreach ($code->iterateItems() as $item) {
             $path = $item->getPath();
@@ -47,16 +53,19 @@ class Upgrader
                 $ruleName = $upgradeRule->getName();
                 if ($upgradeRule->appliesTo($item)) {
                     $this->log("Applying <info>{$ruleName}</info> to <info>{$filename}</info>...");
-                    list($updatedContents, $warnings) = $upgradeRule->upgradeFile($updatedContents, $item);
-                    if ($warnings) {
-                        $changeset->addWarnings($path, $warnings);
-                    }
+                    $updatedContents = $upgradeRule->upgradeFile($updatedContents, $item, $changeset);
                 }
             }
 
             if ($contents !== $updatedContents) {
                 $changeset->addFileChange($path, $updatedContents, $contents);
             }
+        }
+
+        // After-upgrade hook
+        /** @var AbstractUpgradeRule $upgradeRule */
+        foreach ($this->spec->rules() as $upgradeRule) {
+            $upgradeRule->afterUpgradeCollection($code, $changeset);
         }
 
         return $changeset;

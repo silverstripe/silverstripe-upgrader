@@ -3,6 +3,8 @@
 namespace SilverStripe\Upgrader\UpgradeRule;
 
 use PhpParser\NodeTraverser;
+use SilverStripe\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\CollectionInterface;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 
 /**
@@ -12,17 +14,25 @@ abstract class AbstractUpgradeRule
 {
 
     protected $parameters = [];
-    protected $warningCollector = [];
 
     /**
-     * Add a warning message for this upgrade rule
+     * Called on a code collection prior to upgrade
      *
-     * @param int $line
-     * @param string $message
+     * @param CollectionInterface $code
+     * @param CodeChangeSet $changeset
      */
-    protected function addWarning($line, $message)
+    public function beforeUpgradeCollection(CollectionInterface $code, CodeChangeSet $changeset)
     {
-        $this->warningCollector[] = [$line, $message];
+    }
+
+    /**
+     * Called on a code collection after upgrade
+     *
+     * @param CollectionInterface $code
+     * @param CodeChangeSet $changeset
+     */
+    public function afterUpgradeCollection(CollectionInterface $code, CodeChangeSet $changeset)
+    {
     }
 
     /**
@@ -38,14 +48,14 @@ abstract class AbstractUpgradeRule
 
     /**
      * Upgrades the contents of the given file
-     * Returns two results as a 2-element array:
-     *  - The first item is a string of the new code
-     *  - The second item is an array of warnings, each of which is a 2 element array, for line & message
+     * Returns string containing the new code.
+     *
      * @param string $contents
      * @param ItemInterface $file
-     * @return array
+     * @param CodeChangeSet $changeset Changeset to add warnings to
+     * @return string
      */
-    abstract public function upgradeFile($contents, $file);
+    abstract public function upgradeFile($contents, ItemInterface $file, CodeChangeSet $changeset);
 
     /**
      * Apply the parameters to this object and return $this, for fluent call-style
