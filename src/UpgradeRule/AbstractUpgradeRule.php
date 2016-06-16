@@ -3,6 +3,8 @@
 namespace SilverStripe\Upgrader\UpgradeRule;
 
 use PhpParser\NodeTraverser;
+use SilverStripe\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\CollectionInterface;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 
 /**
@@ -13,6 +15,26 @@ abstract class AbstractUpgradeRule
 
     protected $parameters = [];
     protected $warningCollector = [];
+
+    /**
+     * Called on a code collection prior to upgrade
+     *
+     * @param CollectionInterface $code
+     * @param CodeChangeSet $changeset
+     */
+    public function beforeUpgrade(CollectionInterface $code, CodeChangeSet $changeset)
+    {
+    }
+
+    /**
+     * Called on a code collection after upgrade
+     *
+     * @param CollectionInterface $code
+     * @param CodeChangeSet $changeset
+     */
+    public function afterUpgrade($code, $changeset)
+    {
+    }
 
     /**
      * Add a warning message for this upgrade rule
