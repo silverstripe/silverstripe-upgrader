@@ -23,6 +23,12 @@ class RenameClassesVisitor extends NodeVisitorAbstract
     protected $source;
     protected $used;
     protected $useStatements = [];
+
+    /**
+     * Position in file to insert use statements at
+     *
+     * @var int
+     */
     protected $insertUseStatementsAfter = null;
 
     public function __construct(MutableSource $source, $map, $namespaceCorrections = null)
@@ -186,11 +192,15 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         }
 
         // Defer the insertion of new use statements until after all other namespace or use statements.
-        if ($node instanceof Stmt\Namespace_ || $node instanceof Stmt\Use_) {
-            if ($this->insertUseStatementsAfter === null ||
-                $node->getAttribute('startFilePos') > $this->insertUseStatementsAfter->getAttribute('startFilePos')) {
-                $this->insertUseStatementsAfter = $node;
-            }
+        if ($node instanceof Stmt\Namespace_
+            || $node instanceof Stmt\Use_
+            || $node instanceof Stmt\GroupUse
+        ) {
+            // Put any new aliases after existing `use` statements. +1 for trailing `;`
+            $this->insertUseStatementsAfter = max(
+                $this->insertUseStatementsAfter,
+                $node->getAttribute('endFilePos') + 1
+            );
         }
 
         if ($node instanceof Stmt\Use_) {
@@ -219,15 +229,25 @@ class RenameClassesVisitor extends NodeVisitorAbstract
                 $useNodes[] = $factory->use($from)->as($to)->getNode();
             }
 
+            // Insert use statements
             $useNodesStr = "\n" . $this->source->createString($useNodes);
-
-            if ($this->insertUseStatementsAfter !== null) {
-                $this->source->insertAfter($this->insertUseStatementsAfter, $useNodesStr);
-            } else {
-                $this->source->insertBefore($this->source->getAst()[0], $useNodesStr);
-            }
+            $this->source->insert($this->getUseStatementInsertPosition(), $useNodesStr);
         }
 
         return $nodes;
+    }
+
+    /**
+     * Get position to insert new use statements at
+     *
+     * @return int
+     */
+    protected function getUseStatementInsertPosition()
+    {
+        if ($this->insertUseStatementsAfter) {
+            return $this->insertUseStatementsAfter;
+        }
+
+        return strlen("<?php\n");
     }
 }

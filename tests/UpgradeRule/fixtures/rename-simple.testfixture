@@ -1,0 +1,27 @@
+{
+    "mappings": {
+        "ExampleField": "SilverStripe\\Fields\\ExampleField"
+    }
+}
+------
+<?php
+
+/**
+ * Basic class with PHPDoc
+ */
+class ExampleSubclass extends ExampleField
+{
+
+}
+------
+<?php
+
+use SilverStripe\Fields\ExampleField;
+
+/**
+ * Basic class with PHPDoc
+ */
+class ExampleSubclass extends ExampleField
+{
+
+}

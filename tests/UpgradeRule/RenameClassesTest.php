@@ -9,12 +9,13 @@ use SilverStripe\Upgrader\UpgradeRule\RenameClasses;
 class RenameClassesTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @param string $file
      * @return array
      */
-    protected function getFixtures()
+    protected function getFixtures($file)
     {
         // Get fixture from the file
-        $fixture = file_get_contents(__DIR__ .'/fixtures/rename-classes.testfixture');
+        $fixture = file_get_contents(__DIR__ .'/fixtures/'.$file);
         list($parameters, $input, $output) = preg_split('/------+/', $fixture, 3);
         $parameters = json_decode($parameters, true);
         $input = trim($input);
@@ -23,9 +24,24 @@ class RenameClassesTest extends \PHPUnit_Framework_TestCase
         return [$parameters, $input, $output];
     }
 
-    public function testNamespaceAddition()
+    /**
+     * @return array
+     */
+    public function provideTests()
     {
-        list($parameters, $input, $output) = $this->getFixtures();
+        return [
+            ['rename-classes.testfixture'],
+            ['rename-simple.testfixture'],
+        ];
+    }
+
+    /**
+     * @dataProvider provideTests
+     * @param $fixture
+     */
+    public function testNamespaceAddition($fixture)
+    {
+        list($parameters, $input, $output) = $this->getFixtures($fixture);
         $updater = (new RenameClasses())->withParameters($parameters);
 
         // Build mock collection
