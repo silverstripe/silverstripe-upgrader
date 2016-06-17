@@ -63,7 +63,7 @@ class ClassQualifierVisitor extends NameResolver
      *
      * @var int
      */
-    protected $insertAt = 0;
+    protected $insertUseStatementsAfter = 0;
 
     /**
      * List of classes defined in this file
@@ -77,7 +77,7 @@ class ClassQualifierVisitor extends NameResolver
         $this->fileClasses = $classes;
         $this->source = $source;
         $this->newNamespace = $namespace;
-        $this->insertAt = $insertAt;
+        $this->insertUseStatementsAfter = $insertAt;
     }
 
     protected function addAlias(Node\Stmt\UseUse $use, $type, Node\Name $prefix = null)
@@ -95,9 +95,15 @@ class ClassQualifierVisitor extends NameResolver
         parent::enterNode($node);
 
         // Check last use statement to add new uses to
-        if ($node instanceof Node\Stmt\Use_ || $node instanceof Node\Stmt\GroupUse) {
+        if ($node instanceof Node\Stmt\Namespace_
+            || $node instanceof Node\Stmt\Use_
+            || $node instanceof Node\Stmt\GroupUse
+        ) {
             // Put any new aliases after existing `use` statements. +1 for trailing `;`
-            $this->insertAt = max($this->insertAt, $node->getAttribute('endFilePos') + 1);
+            $this->insertUseStatementsAfter = max(
+                $this->insertUseStatementsAfter,
+                $node->getAttribute('endFilePos') + 1
+            );
         }
     }
 
@@ -168,6 +174,6 @@ class ClassQualifierVisitor extends NameResolver
 
         // Merge string with source file
         $useNodesStr = "\n" . $this->source->createString($useNodes);
-        $this->source->insert($this->insertAt, $useNodesStr);
+        $this->source->insert($this->insertUseStatementsAfter, $useNodesStr);
     }
 }
