@@ -51,3 +51,25 @@ E.g.
 `upgrade-code upgrade .`
 
 This will look at all class maps, and rename any references to renamed classes to the correct value.
+
+When upgrading code that contains strings, the upgrader will need to make assumptions about whether
+a string refers to a class name or not, and will determine if that is a candidate for replacement.
+
+If you have a code block with strings that do not represent class names, and thus should be excluded
+from rewriting (even if they match the names of classes being rewritten) then you you can add a
+docblock with the `@skipUpgrade` tag, and the upgrader will not alter any of this code.
+
+E.g.
+
+    :::php
+    /** @skipUpgrade */
+    return Injector::inst()->get('MyService');
+
+
+In the above example, MyService will not be modified even if it would otherwise be renamed.
+    
+This doc block can be applied either immediately before the statement with the string, or
+before a block of code (such as a method, loop, or conditional).
+
+Note that `@skipUpgrade` does not prevent upgrade of class literals, and only affects strings,
+as these are not ambiguous, and the upgrader can safely update these references.
