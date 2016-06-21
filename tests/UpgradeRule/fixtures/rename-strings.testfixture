@@ -1,0 +1,76 @@
+{
+    "mappings": {
+        "SS_MyClass": "Namespace\\MyClass",
+        "SS_AnotherClass": "AnotherClass"
+    },
+    "skipConfigs": [
+        "db",
+        "casting"
+    ]
+}
+------
+<?php
+
+/**
+ * Rewrite this class
+ */
+class ExampleSubclass extends ExampleField implements ExampleInterface
+{
+    private static $db = [
+        'SS_MyClass' => 'SS_MyClass'
+    ];
+
+    const CONSTVAL = 'SS_MyClass';
+
+    private static $casting = [
+        "SS_MyClass" => "SS_MyClass"
+    ];
+
+    private static $another_config = 'SS_MyClass';
+
+    private static $array_config = [
+        'SS_MyClass' => 'SS_AnotherClass',
+    ];
+
+    function construct() {
+        $args = array(
+            'SS_MyClass' => 'SS_MyClass',
+        );
+        /** @skipUpgrade */
+        $dont = 'SS_MyClass';
+        return Injector::inst()->createWithArgs('SS_MyClass', $args);
+    }
+}
+------
+<?php
+
+/**
+ * Rewrite this class
+ */
+class ExampleSubclass extends ExampleField implements ExampleInterface
+{
+    private static $db = [
+        'SS_MyClass' => 'SS_MyClass'
+    ];
+
+    const CONSTVAL = 'SS_MyClass';
+
+    private static $casting = [
+        "SS_MyClass" => "SS_MyClass"
+    ];
+
+    private static $another_config = 'Namespace\\MyClass';
+
+    private static $array_config = [
+        'SS_MyClass' => 'AnotherClass',
+    ];
+
+    function construct() {
+        $args = array(
+            'SS_MyClass' => 'Namespace\\MyClass',
+        );
+        /** @skipUpgrade */
+        $dont = 'SS_MyClass';
+        return Injector::inst()->createWithArgs('Namespace\\MyClass', $args);
+    }
+}

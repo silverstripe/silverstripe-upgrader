@@ -2,6 +2,7 @@
 
 namespace SilverStripe\Upgrader\UpgradeRule;
 
+use PhpParser\Comment;
 use PhpParser\Node;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Expr;
@@ -23,6 +24,7 @@ class RenameClassesVisitor extends NodeVisitorAbstract
     protected $source;
     protected $used;
     protected $useStatements = [];
+    protected $classAliases;
 
     /**
      * Position in file to insert use statements at
@@ -31,11 +33,19 @@ class RenameClassesVisitor extends NodeVisitorAbstract
      */
     protected $insertUseStatementsAfter = null;
 
-    public function __construct(MutableSource $source, $map, $namespaceCorrections = null)
+    /**
+     * List of config strings to ignore rewriting
+     *
+     * @var array
+     */
+    protected $skipConfigs;
+
+    public function __construct(MutableSource $source, $map, $namespaceCorrections = null, $skipConfigs = [])
     {
         $this->source = $source;
         $this->map = $map;
         $this->namespaceCorrections = $namespaceCorrections;
+        $this->skipConfigs = $skipConfigs;
 
         foreach ($this->map as $k => $v) {
             $slashPos = strrpos($this->map[$k], '\\');
@@ -46,19 +56,35 @@ class RenameClassesVisitor extends NodeVisitorAbstract
 
     protected function addClassAlias($className, $alias)
     {
+        // @todo - Not used?
         $this->classAliases[$className] = $alias;
     }
 
-    protected function handleStringUpdate(Node $stringNode)
+    /**
+     * Check string node for replacement
+     *
+     * @param Scalar\String_ $stringNode
+     */
+    protected function handleStringUpdate(Scalar\String_ $stringNode)
     {
         $replacement = $this->getReplacementClass($stringNode->value);
-        if ($replacement !== null) {
-            $this->source->replaceNode($stringNode, "'$replacement'");
+        if ($replacement) {
+            if (! $this->isNodeRewritable($stringNode)) {
+                return;
+            }
+            // Substitute new node, keep quote type (double / single)
+            $replacementNode = new Scalar\String_($replacement, [
+                'kind' => $stringNode->getAttribute('kind')
+            ]);
+            $this->source->replaceNode($stringNode, $replacementNode);
         }
     }
 
     /**
      * Return the fully-qualified classname to use instead of the given one
+     *
+     * @param string $className
+     * @return string
      */
     protected function getReplacementClass($className)
     {
@@ -87,6 +113,9 @@ class RenameClassesVisitor extends NodeVisitorAbstract
 
     /**
      * Log a use statement for the given fully-qualified class name
+     *
+     * @param string $className
+     * @return string
      */
     protected function logUseStatement($className)
     {
@@ -97,27 +126,144 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         return $baseName;
     }
 
+    /**
+     * Check if the given node should be replaced
+     *
+     * @param Node $classNode
+     */
     protected function handleNameUpdate(Node $classNode)
     {
         if ($classNode instanceof Expr\StaticPropertyFetch || $classNode instanceof Expr\PropertyFetch) {
-            return $classNode;
+            return;
         }
 
         if (!$classNode instanceof Node\Name) {
             echo get_class($classNode) . "\n";
             echo " - WARNING: New class instantied by a dynamic value on line "
                 . $classNode->getAttribute('startLine') . "\n";
-            return $classNode;
+            return;
         }
 
         $className = $classNode->toString();
 
+        // Check if a replacement exists
         $replacement = $this->getReplacementClass($className);
-
-        if ($replacement !== null) {
-            $baseName = $this->logUseStatement($replacement);
-            $this->source->replaceNode($classNode, new Name([ $baseName ]));
+        if (!$replacement) {
+            return;
         }
+
+        // Detect if this node is in a blacklist (e.g. belongs to a private static array key)
+        if (! $this->isNodeRewritable($classNode)) {
+            return;
+        }
+
+        $baseName = $this->logUseStatement($replacement);
+        $this->source->replaceNode($classNode, new Name([ $baseName ]));
+    }
+
+    /**
+     * Check if the given node should be re-written.
+     * These sets of conditions are semi hard-coded:
+     *  - Non-string class literal, or
+     *  - Not a config in skipConfigs, and
+     *  - Not an array key in any context, and
+     *  - Not a const
+     *
+     * Note: This method relies on {@see ParentConnector}
+     *
+     * @param Node $node
+     * @return bool
+     */
+    protected function isNodeRewritable(Node $node)
+    {
+        // Always rewrite non-string class literals
+        if (! $node instanceof Scalar\String_) {
+            return true;
+        }
+
+        // Check context of this string by parent tree
+        $parent = $node->getAttribute('parent');
+
+        // Const strings aren't rewritten
+        if ($parent instanceof Node\Const_) {
+            return false;
+        }
+
+        // If this is a key in an array, then don't rewrite
+        if ($parent instanceof Expr\ArrayItem && $parent->key === $node) {
+            return false;
+        }
+
+        // Check if there are config options that should be skipped
+        if ($this->skipConfigs) {
+            $config = $this->detectConfigOption($node);
+            if ($config && in_array($config, $this->skipConfigs)) {
+                return false;
+            }
+        }
+
+        // Validate that node doesn't have @skipUpgrade in a comment somewhere
+        if ($this->detectSkipUpgrade($node)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if this node (or any parents) has @skipUpgrade PHPDoc
+     *
+     * @param Node $node
+     * @return bool
+     */
+    protected function detectSkipUpgrade(Node $node = null)
+    {
+        if (!$node) {
+            return false;
+        }
+
+        $comments = $node->getAttribute('comments');
+        if ($comments) {
+            /** @var Comment $comment */
+            foreach ($comments as $comment) {
+                if (stripos($comment->getText(), '@skipUpgrade') !== false) {
+                    return true;
+                }
+            }
+        }
+
+        // Recurse up the stack
+        $parent = $node->getAttribute('parent');
+        return $this->detectSkipUpgrade($parent);
+    }
+
+    /**
+     * Determine the config option this node belongs to, and return it if found.
+     *
+     * @param Node $node
+     * @return string Name of config option, or null if not a config
+     */
+    protected function detectConfigOption(Node $node = null)
+    {
+        if (!$node) {
+            return null;
+        }
+
+        // If we've found a property, inspect its name and type
+        if ($node instanceof Stmt\PropertyProperty) {
+            // Since multiple properties can be declared against a single 'private static' advance up one level
+            $property = $node->getAttribute('parent');
+            if (!$property instanceof Stmt\Property) {
+                throw new \InvalidArgumentException("Could not parse PropertyProperty without a parent Property");
+            }
+            if ($property->isPrivate() && $property->isStatic()) {
+                return (string)$node->name;
+            }
+        }
+
+        // Recurse up the stack
+        $parent = $node->getAttribute('parent');
+        return $this->detectConfigOption($parent);
     }
 
     public function leaveNode(Node $node)

@@ -29,9 +29,13 @@ class RenameClasses extends AbstractUpgradeRule
             }
         }
 
+        $mappings = isset($this->parameters['mappings']) ? $this->parameters['mappings'] : [];
+        $skipConfig = isset($this->parameters['skipConfigs']) ? $this->parameters['skipConfigs'] : [];
+
         $this->transformWithVisitors($source->getAst(), [
-            new NameResolver(),
-            new RenameClassesVisitor($source, $this->parameters['mappings'], $namespaceCorrections),
+            new NameResolver(), // Add FQN for class references
+            new ParentConnector(), // Link child nodes to parents
+            new RenameClassesVisitor($source, $mappings, $namespaceCorrections, $skipConfig),
         ]);
 
         return $source->getModifiedString();
