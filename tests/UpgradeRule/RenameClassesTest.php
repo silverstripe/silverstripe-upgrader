@@ -11,6 +11,7 @@ class RenameClassesTest extends \PHPUnit_Framework_TestCase
     /**
      * @param string $file
      * @return array
+     * @throws \Exception
      */
     protected function getFixtures($file)
     {
@@ -18,6 +19,9 @@ class RenameClassesTest extends \PHPUnit_Framework_TestCase
         $fixture = file_get_contents(__DIR__ .'/fixtures/'.$file);
         list($parameters, $input, $output) = preg_split('/------+/', $fixture, 3);
         $parameters = json_decode($parameters, true);
+        if (!$parameters) {
+            throw new \Exception(json_last_error_msg());
+        }
         $input = trim($input);
         $output = trim($output);
 
@@ -32,6 +36,7 @@ class RenameClassesTest extends \PHPUnit_Framework_TestCase
         return [
             ['rename-classes.testfixture'],
             ['rename-simple.testfixture'],
+            ['rename-strings.testfixture'],
         ];
     }
 

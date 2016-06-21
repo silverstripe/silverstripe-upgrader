@@ -84,7 +84,7 @@ class ExampleSubclass extends ExampleField implements RenamedInterface
         if   ($baz instanceof RenamedInterface) {
             return true;
         }
-        if(interface_exists('SilverStripe\Fields\RenamedInterface')) return true;
+        if(interface_exists('SilverStripe\\Fields\\RenamedInterface')) return true;
 
         try {
             echo 'hello';

@@ -37,7 +37,9 @@ class MutableSource
         $this->source = new MutableString($source);
         $this->prettyPrinter = new PrettyPrinter\Standard();
 
-        $lexer = new Lexer\Emulative(['usedAttributes' => ['startFilePos', 'endFilePos', 'startLine', 'endLine']]);
+        $lexer = new Lexer\Emulative([
+            'usedAttributes' => ['comments', 'startFilePos', 'endFilePos', 'startLine', 'endLine']
+        ]);
         $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP5, $lexer);
         $this->ast = $parser->parse($source);
     }
