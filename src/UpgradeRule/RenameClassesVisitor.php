@@ -74,7 +74,7 @@ class RenameClassesVisitor extends NodeVisitorAbstract
             }
             // Substitute new node, keep quote type (double / single)
             $replacementNode = new Scalar\String_($replacement, [
-                'kind' => $stringNode->getAttribute('kind')
+                'kind' => $stringNode->getAttribute('kind', Scalar\String_::KIND_SINGLE_QUOTED)
             ]);
             $this->source->replaceNode($stringNode, $replacementNode);
         }
