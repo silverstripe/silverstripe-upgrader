@@ -92,6 +92,5 @@ class UpgradeCommand extends AbstractCommand
         } else {
             $output->writeln("Changes not saved; Run with --write to commit to disk");
         }
-
     }
 }

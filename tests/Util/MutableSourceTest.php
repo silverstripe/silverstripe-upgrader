@@ -29,7 +29,5 @@ class MutableSourceTest extends \PHPUnit_Framework_TestCase
         $ms->insertBefore($ast[6], "// inserted before\n");
 
         $this->assertEquals($output, $ms->getModifiedString());
-
-
     }
 }

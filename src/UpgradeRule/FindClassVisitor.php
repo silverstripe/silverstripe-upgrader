@@ -37,7 +37,6 @@ class FindClassVisitor implements NodeVisitor
 
     public function beforeTraverse(array $nodes)
     {
-
     }
 
     /**

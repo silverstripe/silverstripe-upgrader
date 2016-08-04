@@ -15,6 +15,5 @@ class MutableStringTest extends \PHPUnit_Framework_TestCase
         $ms->replace(9, 3, "REPLACE"); // -> "In ADDstrREPLACE"
 
         $this->assertEquals("In ADDstrREPLACE", $ms->getModifiedString());
-
     }
 }
