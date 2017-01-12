@@ -22,7 +22,7 @@ use SilverStripe\Upgrader\Console as Upgrader;
 
 $application = new Application();
 $application->setName("SilverStripe Upgrader");
-$application->setVersion("0.0.1");
+$application->setVersion('0.0.2');
 $application->add(new Upgrader\UpgradeCommand());
 $application->add(new Upgrader\AddNamespaceCommand());
 
