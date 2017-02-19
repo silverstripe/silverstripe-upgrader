@@ -72,10 +72,10 @@ class RenameClassesVisitor extends NodeVisitorAbstract
             if (! $this->isNodeRewritable($stringNode)) {
                 return;
             }
-            // Substitute new node, keep quote type (double / single)
-            $replacementNode = new Scalar\String_($replacement, [
-                'kind' => $stringNode->getAttribute('kind', Scalar\String_::KIND_SINGLE_QUOTED)
-            ]);
+
+            // Substitute MyClass::class literal in place of string
+            $baseName = $this->logUseStatement($replacement);
+            $replacementNode = new Expr\ClassConstFetch(new Name([ $baseName ]), 'class');
             $this->source->replaceNode($stringNode, $replacementNode);
         }
     }

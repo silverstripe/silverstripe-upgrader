@@ -44,6 +44,9 @@ class ExampleSubclass extends ExampleField implements ExampleInterface
 ------
 <?php
 
+use Namespace\MyClass;
+use AnotherClass;
+
 /**
  * Rewrite this class
  */
@@ -59,18 +62,18 @@ class ExampleSubclass extends ExampleField implements ExampleInterface
         "SS_MyClass" => "SS_MyClass"
     ];
 
-    private static $another_config = 'Namespace\\MyClass';
+    private static $another_config = MyClass::class;
 
     private static $array_config = [
-        'SS_MyClass' => 'AnotherClass',
+        'SS_MyClass' => AnotherClass::class,
     ];
 
     function construct() {
         $args = array(
-            'SS_MyClass' => 'Namespace\\MyClass',
+            'SS_MyClass' => MyClass::class,
         );
         /** @skipUpgrade */
         $dont = 'SS_MyClass';
-        return Injector::inst()->createWithArgs('Namespace\\MyClass', $args);
+        return Injector::inst()->createWithArgs(MyClass::class, $args);
     }
 }
