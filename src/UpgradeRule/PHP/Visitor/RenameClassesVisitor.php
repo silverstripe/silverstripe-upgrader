@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverStripe\Upgrader\UpgradeRule;
+namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use PhpParser\Comment;
 use PhpParser\Node;
@@ -19,8 +19,9 @@ use SilverStripe\Upgrader\Util\MutableSource;
  */
 class RenameClassesVisitor extends NodeVisitorAbstract
 {
+    use VisitorTrait;
+
     protected $map;
-    protected $namespaceCorrections;
     protected $source;
     protected $used;
     protected $useStatements = [];
@@ -40,11 +41,10 @@ class RenameClassesVisitor extends NodeVisitorAbstract
      */
     protected $skipConfigs;
 
-    public function __construct(MutableSource $source, $map, $namespaceCorrections = null, $skipConfigs = [])
+    public function __construct(MutableSource $source, $map, $skipConfigs = [])
     {
         $this->source = $source;
         $this->map = $map;
-        $this->namespaceCorrections = $namespaceCorrections;
         $this->skipConfigs = $skipConfigs;
 
         foreach ($this->map as $k => $v) {
@@ -92,22 +92,6 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         if (array_key_exists($className, $this->map)) {
             return $this->map[$className];
         }
-
-        // Classes within namespaces to be corrected
-        if ($this->namespaceCorrections) {
-            $slashPos = strrpos($className, '\\');
-            if ($slashPos !== false) {
-                $namespace = substr($className, 0, $slashPos);
-
-                if (array_key_exists($namespace, $this->namespaceCorrections)
-                && !in_array($className, $this->namespaceCorrections[$namespace])) {
-                    // Remove the namespace - it has been added erroneously when shifting classes between namespaces
-
-                    return substr($className, $slashPos+1);
-                }
-            }
-        }
-
         return null;
     }
 
@@ -208,33 +192,6 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         }
 
         return true;
-    }
-
-    /**
-     * Check if this node (or any parents) has @skipUpgrade PHPDoc
-     *
-     * @param Node $node
-     * @return bool
-     */
-    protected function detectSkipUpgrade(Node $node = null)
-    {
-        if (!$node) {
-            return false;
-        }
-
-        $comments = $node->getAttribute('comments');
-        if ($comments) {
-            /** @var Comment $comment */
-            foreach ($comments as $comment) {
-                if (stripos($comment->getText(), '@skipUpgrade') !== false) {
-                    return true;
-                }
-            }
-        }
-
-        // Recurse up the stack
-        $parent = $node->getAttribute('parent');
-        return $this->detectSkipUpgrade($parent);
     }
 
     /**

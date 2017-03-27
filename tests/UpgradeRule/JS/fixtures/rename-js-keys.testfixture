@@ -1,0 +1,18 @@
+{
+    "mappings": {
+        "Folder": "SilverStripe\\Assets\\Folder",
+        "AssetAdmin": "SilverStripe\\AssetAdmin\\Controller\\AssetAdmin"
+    }
+}
+------
+{
+    "Folder.Name": "文件夹名称",
+    "AssetAdmin.ConfirmDelete": "是否确定删除该文件夹以及所有包含的文件？",
+    "Folder.Description": "Test with \n Newline"
+}
+------
+{
+    "SilverStripe\\AssetAdmin\\Controller\\AssetAdmin.ConfirmDelete": "是否确定删除该文件夹以及所有包含的文件？",
+    "SilverStripe\\Assets\\Folder.Description": "Test with \n Newline",
+    "SilverStripe\\Assets\\Folder.Name": "文件夹名称"
+}

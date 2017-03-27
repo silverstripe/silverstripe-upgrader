@@ -2,7 +2,11 @@
 
 namespace SilverStripe\Upgrader\Console;
 
-use SilverStripe\Upgrader\UpgradeRule\RenameClasses;
+use SilverStripe\Upgrader\UpgradeRule\JS\RenameJSLangKeys;
+use SilverStripe\Upgrader\UpgradeRule\PHP\RenameClasses;
+use SilverStripe\Upgrader\UpgradeRule\PHP\RenameTranslateKeys;
+use SilverStripe\Upgrader\UpgradeRule\YML\RenameYMLLangKeys;
+use SilverStripe\Upgrader\UpgradeRule\YML\UpdateConfigClasses;
 use SilverStripe\Upgrader\Util\ConfigFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -28,6 +32,14 @@ class UpgradeCommand extends AbstractCommand
                     '.'
                 ),
                 new InputOption(
+                    'rule',
+                    'r',
+                    InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
+                    "List of rules to run (specify --rule=* for each rule).\n"
+                    . "<comment> [allowed: [\"code\",\"config\",\"lang\"]]</comment>\n",
+                    ['code', 'config']
+                ),
+                new InputOption(
                     'root-dir',
                     'd',
                     InputOption::VALUE_REQUIRED,
@@ -49,6 +61,7 @@ class UpgradeCommand extends AbstractCommand
         $filePath = $this->realPath($settings['path']);
         $rootPath = $this->realPath($settings['root-dir']);
         $writeChanges = !empty($settings['write']);
+        $rules = $settings['rule'];
 
         // Sanity check input
         if (!is_dir($rootPath)) {
@@ -66,12 +79,32 @@ class UpgradeCommand extends AbstractCommand
             );
         }
 
-        // Load the upgrade spec and create an upgrader
-        $config = ConfigFile::loadCombinedConfig($rootPath);
-        $spec = new UpgradeSpec([
-            (new RenameClasses())->withParameters($config)
-        ]);
+        // Validate rules
+        $allowed = ['code', 'config', 'lang'];
+        $invalid = array_diff($rules, $allowed);
+        if ($invalid) {
+            throw new \InvalidArgumentException("Invalid --rule option(s): " . implode(',', $invalid));
+        }
+        if (empty($rules)) {
+            throw new \InvalidArgumentException("At least one --rule is necessary");
+        }
 
+        // Load the upgrade spec
+        $config = ConfigFile::loadCombinedConfig($rootPath);
+        $spec = new UpgradeSpec();
+        if (in_array('code', $rules)) {
+            $spec->addRule((new RenameClasses())->withParameters($config));
+        }
+        if (in_array('config', $rules)) {
+            $spec->addRule((new UpdateConfigClasses())->withParameters($config));
+        }
+        if (in_array('lang', $rules)) {
+            $spec->addRule((new RenameTranslateKeys())->withParameters($config));
+            $spec->addRule((new RenameYMLLangKeys())->withParameters($config));
+            $spec->addRule((new RenameJSLangKeys())->withParameters($config));
+        }
+
+        // Create upgrader with this spec
         $upgrader = new Upgrader($spec);
         $upgrader->setLogger($output);
 

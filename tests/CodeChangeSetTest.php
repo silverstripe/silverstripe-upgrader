@@ -2,7 +2,7 @@
 
 namespace SilverStripe\Upgrader\Tests;
 
-use SilverStripe\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 
 class CodeChangeSetTest extends \PHPUnit_Framework_TestCase
 {

@@ -13,12 +13,16 @@ class DiskCollectionTest extends \PHPUnit_Framework_TestCase
 
         $names = [];
         foreach ($d->iterateItems() as $item) {
-            $this->assertInstanceOf('SilverStripe\Upgrader\CodeCollection\ItemInterface', $item);
+            $this->assertInstanceOf(ItemInterface::class, $item);
             $names[] = $item->getPath();
         }
 
+        // Note: iterator order isn't predictable, so sort
+        sort($names);
+
         $this->assertEquals([
             'ChangeApplier.php',
+            'CodeChangeSet.php',
             'CollectionInterface.php',
             'DiskCollection.php',
             'DiskItem.php',

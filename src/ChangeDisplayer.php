@@ -3,6 +3,7 @@
 namespace SilverStripe\Upgrader;
 
 use Diff_Renderer_Text_Unified;
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**

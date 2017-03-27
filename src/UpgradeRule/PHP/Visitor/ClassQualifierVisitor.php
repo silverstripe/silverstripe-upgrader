@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverStripe\Upgrader\UpgradeRule;
+namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use PhpParser\BuilderFactory;
 use PhpParser\Node;

@@ -1,33 +1,25 @@
 <?php
 
-namespace SilverStripe\Upgrader\Tests\UpgradeRule;
+namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP;
 
-use SilverStripe\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
+use SilverStripe\Upgrader\Tests\FixtureLoader;
 use SilverStripe\Upgrader\Tests\MockCodeCollection;
-use SilverStripe\Upgrader\UpgradeRule\AddNamespaceRule;
+use SilverStripe\Upgrader\UpgradeRule\PHP\AddNamespaceRule;
 
 class AddNamespaceTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @return array
-     */
-    protected function getFixtures()
-    {
-        // Get fixture from the file
-        $fixture = file_get_contents(__DIR__ .'/fixtures/add-namespace.testfixture');
-
-        list($parameters, $input1, $output1, $input2, $output2) = preg_split('/------+/', $fixture, 5);
-        $parameters = json_decode($parameters, true);
-
-        return [$parameters, trim($input1), trim($output1), trim($input2), trim($output2)];
-    }
+    use FixtureLoader;
 
     /**
      * Test applying namespaces to a folder
      */
     public function testNamespaceFolder()
     {
-        list($parameters, $input1, $output1, $input2, $output2) = $this->getFixtures();
+        list($parameters, $input1, $output1, $input2, $output2) =
+            $this->loadFixture(
+                __DIR__ .'/fixtures/add-namespace.testfixture'
+            );
 
         // Build mock collection
         $code = new MockCodeCollection([

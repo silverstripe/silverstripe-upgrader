@@ -2,8 +2,6 @@
 
 namespace SilverStripe\Upgrader\CodeCollection;
 
-use SilverStripe\Upgrader\CodeChangeSet;
-
 /**
  * Generic implementation of CollectionInterface::applyChanges
  */
