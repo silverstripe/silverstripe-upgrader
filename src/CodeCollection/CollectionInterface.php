@@ -3,7 +3,7 @@
 namespace SilverStripe\Upgrader\CodeCollection;
 
 use Iterator;
-use SilverStripe\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 
 /**
  * Represents a collection of code files, e.g. a module or project codebase

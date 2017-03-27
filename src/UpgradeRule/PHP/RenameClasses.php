@@ -1,13 +1,15 @@
 <?php
 
-namespace SilverStripe\Upgrader\UpgradeRule;
+namespace SilverStripe\Upgrader\UpgradeRule\PHP;
 
 use PhpParser\NodeVisitor\NameResolver;
-use SilverStripe\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ParentConnector;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\RenameClassesVisitor;
 use SilverStripe\Upgrader\Util\MutableSource;
 
-class RenameClasses extends AbstractUpgradeRule
+class RenameClasses extends PHPUpgradeRule
 {
     public function upgradeFile($contents, ItemInterface $file, CodeChangeSet $changeset)
     {
@@ -17,25 +19,13 @@ class RenameClasses extends AbstractUpgradeRule
 
         $source = new MutableSource($contents);
 
-        $namespaceCorrections = [];
-        if (isset($this->parameters['namespaceCorrections'])) {
-            foreach ($this->parameters['namespaceCorrections'] as $namespace) {
-                $namespaceCorrections[$namespace] = [];
-                foreach ($this->parameters['mappings'] as $className) {
-                    if (substr($className, 0, strrpos($className, '\\')) === $namespace) {
-                        $namespaceCorrections[$namespace][] = $className;
-                    }
-                }
-            }
-        }
-
         $mappings = isset($this->parameters['mappings']) ? $this->parameters['mappings'] : [];
         $skipConfig = isset($this->parameters['skipConfigs']) ? $this->parameters['skipConfigs'] : [];
 
         $this->transformWithVisitors($source->getAst(), [
             new NameResolver(), // Add FQN for class references
             new ParentConnector(), // Link child nodes to parents
-            new RenameClassesVisitor($source, $mappings, $namespaceCorrections, $skipConfig),
+            new RenameClassesVisitor($source, $mappings, $skipConfig),
         ]);
 
         return $source->getModifiedString();

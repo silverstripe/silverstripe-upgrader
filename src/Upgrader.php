@@ -2,10 +2,10 @@
 
 namespace SilverStripe\Upgrader;
 
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\CollectionInterface;
-use SilverStripe\Upgrader\CodeCollection\DiskItem;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
-use SilverStripe\Upgrader\UpgradeRule\AbstractUpgradeRule;
+use SilverStripe\Upgrader\UpgradeRule\PHP\PHPUpgradeRule;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -37,7 +37,7 @@ class Upgrader
         $changeset = new CodeChangeSet();
 
         // Before-upgrade hook
-        /** @var AbstractUpgradeRule $upgradeRule */
+        /** @var PHPUpgradeRule $upgradeRule */
         foreach ($this->spec->rules() as $upgradeRule) {
             $upgradeRule->beforeUpgradeCollection($code, $changeset);
         }
@@ -48,7 +48,7 @@ class Upgrader
             $filename = $item->getFilename();
             $contents = $updatedContents = $item->getContents();
 
-            /** @var AbstractUpgradeRule $upgradeRule */
+            /** @var PHPUpgradeRule $upgradeRule */
             foreach ($this->spec->rules() as $upgradeRule) {
                 $ruleName = $upgradeRule->getName();
                 if ($upgradeRule->appliesTo($item)) {
@@ -63,7 +63,7 @@ class Upgrader
         }
 
         // After-upgrade hook
-        /** @var AbstractUpgradeRule $upgradeRule */
+        /** @var PHPUpgradeRule $upgradeRule */
         foreach ($this->spec->rules() as $upgradeRule) {
             $upgradeRule->afterUpgradeCollection($code, $changeset);
         }

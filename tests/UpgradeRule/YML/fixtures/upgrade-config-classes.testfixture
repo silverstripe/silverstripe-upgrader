@@ -1,0 +1,44 @@
+{
+    "mappings": {
+        "ServiceName": "MyModule\\Services\\ServiceName",
+        "Injector": "SilverStripe\\Core\\Injector\\Injector",
+        "SomeServiceImpl": "MyModule\\Services\\CurlService",
+        "DependencyName": "RenamedDependency"
+    }
+}
+------------------------------------------------------------
+---
+Name: serviceimpls
+---
+Injector:
+  SomeServiceImpl:
+    class: SomeServiceImpl
+  DependencyName:
+    class: SomeServiceImpl
+  AliasService:
+    class: SomeServiceImpl
+---
+Name: services
+---
+Injector:
+  ServiceName:
+    class: '%$SomeServiceImpl'
+    properties:
+      dependency: '%$DependencyName'
+------------------------------------------------------------
+---
+Name: serviceimpls
+---
+SilverStripe\Core\Injector\Injector:
+  RenamedDependency:
+    class: MyModule\Services\CurlService
+  AliasService:
+    class: MyModule\Services\CurlService
+---
+Name: services
+---
+SilverStripe\Core\Injector\Injector:
+  MyModule\Services\ServiceName:
+    class: '%$MyModule\Services\CurlService'
+    properties:
+      dependency: '%$RenamedDependency'

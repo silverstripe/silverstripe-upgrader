@@ -6,7 +6,7 @@ use PhpParser\Node\Name;
 use SilverStripe\Upgrader\ChangeDisplayer;
 use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\Upgrader;
-use SilverStripe\Upgrader\UpgradeRule\AddNamespaceRule;
+use SilverStripe\Upgrader\UpgradeRule\PHP\AddNamespaceRule;
 use SilverStripe\Upgrader\UpgradeSpec;
 use SilverStripe\Upgrader\Util\ConfigFile;
 use Symfony\Component\Console\Input\InputArgument;

@@ -44,13 +44,17 @@ that referenced the un-namespaced versions of these classes.
 
 Once you have finished namespacing your code, you can run the below code to rename all references.
 
-`upgrade-code upgrade <path> [--recursive] [--write] [-vvv]`
+`upgrade-code upgrade <path> [--recursive] [--write] [--rule] [-vvv]`
 
 E.g.
 
 `upgrade-code upgrade .`
 
 This will look at all class maps, and rename any references to renamed classes to the correct value.
+
+In addition all .yml config files will have strings re-written. In order to upgrade only PHP files
+you can use the `--rule=code`. If you have already upgraded your code, you can target only
+config files with `--rule=config`.
 
 When upgrading code that contains strings, the upgrader will need to make assumptions about whether
 a string refers to a class name or not, and will determine if that is a candidate for replacement.
@@ -73,3 +77,20 @@ before a block of code (such as a method, loop, or conditional).
 
 Note that `@skipUpgrade` does not prevent upgrade of class literals, and only affects strings,
 as these are not ambiguous, and the upgrader can safely update these references.
+
+## Upgrading localisations
+
+You can also upgrade all localisation strings in the below files:
+
+ - keys in lang/src/*.js
+ - keys in lang/src/*.json
+ - keys in lang/*.yml
+ - _t() method keys in all .php files
+ 
+You can run the upgrader on these keys with the below command:
+
+`upgrade-code upgrade <path> --rule=lang`
+
+Since this upgrade is normally only done on projects that provide their own strings,
+this rule is not included by default when running a normal upgrade.
+

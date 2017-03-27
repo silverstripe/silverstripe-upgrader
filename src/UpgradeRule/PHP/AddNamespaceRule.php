@@ -1,14 +1,16 @@
 <?php
 
-namespace SilverStripe\Upgrader\UpgradeRule;
+namespace SilverStripe\Upgrader\UpgradeRule\PHP;
 
 use Exception;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\NodeVisitor\NameResolver;
-use SilverStripe\Upgrader\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\CollectionInterface;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ClassQualifierVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\FindClassVisitor;
 use SilverStripe\Upgrader\Util\ConfigFile;
 use SilverStripe\Upgrader\Util\MutableSource;
 
@@ -17,7 +19,7 @@ use SilverStripe\Upgrader\Util\MutableSource;
  *
  * @package SilverStripe\Upgrader\UpgradeRule
  */
-class AddNamespaceRule extends AbstractUpgradeRule
+class AddNamespaceRule extends PHPUpgradeRule
 {
     /**
      * Root dir for project to use to find project files
@@ -190,7 +192,7 @@ class AddNamespaceRule extends AbstractUpgradeRule
      * @param MutableSource $source
      * @param string $namespace
      * @param ItemInterface $item
-     * @param CodeChangeSet $changeset
+     * @param \SilverStripe\Upgrader\CodeCollection\CodeChangeSet $changeset
      */
     protected function addNamespace(MutableSource $source, $namespace, ItemInterface $item, CodeChangeSet $changeset)
     {
@@ -266,7 +268,7 @@ class AddNamespaceRule extends AbstractUpgradeRule
         return count($this->renamedClasses);
     }
 
-    public function appliesTo($file)
+    public function appliesTo(ItemInterface $file)
     {
         return $this->getNamespaceForFile($file)
             && parent::appliesTo($file);

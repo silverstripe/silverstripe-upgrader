@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverStripe\Upgrader;
+namespace SilverStripe\Upgrader\CodeCollection;
 
 /**
  * Represents a set of code changes and warnings.

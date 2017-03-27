@@ -2,24 +2,35 @@
 
 namespace SilverStripe\Upgrader;
 
-use SilverStripe\Upgrader\Upgrader\RenameClass;
+use SilverStripe\Upgrader\UpgradeRule\UpgradeRule;
 
 class UpgradeSpec
 {
-
+    /**
+     * @var UpgradeRule[]
+     */
     private $rules;
 
-    public function __construct(array $rules)
+    /**
+     * Create upgrade spec with given rules
+     *
+     * @param UpgradeRule[] $rules
+     */
+    public function __construct(array $rules = [])
     {
         $this->rules = $rules;
-        /*
-        // Temporary stub while we test other things
-        yield (new RenameClasses())->withProperties([
-            'mappings' => [
-                'DataObject' => 'SilverStripe\Model\DataObject',
-            ],
-        ]);
-        */
+    }
+
+    /**
+     * Add a new rule
+     *
+     * @param UpgradeRule $rule
+     * @return $this
+     */
+    public function addRule(UpgradeRule $rule)
+    {
+        $this->rules[] = $rule;
+        return $this;
     }
 
     /**
