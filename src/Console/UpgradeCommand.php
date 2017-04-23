@@ -2,7 +2,6 @@
 
 namespace SilverStripe\Upgrader\Console;
 
-use SilverStripe\Upgrader\UpgradeRule\JS\RenameJSLangKeys;
 use SilverStripe\Upgrader\UpgradeRule\PHP\RenameClasses;
 use SilverStripe\Upgrader\UpgradeRule\PHP\RenameTranslateKeys;
 use SilverStripe\Upgrader\UpgradeRule\YML\RenameYMLLangKeys;
@@ -101,7 +100,6 @@ class UpgradeCommand extends AbstractCommand
         if (in_array('lang', $rules)) {
             $spec->addRule((new RenameTranslateKeys())->withParameters($config));
             $spec->addRule((new RenameYMLLangKeys())->withParameters($config));
-            $spec->addRule((new RenameJSLangKeys())->withParameters($config));
         }
 
         // Create upgrader with this spec
