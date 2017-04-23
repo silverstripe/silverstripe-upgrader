@@ -82,8 +82,6 @@ as these are not ambiguous, and the upgrader can safely update these references.
 
 You can also upgrade all localisation strings in the below files:
 
- - keys in lang/src/*.js
- - keys in lang/src/*.json
  - keys in lang/*.yml
  - _t() method keys in all .php files
  
