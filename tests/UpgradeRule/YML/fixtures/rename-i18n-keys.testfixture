@@ -1,6 +1,7 @@
 {
     "mappings": {
         "Folder": "SilverStripe\\Assets\\Folder",
+        "LegacyFolder": "SilverStripe\\Assets\\Folder",
         "AssetAdmin": "SilverStripe\\AssetAdmin\\Controller\\AssetAdmin"
     }
 }
@@ -9,12 +10,17 @@ zh_CN:
   Folder:
     Name: '文件夹名称'
     Description: "Test with \n Newline"
+  LegacyFolder:
+    AName: 'Name'
+    ExtraKey: "Key"
   AssetAdmin:
     ConfirmDelete: '是否确定删除该文件夹以及所有包含的文件 '
 ------
 zh_CN:
-  SilverStripe\Assets\Folder:
-    Name: 文件夹名称
-    Description: "Test with \n Newline"
   SilverStripe\AssetAdmin\Controller\AssetAdmin:
     ConfirmDelete: '是否确定删除该文件夹以及所有包含的文件 '
+  SilverStripe\Assets\Folder:
+    AName: Name
+    Description: "Test with \n Newline"
+    ExtraKey: Key
+    Name: 文件夹名称
