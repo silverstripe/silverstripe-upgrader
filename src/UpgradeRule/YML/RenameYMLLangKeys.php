@@ -42,8 +42,18 @@ class RenameYMLLangKeys extends YMLUpgradeRule
                 if ($newKey !== $key) {
                     $changed = true;
                 }
-                $upgradedData[$locale][$newKey] = $value;
+                // Safely merge
+                if (isset($upgradedData[$locale][$newKey])) {
+                    $upgradedData[$locale][$newKey] = array_merge(
+                        $upgradedData[$locale][$newKey],
+                        $value
+                    );
+                } else {
+                    $upgradedData[$locale][$newKey] = $value;
+                }
+                ksort($upgradedData[$locale][$newKey]);
             }
+            ksort($upgradedData[$locale]);
         }
 
         if (!$changed) {
