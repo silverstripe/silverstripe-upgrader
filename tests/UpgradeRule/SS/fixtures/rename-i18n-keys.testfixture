@@ -1,0 +1,42 @@
+{
+    "mappings": {
+        "SS_MyClass": "Namespace\\MyClass",
+        "SSAnotherClass": "Another\\Class\\Namespace"
+    }
+}
+------
+<div>
+<% if $SomeVar.SomeProp %>
+    <a href="$SomeVar.SomeProp" target="_test" class="button" data-icon="preview">
+    <% _t('SS_MyClass.Test1', 'Test1') %> &raquo;
+    <% _t('SSAnotherClass.Test1', 'Test1') %> &raquo;
+    </a>
+    <h2><%t SSAnotherClass.Test2 'This is a test' %>
+    <div>
+        <small><%t 'SS_MyClass.Test3' 'Another test' %>
+        <div><%t NotMapped.Nothing 'This does not get upgraded' %></div>
+    </div>
+<% end_if %>
+    <ul>
+        <li><% _t('SS_MyClass.Test2', 'Test2') %> &raquo;</li>
+        <li><% _t('NotMapped.Nothing', 'Nothing') %></li>
+    </ul>
+</div>
+------
+<div>
+<% if $SomeVar.SomeProp %>
+    <a href="$SomeVar.SomeProp" target="_test" class="button" data-icon="preview">
+    <% _t('Namespace\\MyClass.Test1', 'Test1') %> &raquo;
+    <% _t('Another\\Class\\Namespace.Test1', 'Test1') %> &raquo;
+    </a>
+    <h2><%t Another\\Class\\Namespace.Test2 'This is a test' %>
+    <div>
+        <small><%t 'Namespace\\MyClass.Test3' 'Another test' %>
+        <div><%t NotMapped.Nothing 'This does not get upgraded' %></div>
+    </div>
+<% end_if %>
+    <ul>
+        <li><% _t('Namespace\\MyClass.Test2', 'Test2') %> &raquo;</li>
+        <li><% _t('NotMapped.Nothing', 'Nothing') %></li>
+    </ul>
+</div>

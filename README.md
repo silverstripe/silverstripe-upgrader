@@ -84,6 +84,7 @@ You can also upgrade all localisation strings in the below files:
 
  - keys in lang/*.yml
  - _t() method keys in all .php files
+ - <%t and <% _t() method keys in all .ss files
  
 You can run the upgrader on these keys with the below command:
 
