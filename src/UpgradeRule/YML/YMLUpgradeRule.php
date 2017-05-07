@@ -8,7 +8,7 @@ use SilverStripe\Upgrader\UpgradeRule\AbstractRule;
 abstract class YMLUpgradeRule extends AbstractRule
 {
     /**
-     * Returns true if this upgrad rule applies to the given file
+     * Returns true if this upgrade rule applies to the given file
      * Checks fileExtensions parameters
      *
      * @param ItemInterface $file

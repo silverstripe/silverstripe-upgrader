@@ -6,6 +6,7 @@ use SilverStripe\Upgrader\UpgradeRule\PHP\RenameClasses;
 use SilverStripe\Upgrader\UpgradeRule\PHP\RenameTranslateKeys;
 use SilverStripe\Upgrader\UpgradeRule\YML\RenameYMLLangKeys;
 use SilverStripe\Upgrader\UpgradeRule\YML\UpdateConfigClasses;
+use SilverStripe\Upgrader\UpgradeRule\SS\RenameTemplateLangKeys;
 use SilverStripe\Upgrader\Util\ConfigFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -100,6 +101,7 @@ class UpgradeCommand extends AbstractCommand
         if (in_array('lang', $rules)) {
             $spec->addRule((new RenameTranslateKeys())->withParameters($config));
             $spec->addRule((new RenameYMLLangKeys())->withParameters($config));
+            $spec->addRule((new RenameTemplateLangKeys())->withParameters($config));
         }
 
         // Create upgrader with this spec
