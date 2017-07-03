@@ -19,6 +19,13 @@ class DiskCollection implements CollectionInterface
     protected $recursive = false;
 
     /**
+     * File patterns to exclude
+     *
+     * @var array
+     */
+    protected $exclusions = [];
+
+    /**
      * Create a code collection for all files within the given root path
      *
      * If given a single file, then the colection will be limited to that file only.
@@ -26,14 +33,16 @@ class DiskCollection implements CollectionInterface
      *
      * @param string $path
      * @param bool $recursive
+     * @param array $exclusions
      */
-    public function __construct($path, $recursive = true)
+    public function __construct($path, $recursive = true, $exclusions = [])
     {
         if (!file_exists($path)) {
             throw new \InvalidArgumentException("Path '$path' does not exist");
         }
         $this->path = $path;
         $this->recursive = $recursive;
+        $this->exclusions = $exclusions;
     }
 
     /**
@@ -58,7 +67,7 @@ class DiskCollection implements CollectionInterface
         foreach ($iterator as $path) {
             // Fix iterator being passed in as path
             $path = (string)$path;
-            if (is_dir($path) || preg_match('#/.git/#', $path)) {
+            if (!$this->isDiskItem($path)) {
                 continue;
             }
 
@@ -68,6 +77,55 @@ class DiskCollection implements CollectionInterface
             yield new DiskItem($this->path, $path);
         }
     }
+
+    /**
+     * Check if this path is a valid DiskItem
+     *
+     * @param string $path
+     * @return bool
+     */
+    protected function isDiskItem($path)
+    {
+        // Dir isn't a diskitem
+        if (is_dir($path)) {
+            return false;
+        }
+
+        // Ignore git files always
+        if (preg_match('#/.git/#', $path)) {
+            return false;
+        }
+
+        // Check exclusions
+        foreach ($this->exclusions as $exclusion) {
+            if ($this->pathMatches($path, $exclusion)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if this path matches a pattern
+     *
+     * @param string $path
+     * @param string $pattern
+     * @return bool
+     */
+    protected function pathMatches($path, $pattern)
+    {
+        if (function_exists('fnmatch')) {
+            return fnmatch($pattern, $path);
+        }
+
+        // Fallback
+        return (bool)preg_match(
+            "#^".strtr(preg_quote($pattern, '#'), ['\*' => '.*', '\?' => '.'])."$#i",
+            $path
+        );
+    }
+
 
     /**
      * Returns a specific item by its relative path
