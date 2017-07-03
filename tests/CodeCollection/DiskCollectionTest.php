@@ -9,7 +9,14 @@ class DiskCollectionTest extends \PHPUnit_Framework_TestCase
 {
     public function testIterateItems()
     {
-        $d = new DiskCollection(__DIR__ . '/../../src/CodeCollection');
+        $d = new DiskCollection(
+            __DIR__ . '/../../src/CodeCollection',
+            true,
+            [
+                '*/Disk*.php',
+                '*/?temInterface.php'
+            ]
+        );
 
         $names = [];
         foreach ($d->iterateItems() as $item) {
@@ -24,9 +31,6 @@ class DiskCollectionTest extends \PHPUnit_Framework_TestCase
             'ChangeApplier.php',
             'CodeChangeSet.php',
             'CollectionInterface.php',
-            'DiskCollection.php',
-            'DiskItem.php',
-            'ItemInterface.php',
         ], $names);
     }
 

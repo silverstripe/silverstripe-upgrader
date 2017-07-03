@@ -2,7 +2,6 @@
 
 namespace SilverStripe\Upgrader\Console;
 
-use PhpParser\Node\Name;
 use SilverStripe\Upgrader\ChangeDisplayer;
 use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\Upgrader;

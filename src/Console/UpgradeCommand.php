@@ -110,7 +110,8 @@ class UpgradeCommand extends AbstractCommand
 
         // Load the code to be upgraded and run the upgrade process
         $output->writeln("Running upgrades on \"{$filePath}\"");
-        $code = new DiskCollection($filePath, true);
+        $exclusions = isset($config['excludedPaths']) ? $config['excludedPaths'] : [];
+        $code = new DiskCollection($filePath, true, $exclusions);
         $changes = $upgrader->upgrade($code);
 
         // Display the resulting changes
