@@ -28,7 +28,7 @@ class DiskItem implements ItemInterface
     public function __construct($basePath, $relativePath)
     {
         // Validate an normalise inputs
-        if ($basePath[0] !== '/') {
+        if (!$this->isWindows() && $basePath[0] !== '/') {
             throw new \InvalidArgumentException("basePath must start with /");
         }
         if (substr($basePath, -1) === '/') {
@@ -98,5 +98,12 @@ class DiskItem implements ItemInterface
     public function setContents($contents)
     {
         file_put_contents($this->getFullPath(), $contents);
+    }
+
+    /**
+     * @return boolean
+     */
+    private function isWindows() {
+        return (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
     }
 }
