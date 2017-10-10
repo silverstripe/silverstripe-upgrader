@@ -44,7 +44,7 @@ that referenced the un-namespaced versions of these classes.
 
 Once you have finished namespacing your code, you can run the below code to rename all references.
 
-`upgrade-code upgrade <path> [--recursive] [--write] [--rule] [-vvv]`
+`upgrade-code upgrade <path> [--root-dir=<root>] [--recursive] [--write] [--rule] [-vvv]`
 
 E.g.
 
@@ -78,6 +78,34 @@ before a block of code (such as a method, loop, or conditional).
 Note that `@skipUpgrade` does not prevent upgrade of class literals, and only affects strings,
 as these are not ambiguous, and the upgrader can safely update these references.
 
+## Upgrading project files / bootstrapping
+
+When migrating from prior versions certain project resources (e.g. .htaccess / index.php)
+could be outdated and leave the site in an uninstallable condition. 
+
+You can run the below command on a project to run a set of tasks designed to automatically
+resolve these issues:
+
+```
+upgrade-code doctor [--root-dir=<root>]
+```
+
+Tasks can be specified in `.upgrade.yml` with the following syntax:
+
+```
+doctorTasks:
+  SilverStripe\Dev\CleanupInstall: src/Dev/CleanupInstall.php
+```
+
+The given task must have an `__invoke()` method. This will be passed the following args:
+
+ - InputInterface $input
+ - OutputInterface $output
+ - string $basePath Path to project root
+
+Note: It's advisable to only run this if your site is non-responsive, as these may override
+user-made customisations to `.htaccess` or other project files.
+
 ## Upgrading localisations
 
 You can also upgrade all localisation strings in the below files:
@@ -93,3 +121,31 @@ You can run the upgrader on these keys with the below command:
 Since this upgrade is normally only done on projects that provide their own strings,
 this rule is not included by default when running a normal upgrade.
 
+## .upgrade.yml spec
+
+The .upgrade.yml file will follow the below spec:
+
+```yaml
+# Upgrade these classes
+mappings:
+  OldClass: My\New\Class
+  SS_MyClass: NewClass
+# File extensions to look at
+fileExtensions:
+  - php
+# Don't rewrite these `private static config` settings
+skipConfigs:
+  - db
+  - db_for_versions_table
+# Don't rewrite these keys in YML
+skipYML:
+  - MySQLDatabase
+  - Filesystem
+# Namespaces to add (note: It's recommended to specify these on the CLI instead of via config file)
+add-namespace:
+  namespace: The\Namespace
+  path: src/
+# List of tasks to run when running `upgrade-code doctor`
+doctorTasks:
+  SilverStripe\Dev\CleanupInstall: src/Dev/CleanupInstall.php
+```

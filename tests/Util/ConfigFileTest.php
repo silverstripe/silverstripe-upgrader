@@ -16,7 +16,11 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
                 'OldClass' => "TheNamespace\\NewClass",
                 'DummyClass' => "DummyNamespace\\DummyClass",
                 'AnotherDummyClass' => "Another\\DummyClass",
-            ]
+            ],
+            'doctorTasks' => [
+                'Module1\Module1Task' => __DIR__ . '/fixtures/valid/module1/src/Tasks/Module1Task.php',
+                'Module2\Module2Task' => __DIR__ . '/fixtures/valid/module2/code/MigrateTask.php',
+            ],
         ];
         $config = ConfigFile::loadCombinedConfig(__DIR__ . '/fixtures/valid');
         $this->assertEquals($expected, $config);

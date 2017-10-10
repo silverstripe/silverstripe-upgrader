@@ -4,3 +4,5 @@ mappings:
   MyClass: DummyNamespace\MyClass
   AwesomeClass: AnotherNamespace\AwesomeClass
   OldClass: TheNamespace\NewClass
+doctorTasks:
+  Module1\Module1Task: src/Tasks/Module1Task.php

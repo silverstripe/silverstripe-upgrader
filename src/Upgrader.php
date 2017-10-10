@@ -18,6 +18,11 @@ class Upgrader
      */
     private $logger = null;
 
+    /**
+     * @var UpgradeSpec
+     */
+    private $spec = null;
+
     public function __construct(UpgradeSpec $spec)
     {
         $this->spec = $spec;
