@@ -37,10 +37,13 @@ class ConfigFile
     {
         // Merge with any other upgrade spec in the top level
         $config = [];
-        foreach (glob("{$rootPath}/*") as $path) {
+        foreach (new ModuleIterator($rootPath) as $path) {
             $nextFile = $path . DIRECTORY_SEPARATOR . static::NAME;
             if (file_exists($nextFile)) {
                 $nextConfig = static::loadConfig($nextFile);
+                // Update module-relative paths to root-relative
+                $nextConfig = static::rewritePaths($nextConfig, $path);
+                // Merge
                 $config = static::mergeConfig($config, $nextConfig);
             }
         }
@@ -99,5 +102,16 @@ class ConfigFile
         }
 
         return $merged;
+    }
+
+    protected static function rewritePaths($config, $path)
+    {
+        // Rewrite doctorTasks path to absolute paths
+        if (isset($config['doctorTasks'])) {
+            foreach ($config['doctorTasks'] as $class => $classPath) {
+                $config['doctorTasks'][$class] = $path . '/' . $classPath;
+            }
+        }
+        return $config;
     }
 }

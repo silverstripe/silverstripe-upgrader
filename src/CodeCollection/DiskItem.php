@@ -8,7 +8,6 @@ namespace SilverStripe\Upgrader\CodeCollection;
  */
 class DiskItem implements ItemInterface
 {
-
     /**
      * @var string
      */
@@ -103,7 +102,8 @@ class DiskItem implements ItemInterface
     /**
      * @return boolean
      */
-    private function isWindows() {
+    private function isWindows()
+    {
         return (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
     }
 }
