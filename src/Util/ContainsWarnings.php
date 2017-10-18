@@ -2,11 +2,11 @@
 
 namespace SilverStripe\Upgrader\Util;
 
-interface ContainsWarnings {
+interface ContainsWarnings
+{
 
     /**
      * @return Warning[]
      */
     public function getWarnings();
-
 }

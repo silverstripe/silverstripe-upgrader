@@ -139,7 +139,10 @@ PHP;
         $this->assertCount(2, $warnings);
 
         $this->assertContains('Test staticprop', $warnings[0]->getMessage());
-        $this->assertContains('protected static $removedStaticProp = true', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains(
+            'protected static $removedStaticProp = true',
+            $this->getLineForWarning($input, $warnings[0])
+        );
 
         $this->assertContains('Test staticprop', $warnings[1]->getMessage());
         $this->assertContains('MyClass::$removedStaticProp', $this->getLineForWarning($input, $warnings[1]));

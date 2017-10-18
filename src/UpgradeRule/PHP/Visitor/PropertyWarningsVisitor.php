@@ -115,5 +115,4 @@ class PropertyWarningsVisitor extends WarningsVisitor
     {
         return ($node->name == $prop);
     }
-
 }

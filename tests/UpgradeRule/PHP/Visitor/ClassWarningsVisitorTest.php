@@ -81,7 +81,10 @@ PHP;
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
         $this->assertContains('Error with SomeNamespace\\SomeClass', $warnings[0]->getMessage());
-        $this->assertContains('class MyClass extends SomeNamespace\\SomeClass', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains(
+            'class MyClass extends SomeNamespace\\SomeClass',
+            $this->getLineForWarning($input, $warnings[0])
+        );
     }
 
     public function testStaticClassUse()

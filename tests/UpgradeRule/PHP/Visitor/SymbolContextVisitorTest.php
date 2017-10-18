@@ -31,7 +31,7 @@ PHP;
         $this->traverseWithVisitor($input, $visitor);
 
         $symbols = $visitor->getSymbols();
-        $methodSymbols = array_values(array_filter($symbols, function($symbol) {
+        $methodSymbols = array_values(array_filter($symbols, function ($symbol) {
             return ($symbol instanceof StaticCall);
         }));
 
@@ -76,7 +76,7 @@ PHP;
         $this->traverseWithVisitor($input, $visitor);
 
         $symbols = $visitor->getSymbols();
-        $methodSymbols = array_values(array_filter($symbols, function($symbol) {
+        $methodSymbols = array_values(array_filter($symbols, function ($symbol) {
             return ($symbol instanceof MethodCall);
         }));
 

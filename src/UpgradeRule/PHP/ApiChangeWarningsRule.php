@@ -56,8 +56,7 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
         ];
         $this->transformWithVisitors($source->getAst(), $visitors);
 
-        foreach ($visitors as $visitor)
-        {
+        foreach ($visitors as $visitor) {
             if (!$visitor instanceof ContainsWarnings) {
                 continue;
             }

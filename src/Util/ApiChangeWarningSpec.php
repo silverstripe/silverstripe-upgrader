@@ -7,7 +7,8 @@ namespace SilverStripe\Upgrader\Util;
  *
  * @package SilverStripe\Upgrader\Util
  */
-class ApiChangeWarningSpec {
+class ApiChangeWarningSpec
+{
 
     /**
      * @var string String defining a class, method or property.

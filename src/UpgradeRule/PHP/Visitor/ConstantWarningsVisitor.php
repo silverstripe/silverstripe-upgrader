@@ -39,5 +39,4 @@ class ConstantWarningsVisitor extends WarningsVisitor
     {
         return ($spec->getSymbol()=== $node->name->parts[0]);
     }
-
 }

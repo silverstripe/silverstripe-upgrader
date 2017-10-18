@@ -38,5 +38,4 @@ PHP;
         $this->assertContains('Test function', $warnings[0]->getMessage());
         $this->assertContains('myFunction(\'some-arg\')', $this->getLineForWarning($input, $warnings[0]));
     }
-
 }

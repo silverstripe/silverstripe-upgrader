@@ -73,5 +73,4 @@ class ClassWarningsVisitor extends WarningsVisitor
 
         return $class === $symbol;
     }
-
 }

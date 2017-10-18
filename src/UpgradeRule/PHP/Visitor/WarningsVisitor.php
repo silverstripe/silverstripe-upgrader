@@ -83,5 +83,4 @@ class WarningsVisitor implements NodeVisitor, ContainsWarnings
             $spec->getFullMessage()
         );
     }
-
 }

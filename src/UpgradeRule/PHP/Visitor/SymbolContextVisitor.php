@@ -36,7 +36,8 @@ use PhpParser\Node\Expr\StaticPropertyFetch;
  *
  * @package SilverStripe\Upgrader\Util
  */
-class SymbolContextVisitor implements NodeVisitor {
+class SymbolContextVisitor implements NodeVisitor
+{
 
     /**
      * @var Node[]
@@ -63,9 +64,12 @@ class SymbolContextVisitor implements NodeVisitor {
      */
     protected $namespace;
 
-    public function beforeTraverse(array $nodes) {}
+    public function beforeTraverse(array $nodes)
+    {
+    }
 
-    public function enterNode(Node $node) {
+    public function enterNode(Node $node)
+    {
         if ($node instanceof Namespace_) {
             $this->namespace = implode('\\', $node->name->parts);
         }
@@ -118,7 +122,8 @@ class SymbolContextVisitor implements NodeVisitor {
         }
     }
 
-    public function leaveNode(Node $node) {
+    public function leaveNode(Node $node)
+    {
         if ($node instanceof Class_) {
             $this->parentClass = null;
         }
@@ -128,7 +133,9 @@ class SymbolContextVisitor implements NodeVisitor {
         }
     }
 
-    public function afterTraverse(array $nodes) {}
+    public function afterTraverse(array $nodes)
+    {
+    }
 
     /**
      * @return Node[]
@@ -163,5 +170,4 @@ class SymbolContextVisitor implements NodeVisitor {
         // Fall back to adding the current namespace to the class
         return implode('\\', array_filter([$this->namespace, $class]));
     }
-
 }

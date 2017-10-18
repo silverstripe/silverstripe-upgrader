@@ -34,7 +34,9 @@ PHP;
         $this->assertCount(1, $warnings);
 
         $this->assertContains('Test REMOVED_CONSTANT', $warnings[0]->getMessage());
-        $this->assertContains('\'before\' . REMOVED_CONSTANT . \'after\'', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains(
+            '\'before\' . REMOVED_CONSTANT . \'after\'',
+            $this->getLineForWarning($input, $warnings[0])
+        );
     }
-
 }
