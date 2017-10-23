@@ -15,7 +15,7 @@ class PropertyWarningsVisitorTest extends BaseVisitorTest
 
 namespace MyNamespace;
 
-use SomeNamespaced\NamespacedClass;
+use SomeNamespace\NamespacedClass;
 
 class MyClass
 {
@@ -65,7 +65,7 @@ PHP;
 
 namespace MyNamespace;
 
-use SomeNamespaced\NamespacedClass;
+use SomeNamespace\NamespacedClass;
 
 class MyClass
 {
@@ -112,7 +112,7 @@ PHP;
 
 namespace MyNamespace;
 
-use SomeNamespaced\NamespacedClass;
+use SomeNamespace\NamespacedClass;
 
 class MyClass
 {
