@@ -14,6 +14,7 @@ use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticPropertyFetch;
+use PhpParser\NodeVisitor\NameResolver;
 
 /**
  * Accumulates symbols found in a class that might be meaningful
@@ -36,7 +37,7 @@ use PhpParser\Node\Expr\StaticPropertyFetch;
  *
  * @package SilverStripe\Upgrader\Util
  */
-class SymbolContextVisitor implements NodeVisitor
+class SymbolContextVisitor extends NameResolver
 {
 
     /**
@@ -70,6 +71,8 @@ class SymbolContextVisitor implements NodeVisitor
 
     public function enterNode(Node $node)
     {
+        parent::enterNode($node);
+
         if ($node instanceof Namespace_) {
             $this->namespace = implode('\\', $node->name->parts);
         }
@@ -146,6 +149,8 @@ class SymbolContextVisitor implements NodeVisitor
     }
 
     /**
+     * Namespaces are inlined via NameResolver parent class already.
+     *
      * @param Node $node
      * @return String
      */
@@ -159,15 +164,6 @@ class SymbolContextVisitor implements NodeVisitor
             $class = $node->class->name;
         }
 
-        // Prefix used namespace if the class matches the end of a use statement
-        foreach ($this->uses as $use) {
-            if (!preg_match('/' . $class . '$/', $use)) {
-                continue;
-            }
-            return $use;
-        }
-
-        // Fall back to adding the current namespace to the class
-        return implode('\\', array_filter([$this->namespace, $class]));
+        return $class;
     }
 }

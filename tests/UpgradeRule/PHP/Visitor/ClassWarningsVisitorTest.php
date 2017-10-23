@@ -21,7 +21,7 @@ class MyClass extends SomeClass
 PHP;
 
         $visitor = new ClassWarningsVisitor([
-            (new ApiChangeWarningSpec('SomeClass', 'Error with SomeClass'))
+            (new ApiChangeWarningSpec('MyNamespace\\SomeClass', 'Error with SomeClass'))
         ], $this->getMockFile($input));
 
         $this->traverseWithVisitor($input, $visitor);
@@ -67,7 +67,7 @@ PHP;
 
 namespace MyNamespace;
 
-class MyClass extends SomeNamespace\SomeClass
+class MyClass extends \SomeNamespace\SomeClass
 {
 }
 PHP;
@@ -82,7 +82,7 @@ PHP;
         $this->assertCount(1, $warnings);
         $this->assertContains('Error with SomeNamespace\\SomeClass', $warnings[0]->getMessage());
         $this->assertContains(
-            'class MyClass extends SomeNamespace\\SomeClass',
+            'class MyClass extends \SomeNamespace\\SomeClass',
             $this->getLineForWarning($input, $warnings[0])
         );
     }
