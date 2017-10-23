@@ -91,6 +91,13 @@ class UpgradeCommand extends AbstractCommand
 
         // Load the upgrade spec
         $config = ConfigFile::loadCombinedConfig($rootPath);
+        if (!$config) {
+            throw new \InvalidArgumentException(
+                "No .upgrade.yml definitions found in modules on \"{$rootPath}\". " .
+                "Please ensure you upgrade your SilverStripe dependencies before running this task."
+            );
+        }
+
         $spec = new UpgradeSpec();
         if (in_array('code', $rules)) {
             $spec->addRule((new RenameClasses())->withParameters($config));

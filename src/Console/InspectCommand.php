@@ -60,6 +60,13 @@ class InspectCommand extends AbstractCommand
 
         // Load the upgrade spec
         $config = ConfigFile::loadCombinedConfig($rootPath);
+        if (!$config) {
+            throw new \InvalidArgumentException(
+                "No .upgrade.yml definitions found in modules on \"{$rootPath}\". " .
+                "Please ensure you upgrade your SilverStripe dependencies before running this task."
+            );
+        }
+
         $spec = new UpgradeSpec();
         $spec->addRule((new ApiChangeWarningsRule())->withParameters($config));
 
@@ -78,6 +85,5 @@ class InspectCommand extends AbstractCommand
         // Display the resulting changes
         $display = new ChangeDisplayer();
         $display->displayChanges($output, $changes);
-        $count = count($changes->allChanges());
     }
 }
