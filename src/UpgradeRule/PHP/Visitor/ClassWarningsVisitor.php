@@ -50,27 +50,42 @@ class ClassWarningsVisitor extends WarningsVisitor
 
         $class = '';
 
+        // class MyClass
         if (isset($node->name)) {
             $class = (string)$node->name;
+            if ($class === $symbol) {
+                return true;
+            }
         }
 
         // extends MyNamespace\MyClass or extends MyClass
         if (isset($node->extends->parts)) {
             $class = implode('\\', $node->extends->parts);
+            if ($class === $symbol) {
+                return true;
+            }
         }
 
         // MyClass::someMethod()
         if (isset($node->class->parts)) {
             $class = implode('\\', $node->class->parts);
+            if ($class === $symbol) {
+                return true;
+            }
         }
 
+        // use MyNamespace\MyClass
         foreach ($context['uses'] as $use) {
             // Prefix namespace if we have a match on trailing part of use statements
             if (preg_match('#'. preg_quote($class) . '$#', $use)) {
                 $class = $use;
             }
+
+            if ($class === $symbol) {
+                return true;
+            }
         }
 
-        return $class === $symbol;
+        return false;
     }
 }
