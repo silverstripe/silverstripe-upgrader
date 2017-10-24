@@ -147,4 +147,41 @@ PHP;
         $this->assertContains('Test staticprop', $warnings[1]->getMessage());
         $this->assertContains('MyClass::$removedStaticProp', $this->getLineForWarning($input, $warnings[1]));
     }
+
+    public function testIgnoresDynamicVars()
+    {
+
+        $input = <<<PHP
+<?php
+
+namespace MyNamespace;
+
+class MyClass
+{
+    function useProp()
+    {
+        \$match = new MyClass();
+        \$match->removedProp;
+        
+        \$noMatch = new MyClass();
+        \$noMatch->\$removedProp;
+    }
+}
+PHP;
+
+        $visitor = new PropertyWarningsVisitor([
+            (new ApiChangeWarningSpec('removedProp', 'Test removedProp'))
+        ], $this->getMockFile($input));
+
+        $this->traverseWithVisitor($input, $visitor);
+
+        $warnings = $visitor->getWarnings();
+        $this->assertCount(1, $warnings);
+
+        $this->assertContains('Test removedProp', $warnings[0]->getMessage());
+        $this->assertContains(
+            '$match->removedProp',
+            $this->getLineForWarning($input, $warnings[0])
+        );
+    }
 }

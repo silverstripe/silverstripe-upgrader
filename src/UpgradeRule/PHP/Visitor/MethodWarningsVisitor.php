@@ -6,6 +6,7 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 /**
@@ -27,7 +28,13 @@ class MethodWarningsVisitor extends WarningsVisitor
             $node instanceof ClassMethod
         );
 
-        if ($isMethodNode) {
+        // Don't process dynamic fetches ($obj->$someField)
+        $isNamedVarNode = (
+            isset($node->name) &&
+            $node->name instanceof Variable
+        );
+
+        if ($isMethodNode && !$isNamedVarNode) {
             foreach ($this->specs as $spec) {
                 if (!$this->matchesSpec($node, $spec)) {
                     continue;
