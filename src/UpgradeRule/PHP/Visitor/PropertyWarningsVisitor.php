@@ -6,6 +6,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Stmt\PropertyProperty;
+use PhpParser\Node\Expr\Variable;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 /**
@@ -28,7 +29,12 @@ class PropertyWarningsVisitor extends WarningsVisitor
         );
 
         // Don't process dynamic fetches ($obj->$someField)
-        if ($isPropNode && is_string($node->name)) {
+        $isNamedVarNode = (
+            isset($node->name) &&
+            $node->name instanceof Variable
+        );
+
+        if ($isPropNode && !$isNamedVarNode) {
             foreach ($this->specs as $spec) {
                 if (!$this->matchesSpec($node, $spec)) {
                     continue;

@@ -4,6 +4,7 @@ namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\Variable;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 /**
@@ -23,7 +24,13 @@ class FunctionWarningsVisitor extends WarningsVisitor
             $node instanceof FuncCall
         );
 
-        if ($isFunctionNode) {
+        // Don't process dynamic fetches ($obj->$someVarAsMethod())
+        $isNamedVarNode = (
+            isset($node->name) &&
+            $node->name instanceof Variable
+        );
+
+        if ($isFunctionNode && !$isNamedVarNode) {
             foreach ($this->specs as $spec) {
                 if (!$this->matchesSpec($node, $spec)) {
                     continue;
