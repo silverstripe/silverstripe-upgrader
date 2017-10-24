@@ -121,6 +121,17 @@ You can run the upgrader on these keys with the below command:
 Since this upgrade is normally only done on projects that provide their own strings,
 this rule is not included by default when running a normal upgrade.
 
+## Inspecting unfixable code
+
+Some code can be detected as likely causing upgrade issues,
+but not with enough confidence to automatically fix it.
+In this case, we're doing our best to show you useful warnings
+and point to the line of code in question.
+
+You can run the inspection *after* upgrading your code through `upgrade-code upgrade`.
+
+`upgrade-code inspect <path>`
+
 ## .upgrade.yml spec
 
 The .upgrade.yml file will follow the below spec:
@@ -148,4 +159,27 @@ add-namespace:
 # List of tasks to run when running `upgrade-code doctor`
 doctorTasks:
   SilverStripe\Dev\CleanupInstall: src/Dev/CleanupInstall.php
+warnings:
+  classes:
+    MyClass:
+      message: 'MyClass has been removed'
+      url: 'http://my-domain/upgrade-instructions'
+  methods:
+    'MyClass->myInstanceMethod()':
+      message: 'Use otherMethod() instead'
+    'MyClass::myStaticMethod()':
+      message: 'Use otherMethod instead'
+  props:
+    'MyClass->myInstanceProp'
+      message: 'Use otherProp instead'
+    'MyClass::myStaticProp'
+      message: 'Use otherProp instead'
+  functions:
+    'myFunction()':
+      message: 'Use otherFunction() instead'
+  constants:
+    'MY_CONSTANT':
+      message: 'Use OTHER_CONSTANT instead'
+    'MyClass::MY_CONSTANT':
+      message: 'Use OTHER_CONSTANT instead'
 ```

@@ -23,4 +23,4 @@ before_script:
 
 script:
   - vendor/bin/phpunit --color tests
-  - phpcs --standard=PSR2 src/ tests/
+  - composer run-script lint
