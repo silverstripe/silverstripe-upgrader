@@ -2,16 +2,14 @@
 
 namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
-use PhpParser\Comment;
+use PhpParser\BuilderFactory;
 use PhpParser\Node;
-use PhpParser\Node\Stmt;
 use PhpParser\Node\Expr;
-use PhpParser\Node\Scalar;
 use PhpParser\Node\Name;
 use PhpParser\Node\Param;
+use PhpParser\Node\Scalar;
+use PhpParser\Node\Stmt;
 use PhpParser\NodeVisitorAbstract;
-use PhpParser\BuilderFactory;
-
 use SilverStripe\Upgrader\Util\MutableSource;
 
 /**

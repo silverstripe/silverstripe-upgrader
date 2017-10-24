@@ -58,6 +58,7 @@ class FindClassVisitor implements NodeVisitor
         if ($node instanceof Namespace_) {
             $this->namespace = $node;
         }
+        return null;
     }
 
     /**
@@ -75,6 +76,7 @@ class FindClassVisitor implements NodeVisitor
      */
     public function leaveNode(Node $node)
     {
+        return null;
     }
 
     /**
@@ -90,6 +92,7 @@ class FindClassVisitor implements NodeVisitor
      */
     public function afterTraverse(array $nodes)
     {
+        return null;
     }
 
     /**

@@ -92,8 +92,7 @@ class SymbolContextVisitor extends NameResolver
         }
 
         $staticClass = null;
-        if (
-            $node instanceof StaticCall ||
+        if ($node instanceof StaticCall ||
             $node instanceof StaticPropertyFetch ||
             $node instanceof ClassConstFetch
         ) {
@@ -164,8 +163,6 @@ class SymbolContextVisitor extends NameResolver
      */
     public function getClass(Node $node)
     {
-        $class = '';
-
         if (isset($node->class->parts)) {
             $class = implode('\\', $node->class->parts);
         } else {

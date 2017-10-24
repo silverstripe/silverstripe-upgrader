@@ -3,15 +3,11 @@
 namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\StaticCall;
 use PhpParser\NodeVisitor;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\ContainsWarnings;
 use SilverStripe\Upgrader\Util\Warning;
-use SilverStripe\Upgrader\Util\SymbolContext;
 
 /**
  * Triggers warnings for symbol uses that can't be upgraded automatically.

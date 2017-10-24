@@ -3,10 +3,9 @@
 namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Property;
-use PhpParser\Node\Stmt\PropertyProperty;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticPropertyFetch;
+use PhpParser\Node\Stmt\PropertyProperty;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 /**

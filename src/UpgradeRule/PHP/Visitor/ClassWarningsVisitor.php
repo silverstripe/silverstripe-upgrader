@@ -3,10 +3,9 @@
 namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
-use SilverStripe\Upgrader\Util\Warning;
+use PhpParser\Node\Stmt\Class_;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 /**
