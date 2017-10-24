@@ -103,4 +103,47 @@ PHP;
         $this->assertContains('Error in SomeNamespace\\SomeClass::removedMethod()', $warnings[1]->getMessage());
         $this->assertContains('return SomeClass::removedMethod()', $this->getLineForWarning($input, $warnings[1]));
     }
+
+    public function testIgnoresDynamic()
+    {
+
+        $input = <<<PHP
+<?php
+
+use SomeNamespace\SomeClass;
+
+class MyClass
+{
+    public function staticInvocation()
+    {
+        \$match = SomeClass::removedMethod();
+        \$noMatch = SomeClass::\$removedMethod();
+    }
+    
+    public function instanceInvocation()
+    {
+        \$match = new SomeClass();
+        \$match->removedMethod();
+        
+        \$noMatch = new SomeClass();
+        \$noMatch->\$removedMethod();
+    }
+}
+PHP;
+
+        $visitor = new MethodWarningsVisitor([
+            (new ApiChangeWarningSpec('removedMethod()', 'Error in removedMethod()'))
+        ], $this->getMockFile($input));
+
+        $this->traverseWithVisitor($input, $visitor);
+
+        $warnings = $visitor->getWarnings();
+        $this->assertCount(2, $warnings);
+
+        $this->assertContains('Error in removedMethod()', $warnings[0]->getMessage());
+        $this->assertContains('$match = SomeClass::removedMethod()', $this->getLineForWarning($input, $warnings[0]));
+
+        $this->assertContains('Error in removedMethod', $warnings[1]->getMessage());
+        $this->assertContains('$match->removedMethod()', $this->getLineForWarning($input, $warnings[1]));
+    }
 }
