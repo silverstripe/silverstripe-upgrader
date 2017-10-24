@@ -3,7 +3,6 @@
 namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use PhpParser\Node;
-use PhpParser\NodeVisitor;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -13,6 +12,8 @@ use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\ConstFetch;
+use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\NodeVisitor\NameResolver;
 
@@ -91,7 +92,11 @@ class SymbolContextVisitor extends NameResolver
         }
 
         $staticClass = null;
-        if ($node instanceof StaticCall || $node instanceof StaticPropertyFetch) {
+        if (
+            $node instanceof StaticCall ||
+            $node instanceof StaticPropertyFetch ||
+            $node instanceof ClassConstFetch
+        ) {
             $staticClass = $this->getClass($node);
             $this->methodClasses[] = $staticClass;
         }
@@ -109,7 +114,10 @@ class SymbolContextVisitor extends NameResolver
             $node instanceof PropertyProperty ||
             $node instanceof PropertyFetch ||
             $node instanceof StaticPropertyFetch ||
-            $node instanceof New_
+            $node instanceof New_ ||
+            $node instanceof ClassMethod ||
+            $node instanceof ConstFetch ||
+            $node instanceof ClassConstFetch
         );
 
         if ($isSymbolNode) {

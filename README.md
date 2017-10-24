@@ -180,4 +180,6 @@ warnings:
   constants:
     'MY_CONSTANT':
       message: 'Use OTHER_CONSTANT instead'
+    'MyClass::MY_CONSTANT':
+      message: 'Use OTHER_CONSTANT instead'
 ```
