@@ -58,6 +58,6 @@ class FunctionWarningsVisitor extends WarningsVisitor
      */
     protected function matchesFunction(Node $node, $function)
     {
-        return ($node->name == $function);
+        return ((string)$node->name === $function);
     }
 }

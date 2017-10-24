@@ -81,7 +81,7 @@ class SymbolContextVisitor extends NameResolver
         if ($node instanceof Class_) {
             $this->parentClass = implode(
                 '\\',
-                array_filter([$this->namespace, $node->name])
+                array_filter([$this->namespace, (string)$node->name])
             );
         }
 
@@ -169,7 +169,7 @@ class SymbolContextVisitor extends NameResolver
         if (isset($node->class->parts)) {
             $class = implode('\\', $node->class->parts);
         } else {
-            $class = $node->class->name;
+            $class = (string)$node->class->name;
         }
 
         return $class;

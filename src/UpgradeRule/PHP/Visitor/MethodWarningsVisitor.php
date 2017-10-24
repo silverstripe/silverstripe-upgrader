@@ -76,8 +76,8 @@ class MethodWarningsVisitor extends WarningsVisitor
         $context = $node->getAttribute('symbolContext');
 
         return (
-            $node->name == $method &&
-            $context['staticClass'] == $class
+            (string)$node->name === $method &&
+            $context['staticClass'] === $class
         );
     }
 
@@ -90,9 +90,8 @@ class MethodWarningsVisitor extends WarningsVisitor
     protected function matchesInstanceClassAndMethod(Node $node, $class, $method)
     {
         $context = $node->getAttribute('symbolContext');
-
         return (
-            $node->name == $method &&
+            (string)$node->name === $method &&
             (
                 in_array($class, $context['methodClasses']) ||
                 in_array($class, $context['uses'])
@@ -107,6 +106,6 @@ class MethodWarningsVisitor extends WarningsVisitor
      */
     protected function matchesMethod(Node $node, $method)
     {
-        return ($node->name == $method);
+        return ((string)$node->name === $method);
     }
 }

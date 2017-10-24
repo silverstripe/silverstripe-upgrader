@@ -77,7 +77,7 @@ class PropertyWarningsVisitor extends WarningsVisitor
         $context = $node->getAttribute('symbolContext');
 
         return (
-            $node->name === $prop &&
+            (string)$node->name === $prop &&
             (
                 $context['class'] === $class ||
                 $context['staticClass'] === $class
@@ -97,7 +97,7 @@ class PropertyWarningsVisitor extends WarningsVisitor
         $context = $node->getAttribute('symbolContext');
 
         return (
-            $node->name === $prop &&
+            (string)$node->name === $prop &&
             (
                 $class === $context['class'] ||
                 in_array($class, $context['methodClasses']) ||
@@ -113,6 +113,6 @@ class PropertyWarningsVisitor extends WarningsVisitor
      */
     protected function matchesProp(Node $node, $prop)
     {
-        return ($node->name == $prop);
+        return ((string)$node->name === $prop);
     }
 }

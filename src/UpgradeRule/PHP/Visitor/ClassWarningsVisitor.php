@@ -51,7 +51,7 @@ class ClassWarningsVisitor extends WarningsVisitor
         $class = '';
 
         if (isset($node->name)) {
-            $class = $node->name;
+            $class = (string)$node->name;
         }
 
         // extends MyNamespace\MyClass or extends MyClass
