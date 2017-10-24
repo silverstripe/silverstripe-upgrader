@@ -27,7 +27,8 @@ class PropertyWarningsVisitor extends WarningsVisitor
             $node instanceof StaticPropertyFetch
         );
 
-        if ($isPropNode) {
+        // Don't process dynamic fetches ($obj->$someField)
+        if ($isPropNode && is_string($node->name)) {
             foreach ($this->specs as $spec) {
                 if (!$this->matchesSpec($node, $spec)) {
                     continue;
