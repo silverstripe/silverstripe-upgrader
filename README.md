@@ -14,7 +14,9 @@ To install globally run:
 
 `composer global require silverstripe/upgrader`
 
-Make sure your `~/.composer/vendor/bin` directory is in your PATH.
+
+
+Make sure your `$HOME/.composer/vendor/bin` directory is in your PATH (or the equivalent for your OS e.g. `C:\Users\<COMPUTER NAME>\AppData\Roaming\Composer\vendor\bin` on Windows).
 
 `echo 'export PATH=$PATH:~/.composer/vendor/bin/'  >> ~/.bash_profile`
 
