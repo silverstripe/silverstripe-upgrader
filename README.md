@@ -80,6 +80,19 @@ before a block of code (such as a method, loop, or conditional).
 Note that `@skipUpgrade` does not prevent upgrade of class literals, and only affects strings,
 as these are not ambiguous, and the upgrader can safely update these references.
 
+## Upgrading Database references to now namespaced DataObject subclasses
+
+If any DataObject subclasses have been namespaced, we will need to specify them in a config file ie. legacy.yml. This tells SilverStripe to remap these class names when dev/build is run.
+
+```
+---
+Name: mymodulelegacy
+---
+SilverStripe\ORM\DatabaseAdmin:
+  classname_value_remapping:
+    MyModelClass: 'Me\MyProject\Model\MyModelClass'  
+```
+
 ## Upgrading project files / bootstrapping
 
 When migrating from prior versions certain project resources (e.g. .htaccess / index.php)
