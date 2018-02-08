@@ -8,16 +8,19 @@
       "email": "sam@silverstripe.com"
     }
   ],
-  "minimum-stability": "stable",
   "require": {
-    "nikic/php-parser": "^2.1",
+    "nikic/php-parser": "^3.1",
     "symfony/console": "^3.2",
     "symfony/yaml": "^3.2",
-    "phpspec/php-diff": "^1"
+    "phpspec/php-diff": "^1",
+    "phpstan/phpstan": "^0.10",
+    "phpstan/phpstan-php-parser": "^0.10"
   },
-  "bin": ["bin/upgrade-code"],
+  "bin": [
+    "bin/upgrade-code"
+  ],
   "require-dev": {
-      "phpunit/phpunit": "^4.0"
+    "phpunit/phpunit": "^4.0"
   },
   "autoload": {
     "psr-4": {
@@ -28,5 +31,7 @@
   "scripts": {
     "lint": "phpcs src/ tests/",
     "lint-clean": "phpcbf src/ tests/"
-  }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }
