@@ -2,6 +2,7 @@
 
 namespace SilverStripe\Upgrader\Console;
 
+use InvalidArgumentException;
 use SilverStripe\Upgrader\UpgradeRule\PHP\RenameClasses;
 use SilverStripe\Upgrader\UpgradeRule\PHP\RenameTranslateKeys;
 use SilverStripe\Upgrader\UpgradeRule\YML\RenameYMLLangKeys;
@@ -19,7 +20,6 @@ use SilverStripe\Upgrader\ChangeDisplayer;
 
 class UpgradeCommand extends AbstractCommand
 {
-
     protected function configure()
     {
         $this->setName('upgrade')
@@ -57,58 +57,12 @@ class UpgradeCommand extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $settings = array_merge($input->getOptions(), $input->getArguments());
-        $filePath = $this->realPath($settings['path']);
-        $rootPath = $this->realPath($settings['root-dir']);
-        $writeChanges = !empty($settings['write']);
-        $rules = $settings['rule'];
-
-        // Sanity check input
-        if (!is_dir($rootPath)) {
-            $rootPath = $settings['root-dir'];
-            throw new \InvalidArgumentException("No silverstripe project found in root-dir \"{$rootPath}\"");
-        }
-        if (!file_exists($filePath)) {
-            $filePath = $settings['path'];
-            throw new \InvalidArgumentException("path \"{$filePath}\" specified doesn't exist");
-        }
-        // Find module name
-        if (stripos($filePath, $rootPath) !== 0) {
-            throw new \InvalidArgumentException(
-                "root-dir \"{$rootPath}\" is not a parent of the specified path \"{$filePath}\""
-            );
-        }
-
-        // Validate rules
-        $allowed = ['code', 'config', 'lang'];
-        $invalid = array_diff($rules, $allowed);
-        if ($invalid) {
-            throw new \InvalidArgumentException("Invalid --rule option(s): " . implode(',', $invalid));
-        }
-        if (empty($rules)) {
-            throw new \InvalidArgumentException("At least one --rule is necessary");
-        }
-
-        // Load the upgrade spec
-        $config = ConfigFile::loadCombinedConfig($rootPath);
-        if (!$config) {
-            throw new \InvalidArgumentException(
-                "No .upgrade.yml definitions found in modules on \"{$rootPath}\". " .
-                "Please ensure you upgrade your SilverStripe dependencies before running this task."
-            );
-        }
-
+        // Build spec
         $spec = new UpgradeSpec();
-        if (in_array('code', $rules)) {
-            $spec->addRule((new RenameClasses())->withParameters($config));
-        }
-        if (in_array('config', $rules)) {
-            $spec->addRule((new UpdateConfigClasses())->withParameters($config));
-        }
-        if (in_array('lang', $rules)) {
-            $spec->addRule((new RenameTranslateKeys())->withParameters($config));
-            $spec->addRule((new RenameYMLLangKeys())->withParameters($config));
-            $spec->addRule((new RenameTemplateLangKeys())->withParameters($config));
+        $rules = $this->getRules($input);
+        $config = $this->getConfig($input);
+        foreach ($rules as $rule) {
+            $spec->addRule($rule->withParameters($config));
         }
 
         // Create upgrader with this spec
@@ -116,6 +70,7 @@ class UpgradeCommand extends AbstractCommand
         $upgrader->setLogger($output);
 
         // Load the code to be upgraded and run the upgrade process
+        $filePath = $this->getFilePath($input);
         $output->writeln("Running upgrades on \"{$filePath}\"");
         $exclusions = isset($config['excludedPaths']) ? $config['excludedPaths'] : [];
         $code = new DiskCollection($filePath, true, $exclusions);
@@ -127,11 +82,99 @@ class UpgradeCommand extends AbstractCommand
         $count = count($changes->allChanges());
 
         // Apply them to the project
-        if ($writeChanges) {
+        if ($input->getOption('write')) {
             $output->writeln("Writing changes for {$count} files");
             $code->applyChanges($changes);
         } else {
             $output->writeln("Changes not saved; Run with --write to commit to disk");
         }
+    }
+
+    /**
+     * Get root path
+     *
+     * @param InputInterface $input
+     * @return string
+     */
+    protected function getRootPath(InputInterface $input): string
+    {
+        $rootPathArg = $input->getOption('root-dir');
+        $rootPath = $this->realPath($rootPathArg);
+        if (!is_dir($rootPath)) {
+            throw new InvalidArgumentException("No silverstripe project found in root-dir \"{$rootPathArg}\"");
+        }
+        return $rootPath;
+    }
+
+    /**
+     * Get path to files to upgrade
+     *
+     * @param InputInterface $input
+     * @return string
+     */
+    protected function getFilePath(InputInterface $input): string
+    {
+        $filePathArg = $input->getArgument('path');
+        $filePath = $this->realPath($filePathArg);
+        if (!file_exists($filePath)) {
+            throw new InvalidArgumentException("path \"{$filePathArg}\" specified doesn't exist");
+        }
+
+        // Find module name
+        $rootPath = $this->getRootPath($input);
+        if (stripos($filePath, $rootPath) !== 0) {
+            throw new InvalidArgumentException(
+                "root-dir \"{$rootPath}\" is not a parent of the specified path \"{$filePath}\""
+            );
+        }
+        return $filePath;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return array
+     */
+    protected function getRules($input): array
+    {
+        $rules = $input->getOption('rule');
+        $allowed = ['code', 'config', 'lang'];
+        $invalid = array_diff($rules, $allowed);
+        if ($invalid) {
+            throw new InvalidArgumentException("Invalid --rule option(s): " . implode(',', $invalid));
+        }
+        if (empty($rules)) {
+            throw new InvalidArgumentException("At least one --rule is necessary");
+        }
+        // Build rules for this set of upgrades
+        $ruleObjects = [];
+        if (in_array('code', $rules)) {
+            $ruleObjects[] = new RenameClasses();
+        }
+        if (in_array('config', $rules)) {
+            $ruleObjects[] = new UpdateConfigClasses();
+        }
+        if (in_array('lang', $rules)) {
+            $ruleObjects[] = new RenameTranslateKeys();
+            $ruleObjects[] = new RenameYMLLangKeys();
+            $ruleObjects[] = new RenameTemplateLangKeys();
+        }
+        return $rules;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return array
+     */
+    protected function getConfig($input): array
+    {
+        $rootPath = $this->getRootPath($input);
+        $config = ConfigFile::loadCombinedConfig($rootPath);
+        if (!$config) {
+            throw new InvalidArgumentException(
+                "No .upgrade.yml definitions found in modules on \"{$rootPath}\". " .
+                "Please ensure you upgrade your SilverStripe dependencies before running this task."
+            );
+        }
+        return $config;
     }
 }
