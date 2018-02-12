@@ -14,8 +14,6 @@ To install globally run:
 
 `composer global require silverstripe/upgrader`
 
-
-
 Make sure your `$HOME/.composer/vendor/bin` directory is in your PATH (or the equivalent for your OS e.g. `C:\Users\<COMPUTER NAME>\AppData\Roaming\Composer\vendor\bin` on Windows).
 
 `echo 'export PATH=$PATH:~/.composer/vendor/bin/'  >> ~/.bash_profile`
@@ -50,13 +48,32 @@ Once you have finished namespacing your code, you can run the below code to rena
 
 E.g.
 
-`upgrade-code upgrade .`
+`upgrade-code upgrade ./mysite/code`
 
 This will look at all class maps, and rename any references to renamed classes to the correct value.
 
 In addition all .yml config files will have strings re-written. In order to upgrade only PHP files
 you can use the `--rule=code`. If you have already upgraded your code, you can target only
 config files with `--rule=config`.
+
+## Post-upgrade of code
+
+Once a project has all class names migated, and is brought up to a "loadable" state (that is, where 
+all classes reference or extend real classes) then the `post-upgrade` command can be run to perform
+additional automatic code rewrites.
+
+Note: This step is separate from `upgrade` to the fact that your project code is loaded into real
+memory during this step in order to get the complete project context. In order to prepare for this step
+your site should be updated to a basic stage, including all module upgrades and namespace changes.
+
+You can run this command with a similar command as upgrade:
+
+`upgrade-code post-upgrade <path> [--root-dir=<root>] [--recursive] [--write] [-vvv]`
+
+This will load all classes into memory, and infer the types of all objects used in each file. It will
+use these inferred types to automatically update method usages.
+
+## Excluding strings from upgrade
 
 When upgrading code that contains strings, the upgrader will need to make assumptions about whether
 a string refers to a class name or not, and will determine if that is a candidate for replacement.
