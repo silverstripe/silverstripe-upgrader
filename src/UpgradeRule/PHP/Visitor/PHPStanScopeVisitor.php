@@ -62,7 +62,8 @@ class PHPStanScopeVisitor implements NodeVisitor
             [$node],
             $this->scope,
             function (Node $node, Scope $scope) {
-
+                // Update scope
+                $this->scope = $scope;
             });
     }
 

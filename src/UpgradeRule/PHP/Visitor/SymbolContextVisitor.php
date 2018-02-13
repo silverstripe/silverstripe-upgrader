@@ -36,7 +36,7 @@ use PhpParser\NodeVisitor\NameResolver;
  * and doesn't resolve dependencies and hierarchies, this isn't a very reliable
  * methodology, and should only be used for warnings rather than code rewrites.
  *
- * @package SilverStripe\Upgrader\Util
+ * @deprecated use PHPStanScopeVisitor instead
  */
 class SymbolContextVisitor extends NameResolver
 {
