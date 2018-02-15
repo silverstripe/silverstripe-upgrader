@@ -4,13 +4,15 @@ namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use Nette\DI\Container;
 use PhpParser\Node;
+use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\NodeVisitor;
 use PhpParser\PrettyPrinter\Standard;
 use PHPStan\Analyser\NodeScopeResolver;
 use PHPStan\Analyser\Scope;
 use PHPStan\Analyser\TypeSpecifier;
 use PHPStan\Broker\Broker;
-use PHPStan\DependencyInjection\ContainerFactory;
+use PHPStan\Rules\Registry;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 
 class PHPStanScopeVisitor implements NodeVisitor
@@ -31,18 +33,24 @@ class PHPStanScopeVisitor implements NodeVisitor
     protected $file = null;
 
     /**
+     * @var Registry
+     */
+    protected $registry = null;
+
+    /**
      * @var Container
      */
-    protected $container = null;
+    protected $container;
 
-    public function __construct(ItemInterface $file)
+    public function __construct(Container $container, ItemInterface $file)
     {
-        // Setup application for this parse
-        $containerFactory = new ContainerFactory(getcwd());
-        $this->container = $containerFactory->create(sys_get_temp_dir(), []);
+        $this->container = $container;
         $this->resolver = $this->container->getByType(NodeScopeResolver::class);
+        $this->registry = $this->container->getByType(Registry::class);
         $this->file = $file;
+        $this->init();
     }
+
 
     public function beforeTraverse(array $nodes)
     {
@@ -58,12 +66,23 @@ class PHPStanScopeVisitor implements NodeVisitor
 
     public function enterNode(Node $node)
     {
+        // Pass to phpstan
         $this->resolver->processNodes(
             [$node],
             $this->scope,
             function (Node $node, Scope $scope) {
                 // Update scope
                 $this->scope = $scope;
+
+                // Process rules for this node
+                foreach ($this->registry->getRules(get_class($node)) as $rule) {
+                    $rule->processNode($node, $scope);
+                }
+
+                // Hacked in rule
+                if ($node instanceof Namespace_ && !isset($node->namespacedName)) {
+                    $node->namespacedName = $node->name;
+                }
             });
     }
 
@@ -73,5 +92,13 @@ class PHPStanScopeVisitor implements NodeVisitor
 
     public function afterTraverse(array $nodes)
     {
+    }
+
+    /**
+     * Setup application state
+     */
+    protected function init()
+    {
+
     }
 }

@@ -2,6 +2,7 @@
 
 namespace SilverStripe\Upgrader\UpgradeRule\PHP;
 
+use Nette\DI\Container;
 use PhpParser\NodeVisitor\NameResolver;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
@@ -13,6 +14,17 @@ use SilverStripe\Upgrader\Util\MutableSource;
  */
 class ApiChangeRewriteRule extends PHPUpgradeRule
 {
+    /**
+     * @var Container
+     */
+    protected $container;
+
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
+    }
+
+
     public function appliesTo(ItemInterface $file)
     {
         return 'php' === $file->getExtension();
@@ -29,11 +41,12 @@ class ApiChangeRewriteRule extends PHPUpgradeRule
 
         // Convert rewrites to proper spec objects
         $rewrites = $this->parameters['rewrites'] ?? [];
-        $visitors = [
-            new NameResolver(),
-            new PHPStanScopeVisitor($file)
-        ];
-        $this->transformWithVisitors($source->getAst(), $visitors);
+        $tree = $source->getAst();
+        // First resolve all namespaces
+        $this->transformWithVisitors($tree, [new NameResolver()]);
+
+        // Then process with phpstan
+        $this->transformWithVisitors($tree, [new PHPStanScopeVisitor($this->container, $file)]);
 
         return $source->getModifiedString();
     }

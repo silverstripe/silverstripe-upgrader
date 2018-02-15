@@ -2,7 +2,13 @@
 
 namespace SilverStripe\Upgrader\Console;
 
+use Composer\Autoload\ClassLoader;
 use InvalidArgumentException;
+use LogicException;
+use Nette\DI\Container;
+use PhpParser\NodeTraverser;
+use PHPStan\DependencyInjection\ContainerFactory;
+use PHPStan\Type\TypeCombinator;
 use SilverStripe\Upgrader\ChangeDisplayer;
 use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\CodeCollection\DiskItem;
@@ -16,6 +22,22 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PostUpgradeCommand extends UpgradeCommand
 {
+    /**
+     * PHPStan extensions
+     *
+     * @var array
+     */
+    protected $extensions = [
+        'vendor/phpstan/phpstan-php-parser/extension.neon',
+    ];
+
+    /**
+     * PHPStan level
+     *
+     * @var int
+     */
+    protected $level = 3;
+
     protected function configure()
     {
         $this->setName('post-upgrade')
@@ -45,17 +67,21 @@ class PostUpgradeCommand extends UpgradeCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // Setup PHPStan
+        $container = $this->buildContainer();
+        TypeCombinator::setUnionTypesEnabled($container->parameters['checkUnionTypes']);
+
+        // Post-upgrade requires additional composer autoload.php to work
+        $this->enableProjectAutoloading($input);
+
         // Build spec
         $spec = new UpgradeSpec();
         $config = $this->getConfig($input);
-        $spec->addRule((new ApiChangeRewriteRule())->withParameters($config));
+        $spec->addRule((new ApiChangeRewriteRule($container))->withParameters($config));
 
         // Create upgrader with this spec
         $upgrader = new Upgrader($spec);
         $upgrader->setLogger($output);
-
-        // Post-upgrade requires additional composer autoload.php to work
-        $this->enableProjectAutoloading($input);
 
         // Build disc collection
         $filePath = $this->getFilePath($input);
@@ -96,6 +122,12 @@ class PostUpgradeCommand extends UpgradeCommand
         }
         require_once($composer);
 
+        // composer likes to pre-pend it's autoloader! Let's make it not do that
+        $functions = spl_autoload_functions();
+        $projectLoader = $functions[0];
+        spl_autoload_unregister($projectLoader);
+        spl_autoload_register($projectLoader);
+
         // Setup custom autoloading for the given upgrade path
         $filePath = $this->getFilePath($input);
         $codeBase = new DiskCollection($filePath);
@@ -134,5 +166,57 @@ class PostUpgradeCommand extends UpgradeCommand
                 }
             }
         });
+    }
+
+    /**
+     * @return Container
+     */
+    protected function buildContainer()
+    {
+        // Create factory
+        $containerFactory = new ContainerFactory(getcwd());
+
+        // Add extra config files
+        $vendorBase = $this->findVendorBase();
+        $files = array_map(function ($filename) use ($vendorBase) {
+            return $vendorBase . DIRECTORY_SEPARATOR . $filename;
+        }, $this->extensions);
+
+        // Add level config
+        $levelConfigFile = sprintf(
+            '%s/config.level%s.neon',
+            $containerFactory->getConfigDirectory(),
+            $this->level
+        );
+        if (!is_file($levelConfigFile)) {
+            throw new LogicException("Could not load level config.level{$this->level}.neon");
+        }
+        $files[] = $levelConfigFile;
+
+        // Build container from factory
+        return $containerFactory->create(sys_get_temp_dir(), $files);
+    }
+
+    /**
+     * Find base dir
+     *
+     * @return null|string
+     */
+    protected function findVendorBase()
+    {
+        $dir = null;
+        $next = __DIR__;
+        while ($next && $next !== $dir) {
+            // Success
+            if (is_dir($next .'/vendor')) {
+                return $next;
+            }
+            // Get next
+            $dir = $next;
+            $next = dirname($dir);
+        }
+
+        // Failed to find vendor folder anywhere
+        throw new LogicException("silverstripe/upgrader not installed properly");
     }
 }

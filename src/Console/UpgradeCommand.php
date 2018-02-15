@@ -158,7 +158,7 @@ class UpgradeCommand extends AbstractCommand
             $ruleObjects[] = new RenameYMLLangKeys();
             $ruleObjects[] = new RenameTemplateLangKeys();
         }
-        return $rules;
+        return $ruleObjects;
     }
 
     /**
