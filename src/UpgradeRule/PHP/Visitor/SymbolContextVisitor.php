@@ -3,19 +3,21 @@
 namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Use_;
+use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\ConstFetch;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\PropertyProperty;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\ConstFetch;
-use PhpParser\Node\Expr\ClassConstFetch;
-use PhpParser\Node\Expr\StaticPropertyFetch;
-use PhpParser\NodeVisitor\NameResolver;
+use PhpParser\Node\Stmt\Use_;
+use PhpParser\NodeVisitor;
+use PHPStan\Rules\RuleLevelHelper;
+use PHPStan\Type\TypeWithClassName;
 
 /**
  * Accumulates symbols found in a class that might be meaningful
@@ -35,11 +37,18 @@ use PhpParser\NodeVisitor\NameResolver;
  * Since the PHP syntax parser doesn't actually understand symbol relationships,
  * and doesn't resolve dependencies and hierarchies, this isn't a very reliable
  * methodology, and should only be used for warnings rather than code rewrites.
- *
- * @deprecated use PHPStanScopeVisitor instead
  */
-class SymbolContextVisitor extends NameResolver
+class SymbolContextVisitor implements NodeVisitor
 {
+    /**
+     * @var RuleLevelHelper
+     */
+    protected $ruleLevelHelper;
+
+    public function __construct(RuleLevelHelper $ruleLevelHelper)
+    {
+        $this->ruleLevelHelper = $ruleLevelHelper;
+    }
 
     /**
      * @var Node[]
@@ -72,8 +81,6 @@ class SymbolContextVisitor extends NameResolver
 
     public function enterNode(Node $node)
     {
-        parent::enterNode($node);
-
         if ($node instanceof Namespace_) {
             $this->namespace = implode('\\', $node->name->parts);
         }
@@ -91,6 +98,22 @@ class SymbolContextVisitor extends NameResolver
             }
         }
 
+        // Infer instance type from phpstan
+        $instanceClass = null;
+        if ($node instanceof MethodCall ||
+            $node instanceof PropertyFetch
+        ) {
+            // Call rule helper to decorate type
+            $class = $this
+                ->ruleLevelHelper
+                ->findTypeToCheck($node->scope, $node->var, "Could not find type")
+                ->getType();
+            if ($class instanceof TypeWithClassName) {
+                $instanceClass = $class->getClassName();
+            }
+        }
+
+        // Infer static type
         $staticClass = null;
         if ($node instanceof StaticCall ||
             $node instanceof StaticPropertyFetch ||
@@ -124,7 +147,8 @@ class SymbolContextVisitor extends NameResolver
                 'namespace' => $this->namespace,
                 'uses' => $this->uses,
                 'class' => $this->parentClass,
-                'staticClass' => $staticClass,
+                'staticClass' => $staticClass, // class in TheClass::
+                'instanceClass' => $instanceClass, // class for type of $var->
                 'methodClasses' => $this->methodClasses
             ];
             $node->setAttribute('symbolContext', $context);

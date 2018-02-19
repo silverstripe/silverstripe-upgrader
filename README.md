@@ -56,11 +56,13 @@ In addition all .yml config files will have strings re-written. In order to upgr
 you can use the `--rule=code`. If you have already upgraded your code, you can target only
 config files with `--rule=config`.
 
-## Post-upgrade of code
+## Post-upgrade inspection of code
 
 Once a project has all class names migated, and is brought up to a "loadable" state (that is, where 
-all classes reference or extend real classes) then the `post-upgrade` command can be run to perform
+all classes reference or extend real classes) then the `inspect` command can be run to perform
 additional automatic code rewrites.
+
+This step will also warn of any upgradable code issues that may prevent a succesful upgrade.
 
 Note: This step is separate from `upgrade` to the fact that your project code is loaded into real
 memory during this step in order to get the complete project context. In order to prepare for this step
@@ -70,7 +72,7 @@ You can run this command (with a necessary refresh of composer autoload files) w
 
 ```
 composer dump-autoload
-upgrade-code post-upgrade <path> [--root-dir=<root>] [--recursive] [--write] [-vvv]
+upgrade-code inspect <path> [--root-dir=<root>] [--recursive] [--write] [-vvv]
 ```
 
 This will load all classes into memory, and infer the types of all objects used in each file. It will
@@ -155,17 +157,6 @@ You can run the upgrader on these keys with the below command:
 
 Since this upgrade is normally only done on projects that provide their own strings,
 this rule is not included by default when running a normal upgrade.
-
-## Inspecting unfixable code
-
-Some code can be detected as likely causing upgrade issues,
-but not with enough confidence to automatically fix it.
-In this case, we're doing our best to show you useful warnings
-and point to the line of code in question.
-
-You can run the inspection *after* upgrading your code through `upgrade-code upgrade`.
-
-`upgrade-code inspect <path>`
 
 ## .upgrade.yml spec
 

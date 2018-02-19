@@ -70,7 +70,7 @@ class PHPStanScopeVisitor implements NodeVisitor
             [$node],
             $this->scope,
             function (Node $node, Scope $scope) {
-                // Update scope
+                // Record scope
                 $this->scope = $scope;
 
                 // Process rules for this node
@@ -82,6 +82,9 @@ class PHPStanScopeVisitor implements NodeVisitor
                 if ($node instanceof Namespace_ && !isset($node->namespacedName)) {
                     $node->namespacedName = $node->name;
                 }
+
+                // Record scope for SymbolContextVisitor to later decorate
+                $node->scope = $scope;
             });
     }
 

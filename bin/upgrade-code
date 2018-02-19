@@ -17,16 +17,14 @@ foreach ($paths as $path) {
     }
 }
 
-use Symfony\Component\Console\Application;
 use SilverStripe\Upgrader\Console as Upgrader;
+use Symfony\Component\Console\Application;
 
 $application = new Application();
 $application->setName("SilverStripe Upgrader");
-$application->setVersion('1.0.0');
+$application->setVersion('1.1.0');
 $application->add(new Upgrader\UpgradeCommand());
 $application->add(new Upgrader\AddNamespaceCommand());
 $application->add(new Upgrader\DoctorCommand());
 $application->add(new Upgrader\InspectCommand());
-$application->add(new Upgrader\PostUpgradeCommand());
-
 $application->run();
