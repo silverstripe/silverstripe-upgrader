@@ -4,7 +4,6 @@ namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use Nette\DI\Container;
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\NodeVisitor;
 use PhpParser\PrettyPrinter\Standard;
 use PHPStan\Analyser\NodeScopeResolver;
@@ -47,7 +46,6 @@ class PHPStanScopeVisitor implements NodeVisitor
         $this->resolver = $this->container->getByType(NodeScopeResolver::class);
         $this->registry = $this->container->getByType(Registry::class);
         $this->file = $file;
-        $this->init();
     }
 
 
@@ -72,19 +70,12 @@ class PHPStanScopeVisitor implements NodeVisitor
             function (Node $node, Scope $scope) {
                 // Record scope
                 $this->scope = $scope;
+                $node->scope = $scope;
 
                 // Process rules for this node
                 foreach ($this->registry->getRules(get_class($node)) as $rule) {
                     $rule->processNode($node, $scope);
                 }
-
-                // Hacked in rule
-                if ($node instanceof Namespace_ && !isset($node->namespacedName)) {
-                    $node->namespacedName = $node->name;
-                }
-
-                // Record scope for SymbolContextVisitor to later decorate
-                $node->scope = $scope;
             });
     }
 
@@ -94,13 +85,5 @@ class PHPStanScopeVisitor implements NodeVisitor
 
     public function afterTraverse(array $nodes)
     {
-    }
-
-    /**
-     * Setup application state
-     */
-    protected function init()
-    {
-
     }
 }

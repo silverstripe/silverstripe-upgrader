@@ -7,12 +7,8 @@ use PhpParser\NodeVisitor\NameResolver;
 use PHPStan\Rules\RuleLevelHelper;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ClassWarningsVisitor;
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ConstantWarningsVisitor;
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\FunctionWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\MethodWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PHPStanScopeVisitor;
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PropertyWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\SymbolContextVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\ContainsWarnings;
@@ -57,18 +53,19 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
         $source = new MutableSource($contents);
         $tree = $source->getAst();
 
-        // Perform pre-requisite serial visitations
-        $this->transformWithVisitors($tree, [new NameResolver()]);
-        $this->transformWithVisitors($tree, [new PHPStanScopeVisitor($this->container, $file)]);
-
         // Rule helper
         /** @var RuleLevelHelper $ruleLevelHelper */
         $ruleLevelHelper = $this->container->getByType(RuleLevelHelper::class);
 
+        // Perform pre-requisite serial visitations
+        $this->transformWithVisitors($tree, [new NameResolver()]);
+        $this->transformWithVisitors($tree, [new PHPStanScopeVisitor($this->container, $file)]);
+        $this->transformWithVisitors($tree, [new SymbolContextVisitor($ruleLevelHelper)]);
+
+
         // Perform parallel visitations based on upgrade rules
         $visitors = [
             //new ClassWarningsVisitor($classWarnings, $file),
-            new SymbolContextVisitor($ruleLevelHelper),
             new MethodWarningsVisitor($methodWarnings, $file),
             //new FunctionWarningsVisitor($functionWarnings, $file),
             //new ConstantWarningsVisitor($constantWarnings, $file),
