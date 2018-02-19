@@ -4,7 +4,6 @@ namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use Nette\DI\Container;
 use PhpParser\Node;
-use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\NodeVisitor;
 use PhpParser\PrettyPrinter\Standard;

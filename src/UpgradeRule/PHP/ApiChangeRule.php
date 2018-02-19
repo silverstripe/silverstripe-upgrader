@@ -10,9 +10,9 @@ use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PHPStanScopeVisitor;
 use SilverStripe\Upgrader\Util\MutableSource;
 
 /**
- * Similar to ApiChangeWarningsRule, but does actual upgrading
+ * Upgrade and warn on API Changes
  */
-class ApiChangeRewriteRule extends PHPUpgradeRule
+class ApiChangeRule extends PHPUpgradeRule
 {
     /**
      * @var Container
@@ -42,10 +42,8 @@ class ApiChangeRewriteRule extends PHPUpgradeRule
         // Convert rewrites to proper spec objects
         $rewrites = $this->parameters['rewrites'] ?? [];
         $tree = $source->getAst();
-        // First resolve all namespaces
+        // Perform pre-requisite serial visitations
         $this->transformWithVisitors($tree, [new NameResolver()]);
-
-        // Then process with phpstan
         $this->transformWithVisitors($tree, [new PHPStanScopeVisitor($this->container, $file)]);
 
         return $source->getModifiedString();

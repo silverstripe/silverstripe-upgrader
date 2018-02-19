@@ -7,12 +7,14 @@ use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\Upgrader;
 use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeWarningsRule;
 use SilverStripe\Upgrader\UpgradeSpec;
-use SilverStripe\Upgrader\Util\ConfigFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @deprecated use `post-upgrade` command instead
+ */
 class InspectCommand extends UpgradeCommand
 {
     protected function configure()

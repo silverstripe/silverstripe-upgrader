@@ -2,14 +2,12 @@
 
 namespace SilverStripe\Upgrader\UpgradeRule\PHP;
 
-use PhpParser\NodeVisitor\NameResolver;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ClassWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ConstantWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\FunctionWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\MethodWarningsVisitor;
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PHPStanScopeVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PropertyWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\SymbolContextVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
@@ -20,6 +18,8 @@ use SilverStripe\Upgrader\Util\MutableSource;
  * Fuzzy detection of used APIs based on certain markers in the code.
  * Not accurate enough to automatically rewrite code,
  * but gives the user an indication what needs manual attention.
+ *
+ * @deprecated use ApiChangeRule instead
  */
 class ApiChangeWarningsRule extends PHPUpgradeRule
 {
@@ -47,8 +47,6 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
         $propWarnings = $this->transformSpec(isset($warnings['props']) ? $warnings['props'] : []);
 
         $visitors = [
-            new NameResolver(),
-            new PHPStanScopeVisitor($file),
             new SymbolContextVisitor(),
             new ClassWarningsVisitor($classWarnings, $file),
             new MethodWarningsVisitor($methodWarnings, $file),

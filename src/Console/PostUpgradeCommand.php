@@ -13,7 +13,7 @@ use SilverStripe\Upgrader\ChangeDisplayer;
 use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\CodeCollection\DiskItem;
 use SilverStripe\Upgrader\Upgrader;
-use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeRewriteRule;
+use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeRule;
 use SilverStripe\Upgrader\UpgradeSpec;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -77,7 +77,7 @@ class PostUpgradeCommand extends UpgradeCommand
         // Build spec
         $spec = new UpgradeSpec();
         $config = $this->getConfig($input);
-        $spec->addRule((new ApiChangeRewriteRule($container))->withParameters($config));
+        $spec->addRule((new ApiChangeRule($container))->withParameters($config));
 
         // Create upgrader with this spec
         $upgrader = new Upgrader($spec);
