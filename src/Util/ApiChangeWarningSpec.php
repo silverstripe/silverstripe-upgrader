@@ -26,6 +26,13 @@ class ApiChangeWarningSpec
     protected $url = '';
 
     /**
+     * Prevent a rule erroring twice
+     *
+     * @var bool
+     */
+    protected $invalidRuleShown = false;
+
+    /**
      * @param String $symbol
      * @param String $message
      */
@@ -55,7 +62,7 @@ class ApiChangeWarningSpec
     }
 
     /**
-     * @return String
+     * @return string
      */
     public function getSymbol()
     {
@@ -73,5 +80,19 @@ class ApiChangeWarningSpec
         }
 
         return $msg;
+    }
+
+    /**
+     * Called if this rule is invalid
+     *
+     * @param string $error
+     */
+    public function invalidRule($error)
+    {
+        if ($this->invalidRuleShown) {
+            return;
+        }
+        user_error($error, E_USER_WARNING);
+        $this->invalidRuleShown = true;
     }
 }

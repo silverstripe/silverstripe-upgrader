@@ -7,8 +7,12 @@ use PhpParser\NodeVisitor\NameResolver;
 use PHPStan\Rules\RuleLevelHelper;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ClassWarningsVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ConstantWarningsVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\FunctionWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\MethodWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PHPStanScopeVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PropertyWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\SymbolContextVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\ContainsWarnings;
@@ -65,11 +69,14 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
 
         // Perform parallel visitations based on upgrade rules
         $visitors = [
-            //new ClassWarningsVisitor($classWarnings, $file),
+            // Non-rewriting visitors
+            new ClassWarningsVisitor($classWarnings, $file),
+
+            // Rewriting visitors
             new MethodWarningsVisitor($methodWarnings, $file),
-            //new FunctionWarningsVisitor($functionWarnings, $file),
-            //new ConstantWarningsVisitor($constantWarnings, $file),
-            //new PropertyWarningsVisitor($propWarnings, $file)
+            new FunctionWarningsVisitor($functionWarnings, $file),
+            new ConstantWarningsVisitor($constantWarnings, $file),
+            new PropertyWarningsVisitor($propWarnings, $file),
         ];
         $this->transformWithVisitors($tree, $visitors);
 

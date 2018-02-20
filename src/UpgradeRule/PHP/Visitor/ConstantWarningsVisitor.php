@@ -45,40 +45,29 @@ class ConstantWarningsVisitor extends WarningsVisitor
     {
         $symbol = $spec->getSymbol();
 
-        // MyClass::MY_CONST or MyNamespace\MyClass::MY_CONST
-        if (preg_match('/(?<class>.*)::(?<const>.*)/', $symbol, $matches)) {
+        // ::MY_CONST or MyNamespace\MyClass::MY_CONST
+        if (preg_match('/^((?<class>[\w\\\\]*)?::)?(?<const>[\w]+)$/', $symbol, $matches)) {
+            // Rule is symbol only
+            if (empty($matches['class'])) {
+                return $this->nodeMatchesSymbol($node, $matches['const']);
+            }
+            // Rule is qualified by class
             return $this->matchesClassConstant($node, $matches['class'], $matches['const']);
         }
 
-        return $this->matchesConstant($node, $symbol);
+        // Invalid rule
+        $spec->invalidRule("Invalid constant spec: {$symbol}");
+        return false;
     }
 
     /**
      * @param Node $node
-     * @param String $class
-     * @param String $const
+     * @param string $class
+     * @param string $const
      * @return bool
      */
-    protected function matchesClassConstant($node, $class, $const)
+    protected function matchesClassConstant(Node $node, $class, $const)
     {
-        $context = $node->getAttribute('symbolContext');
-        $name = (isset($node->name->parts)) ? $node->name->parts[0] : (string)$node->name;
-
-        return (
-            $name === $const &&
-            $context['staticClass'] === $class
-        );
-    }
-
-    /**
-     * @param Node $node
-     * @param String $const
-     * @return boolean
-     */
-    protected function matchesConstant(Node $node, $const)
-    {
-        $name = (isset($node->name->parts)) ? $node->name->parts[0] : (string)$node->name;
-
-        return ($name === $const);
+        return $this->nodeMatchesSymbol($node, $const) && $this->nodeMatchesClass($node, $class);
     }
 }

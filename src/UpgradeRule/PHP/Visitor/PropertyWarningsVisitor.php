@@ -54,71 +54,84 @@ class PropertyWarningsVisitor extends WarningsVisitor
     {
         $symbol = $spec->getSymbol();
 
-        // MyClass::myProp or MyNamespace\MyClass::myProp
-        if (preg_match('/(?<class>.*)::(?<prop>.*)/', $symbol, $matches)) {
-            return $this->matchesStaticClassAndProp($node, $matches['class'], $matches['prop']);
+        // ::myProperty() or MyNamespace\MyClass::myProperty()
+        if (preg_match('/^(?<class>[\w\\\\]*)?::(?<property>[\w]+)$/', $symbol, $matches)) {
+            if (empty($matches['class'])) {
+                return $this->matchesStaticProperty($node, $matches['property']);
+            }
+            return $this->matchesStaticClassProperty($node, $matches['class'], $matches['property']);
         }
 
-        // MyClass->myProp or MyNamespace\MyClass->myProp
-        if (preg_match('/(?<class>.*)->(?<prop>.*)/', $symbol, $matches)) {
-            return $this->matchesInstanceClassAndProp($node, $matches['class'], $matches['prop']);
+        // ->myProperty() or MyNamespace\MyClass->myProperty()
+        if (preg_match('/^(?<class>[\w\\\\]*)?->(?<property>[\w]+)$/', $symbol, $matches)) {
+            if (empty($matches['class'])) {
+                return $this->matchesInstanceProperty($node, $matches['property']);
+            }
+            return $this->matchesInstanceClassProperty($node, $matches['class'], $matches['property']);
         }
 
-        // myProp
-        if (preg_match('/(?<prop>.*)/', $symbol, $matches)) {
-            return $this->matchesProp($node, $matches['prop']);
+        // myProperty()
+        if (preg_match('/^(?<property>[\w]+)$/', $symbol, $matches)) {
+            return $this->nodeMatchesSymbol($node, $matches['property']);
         }
 
+        // Invalid rule
+        $spec->invalidRule("Invalid property spec: {$symbol}");
         return false;
     }
 
+
     /**
+     * Is static, and matches class and property name
+     *
      * @param Node $node
      * @param string $class FQCN
-     * @param string $prop
+     * @param string $property
      * @return bool
      */
-    protected function matchesStaticClassAndProp(Node $node, $class, $prop)
+    protected function matchesStaticClassProperty(Node $node, $class, $property)
     {
-        $context = $node->getAttribute('symbolContext');
-
-        return (
-            (string)$node->name === $prop &&
-            (
-                $context['class'] === $class ||
-                $context['staticClass'] === $class
-            )
-
-        );
+        return ($node instanceof StaticPropertyFetch || $node instanceof PropertyProperty)
+            && $this->nodeMatchesClassSymbol($node, $class, $property);
     }
 
     /**
+     * Is instance, matches class and property name
+     *
      * @param Node $node
-     * @param string $class FQCN
-     * @param string $prop
+     * @param string $class
+     * @param string $property
      * @return bool
      */
-    protected function matchesInstanceClassAndProp(Node $node, $class, $prop)
+    protected function matchesInstanceClassProperty(Node $node, $class, $property)
     {
-        $context = $node->getAttribute('symbolContext');
-
-        return (
-            (string)$node->name === $prop &&
-            (
-                $class === $context['class'] ||
-                in_array($class, $context['methodClasses']) ||
-                in_array($class, $context['uses'])
-            )
-        );
+        return ($node instanceof PropertyFetch || $node instanceof PropertyProperty)
+            && $this->nodeMatchesClassSymbol($node, $class, $property);
     }
 
     /**
+     * Is static, and matches property name
+     *
      * @param Node $node
-     * @param string $prop
+     * @param string $property
      * @return bool
      */
-    protected function matchesProp(Node $node, $prop)
+    protected function matchesStaticProperty(Node $node, $property)
     {
-        return ((string)$node->name === $prop);
+        return ($node instanceof StaticPropertyFetch || $node instanceof PropertyProperty)
+            && $this->nodeMatchesSymbol($node, $property);
+    }
+
+    /**
+     * Is instance, and matches property name
+     *
+     * @param Node $node
+     * @param string $property
+     * @return bool
+     */
+    protected function matchesInstanceProperty(Node $node, $property)
+    {
+        return ($node instanceof PropertyFetch || $node instanceof PropertyProperty)
+            && $this->nodeMatchesSymbol($node, $property);
     }
 }

@@ -79,4 +79,78 @@ class WarningsVisitor implements NodeVisitor, ContainsWarnings
             $spec->getFullMessage()
         );
     }
+
+    /**
+     * Check if a node matches the class and symbol
+     *
+     * @param Node $node
+     * @param string $class FQCN
+     * @param string $symbol
+     * @return bool
+     */
+    protected function nodeMatchesClassSymbol(Node $node, $class, $symbol)
+    {
+        return $this->nodeMatchesSymbol($node, $symbol)
+            && $this->nodeMatchesClass($node, $class);
+    }
+
+    /**
+     * Check if a node matches a name
+     *
+     * @param Node $node
+     * @param string $name
+     * @return bool
+     */
+    protected function nodeMatchesSymbol(Node $node, $name)
+    {
+        // No symbol available
+        if (!isset($node->name)) {
+            return false;
+        }
+        return strcasecmp((string)$node->name, $name) === 0;
+    }
+
+    /**
+     * Check if the type of the given node matches the given class name
+     *
+     * @param Node $node
+     * @param string $class
+     * @return bool
+     */
+    protected function nodeMatchesClass(Node $node, $class)
+    {
+        // Validate all classes
+        $classCandidates = $node->getAttribute('contextTypes'); // Classes this node could be
+        if (empty($classCandidates)) {
+            return false;
+        }
+
+        // Check if any possible contexts are of the class type
+        foreach ($classCandidates as $classCandidate) {
+            if ($this->matchesClass($classCandidate, $class)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if the given class matches the spec class
+     *
+     * @param string $candidate Class to test
+     * @param string $class Class to test against
+     * @return bool
+     */
+    protected function matchesClass($candidate, $class) {
+        // equality will bypass classloading
+        if (strcasecmp($class, $candidate) === 0) {
+            return true;
+        }
+        // Check if subclass
+        if (class_exists($class) && class_exists($candidate) && is_a($candidate, $class, true)) {
+            return true;
+        }
+        return false;
+    }
 }

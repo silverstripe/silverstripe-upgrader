@@ -12,11 +12,10 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
  * Relies on {@link SymbolContextVisitor} to annotate the
  * 'symbolContext' attribute of nodes.
  *
- * @package SilverStripe\Upgrader\UpgradeRule
+ * Note: Does not support rewriting
  */
 class ClassWarningsVisitor extends WarningsVisitor
 {
-
     public function enterNode(Node $node)
     {
         parent::enterNode($node);
@@ -44,45 +43,16 @@ class ClassWarningsVisitor extends WarningsVisitor
      */
     protected function matchesSpec(Node $node, ApiChangeWarningSpec $spec)
     {
-        $symbol = $spec->getSymbol();
-        $context = $node->getAttribute('symbolContext');
-
-        $class = '';
+        $class = $spec->getSymbol();
 
         // class MyClass
-        if (isset($node->name)) {
-            $class = (string)$node->name;
-            if ($class === $symbol) {
-                return true;
-            }
-        }
-
-        // extends MyNamespace\MyClass or extends MyClass
-        if (isset($node->extends->parts)) {
-            $class = implode('\\', $node->extends->parts);
-            if ($class === $symbol) {
-                return true;
-            }
+        if (isset($node->name) && $this->matchesClass((string)$node->name, $class)) {
+            return true;
         }
 
         // MyClass::someMethod()
-        if (isset($node->class->parts)) {
-            $class = implode('\\', $node->class->parts);
-            if ($class === $symbol) {
-                return true;
-            }
-        }
-
-        // use MyNamespace\MyClass
-        foreach ($context['uses'] as $use) {
-            // Prefix namespace if we have a match on trailing part of use statements
-            if (preg_match('#'. preg_quote($class) . '$#', $use)) {
-                $class = $use;
-            }
-
-            if ($class === $symbol) {
-                return true;
-            }
+        if (isset($node->class) && $this->matchesClass((string)$node->class, $class)) {
+            return true;
         }
 
         return false;

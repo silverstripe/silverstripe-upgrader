@@ -13,6 +13,9 @@ use PHPStan\Broker\Broker;
 use PHPStan\Rules\Registry;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 
+/**
+ * Decorates all nodes with a $scope variable
+ */
 class PHPStanScopeVisitor implements NodeVisitor
 {
     /**
@@ -70,7 +73,7 @@ class PHPStanScopeVisitor implements NodeVisitor
             function (Node $node, Scope $scope) {
                 // Record scope
                 $this->scope = $scope;
-                $node->scope = $scope;
+                $node->setAttribute('scope', $scope);
 
                 // Process rules for this node
                 foreach ($this->registry->getRules(get_class($node)) as $rule) {

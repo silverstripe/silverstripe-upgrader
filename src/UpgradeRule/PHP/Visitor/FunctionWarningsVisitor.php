@@ -51,20 +51,12 @@ class FunctionWarningsVisitor extends WarningsVisitor
         $symbol = $spec->getSymbol();
 
         // myFunction()
-        if (preg_match('/(?<function>.*)\(\)/', $symbol, $matches)) {
-            return $this->matchesFunction($node, $matches['function']);
+        if (preg_match('/^(?<function>[\w]+)\(\)$/', $symbol, $matches)) {
+            return $this->nodeMatchesSymbol($node, $matches['function']);
         }
 
+        // Invalid rule
+        $spec->invalidRule("Invalid function rule: {$symbol}");
         return false;
-    }
-
-    /**
-     * @param Node $node
-     * @param string $function
-     * @return bool
-     */
-    protected function matchesFunction(Node $node, $function)
-    {
-        return ((string)$node->name === $function);
     }
 }
