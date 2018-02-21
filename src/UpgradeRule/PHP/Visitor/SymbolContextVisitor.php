@@ -10,6 +10,8 @@ use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
+use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeVisitor;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\RuleLevelHelper;
@@ -74,6 +76,18 @@ class SymbolContextVisitor implements NodeVisitor
         ) {
             // Resolve Class::something() types
             $types = $this->getStaticClasses($scope, $node);
+        } elseif ($node instanceof Class_) {
+            // Resolve Class extends OldClass
+            if ($node->extends) {
+                $types[] = $node->extends->toString();
+            }
+            // Resolve Class implements OldInterface
+            if ($node->implements) {
+                /** @var Name $extend */
+                foreach ($node->implements as $implement) {
+                    $types[] = $implement->toString();
+                }
+            }
         }
 
         // Set all types (even if empty)

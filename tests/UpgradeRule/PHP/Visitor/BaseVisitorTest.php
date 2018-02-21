@@ -2,16 +2,41 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
-use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 use PHPUnit_Framework_TestCase;
+use SilverStripe\Upgrader\CodeCollection\ItemInterface;
+use SilverStripe\Upgrader\Tests\InspectCodeTrait;
 use SilverStripe\Upgrader\Tests\MockCodeCollection;
+use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeWarningsRule;
 use SilverStripe\Upgrader\Util\MutableSource;
 use SilverStripe\Upgrader\Util\Warning;
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\SymbolContextVisitor;
 
 abstract class BaseVisitorTest extends PHPUnit_Framework_TestCase
 {
+    use InspectCodeTrait;
+
+    /**
+     * @var MockCodeCollection
+     */
+    protected $codeCollection = null;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->setUpInspect();
+
+        // Setup mock collection for this visitor
+        $this->codeCollection = new MockCodeCollection([]);
+        $this->autoloader->addCollection($this->codeCollection);
+    }
+
+    protected function tearDown()
+    {
+        $this->codeCollection = null;
+        $this->tearDownInspect();
+        parent::tearDown();
+    }
+
     /**
      * @param string $input
      * @param Warning $warning
@@ -24,28 +49,30 @@ abstract class BaseVisitorTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Mock a code item
+     *
      * @param string $input
      * @param string $name
-     * @return \SilverStripe\Upgrader\CodeCollection\ItemInterface
+     * @return ItemInterface
      */
     protected function getMockFile($input, $name = 'test.php')
     {
-        $code = new MockCodeCollection([
-            $name => $input
-        ]);
-        return $code->itemByPath($name);
+        // Register item
+        $this->codeCollection->setItemContent($name, $input);
+        return $this->codeCollection->itemByPath($name);
     }
 
     /**
-     * @param string $input
+     * Mock traversing an item with a single visitor
+     *
+     * @param ItemInterface $item
      * @param NodeVisitor $visitor
+     * @return MutableSource Result of visiting the rule
      */
-    protected function traverseWithVisitor($input, NodeVisitor $visitor)
+    protected function traverseWithVisitor(ItemInterface $item, NodeVisitor $visitor)
     {
-        $source = new MutableSource($input);
-        $traverser = new NodeTraverser;
-        $traverser->addVisitor(new SymbolContextVisitor());
-        $traverser->addVisitor($visitor);
-        $traverser->traverse($source->getAst());
+        // Build dummy rule
+        $rule = new ApiChangeWarningsRule($this->state->getContainer());
+        return $rule->mutateSourceWithVisitors($item->getContents(), $item, [$visitor]);
     }
 }

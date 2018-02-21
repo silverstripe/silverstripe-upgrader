@@ -284,7 +284,9 @@ class RenameClassesVisitor extends NodeVisitorAbstract
 
         // catch statements
         if ($node instanceof Stmt\Catch_) {
-            $this->handleNameUpdate($node->type);
+            foreach ($node->types as $type) {
+                $this->handleNameUpdate($type);
+            }
         }
 
         // Strings containing only the class name

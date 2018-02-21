@@ -45,31 +45,6 @@ class ClassWarningsVisitor extends WarningsVisitor
     protected function matchesSpec(Node $node, ApiChangeWarningSpec $spec)
     {
         $class = $spec->getSymbol();
-        $nodeClass = $this->getNodeClass($node);
-        return $nodeClass && $this->matchesClass($nodeClass, $class);
-    }
-
-    /**
-     * Get name of class this node refers to
-     *
-     * @param Node|string $node
-     * @return null|string
-     */
-    protected function getNodeClass($node) {
-        // Literall name passed in
-        if (is_string($node)) {
-            return $node;
-        }
-        if ($node instanceof Name) {
-            return $node->toString();
-        }
-        // Base supported nodes
-        if ($node instanceof StaticCall || $node instanceof New_) {
-            return $this->getNodeClass($node->class);
-        }
-        if ($node instanceof Class_) {
-            return $this->getNodeClass($node->name);
-        }
-        return null;
+        return $this->nodeMatchesClass($node, $class);
     }
 }

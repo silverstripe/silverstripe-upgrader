@@ -3,47 +3,32 @@
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP;
 
 use PHPUnit_Framework_TestCase;
-use SilverStripe\Upgrader\Autoload\CollectionAutoloader;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\Tests\FixtureLoader;
+use SilverStripe\Upgrader\Tests\InspectCodeTrait;
 use SilverStripe\Upgrader\Tests\MockCodeCollection;
-use SilverStripe\Upgrader\Tests\MockCollectionAutoloader;
 use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeWarningsRule;
-use SilverStripe\Upgrader\Util\PHPStanState;
 
 class ApiChangeWarningsRuleTest extends PHPUnit_Framework_TestCase
 {
     use FixtureLoader;
-
-    /**
-     * @var PHPStanState
-     */
-    protected $state = null;
-
-    /**
-     * @var CollectionAutoloader
-     */
-    protected $autoloader = null;
+    use InspectCodeTrait;
 
     protected function setUp()
     {
         parent::setUp();
-
-        // Setup state and autoloading
-        $this->state = new PHPStanState();
-        $this->state->init();
-
-        $this->autoloader = new MockCollectionAutoloader();
-        $this->autoloader->register();
+        $this->setUpInspect();
     }
 
     protected function tearDown()
     {
-        // Disable autoloader
-        $this->autoloader->unregister();
+        $this->tearDownInspect();
         parent::tearDown();
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testClassExtendsWithoutReplacement()
     {
 

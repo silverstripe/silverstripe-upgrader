@@ -3,6 +3,7 @@
 namespace SilverStripe\Upgrader\UpgradeRule\PHP;
 
 use Nette\DI\Container;
+use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitor\NameResolver;
 use PHPStan\Rules\RuleLevelHelper;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
@@ -14,6 +15,7 @@ use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\MethodWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PHPStanScopeVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PropertyWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\SymbolContextVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\WarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\ContainsWarnings;
 use SilverStripe\Upgrader\Util\MutableSource;
@@ -45,14 +47,32 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
             return $contents;
         }
 
-        // Convert warnings to proper spec objects
-        $warnings = isset($this->parameters['warnings']) ? $this->parameters['warnings'] : [];
-        $classWarnings = $this->transformSpec(isset($warnings['classes']) ? $warnings['classes'] : []);
-        $methodWarnings = $this->transformSpec(isset($warnings['methods']) ? $warnings['methods'] : []);
-        $functionWarnings = $this->transformSpec(isset($warnings['functions']) ? $warnings['functions'] : []);
-        $constantWarnings = $this->transformSpec(isset($warnings['constants']) ? $warnings['constants'] : []);
-        $propWarnings = $this->transformSpec(isset($warnings['props']) ? $warnings['props'] : []);
+        // Build all rules from warnings config
+        $visitors = $this->buildRuleVisitors($file);
 
+        // Mutate (note: public for testing)
+        $source = $this->mutateSourceWithVisitors($contents, $file, $visitors);
+
+        // Save all warnings from visitors
+        foreach ($visitors as $visitor) {
+            if ($visitor instanceof ContainsWarnings) {
+                $this->addWarningsFromVisitor($file, $visitor, $changeset);
+            }
+        }
+
+        return $source->getModifiedString();
+    }
+
+    /**
+     * Traverse the contents with the given list of visitors
+     *
+     * @param string $contents File contents
+     * @param ItemInterface $file File container
+     * @param NodeVisitor[] $visitors
+     * @return MutableSource
+     */
+    public function mutateSourceWithVisitors($contents, ItemInterface $file, $visitors)
+    {
         // Prepare mutable source with AST
         $source = new MutableSource($contents);
         $tree = $source->getAst();
@@ -65,29 +85,9 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
         $this->transformWithVisitors($tree, [new NameResolver()]);
         $this->transformWithVisitors($tree, [new PHPStanScopeVisitor($this->container, $file)]);
         $this->transformWithVisitors($tree, [new SymbolContextVisitor($ruleLevelHelper)]);
-
-
-        // Perform parallel visitations based on upgrade rules
-        $visitors = [
-            // Non-rewriting visitors
-            new ClassWarningsVisitor($classWarnings, $file),
-
-            // Rewriting visitors
-            new MethodWarningsVisitor($methodWarnings, $file),
-            new FunctionWarningsVisitor($functionWarnings, $file),
-            new ConstantWarningsVisitor($constantWarnings, $file),
-            new PropertyWarningsVisitor($propWarnings, $file),
-        ];
         $this->transformWithVisitors($tree, $visitors);
 
-        // Save all warnings from visitors
-        foreach ($visitors as $visitor) {
-            if ($visitor instanceof ContainsWarnings) {
-                $this->addWarningsFromVisitor($file, $visitor, $changeset);
-            }
-        }
-
-        return $source->getModifiedString();
+        return $source;
     }
 
     /**
@@ -119,5 +119,44 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
         }
 
         return $out;
+    }
+
+    /**
+     * Get list of warning visitors to check for this config
+     *
+     * @param ItemInterface $file
+     * @return WarningsVisitor[]
+     */
+    protected function buildRuleVisitors(ItemInterface $file)
+    {
+        // Nothing configured
+        if (empty($this->parameters['warnings'])) {
+            return [];
+        }
+
+        // Convert warnings to specs
+        $warnings = array_map(function ($spec) {
+            return $this->transformSpec($spec);
+        }, $this->parameters['warnings']);
+
+        // Build visitors based on warning types
+        $visitors = [];
+        if (isset($warnings['classes'])) {
+            $visitors[] = new ClassWarningsVisitor($warnings['classes'], $file);
+        }
+        if (isset($warnings['methods'])) {
+            $visitors[] = new MethodWarningsVisitor($warnings['methods'], $file);
+        }
+        if (isset($warnings['functions'])) {
+            $visitors[] = new FunctionWarningsVisitor($warnings['functions'], $file);
+        }
+        if (isset($warnings['constants'])) {
+            $visitors[] = new ConstantWarningsVisitor($warnings['constants'], $file);
+        }
+        if (isset($warnings['props'])) {
+            $visitors[] = new PropertyWarningsVisitor($warnings['props'], $file);
+        }
+
+        return $visitors;
     }
 }

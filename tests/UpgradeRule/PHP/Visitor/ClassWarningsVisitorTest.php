@@ -7,10 +7,23 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 class ClassWarningsVisitorTest extends BaseVisitorTest
 {
+    /**
+     * @runInSeparateProcess
+     */
     public function testBaseClass()
     {
+        // mock someclass
+        $someclass = <<<PHP
+<?php
 
-        $input = <<<PHP
+namespace MyNamespace;
+
+class SomeClass {}
+PHP;
+        $this->getMockFile($someclass, 'SomeClass.php');
+
+        // Mock myclass
+        $myclass = <<<PHP
 <?php
 
 namespace MyNamespace;
@@ -19,23 +32,37 @@ class MyClass extends SomeClass
 {
 }
 PHP;
+        $item = $this->getMockFile($myclass, 'MyClass.php');
 
         $visitor = new ClassWarningsVisitor([
-            (new ApiChangeWarningSpec('MyNamespace\\SomeClass', 'Error with SomeClass'))
-        ], $this->getMockFile($input));
+            new ApiChangeWarningSpec('MyNamespace\\SomeClass', 'Error with SomeClass')
+        ], $item);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($item, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
         $this->assertContains('Error with SomeClass', $warnings[0]->getMessage());
-        $this->assertContains('class MyClass extends SomeClass', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains('class MyClass extends SomeClass', $this->getLineForWarning($myclass, $warnings[0]));
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testBaseClassWithNamespace()
     {
+        // mock someclass
+        $someclass = <<<PHP
+<?php
 
-        $input = <<<PHP
+namespace SomeNamespace;
+
+class SomeClass {}
+PHP;
+        $this->getMockFile($someclass, 'SomeClass.php');
+
+        // Mock myclass
+        $myclass = <<<PHP
 <?php
 
 namespace MyNamespace;
@@ -47,16 +74,18 @@ class MyClass extends SomeClass
 }
 PHP;
 
+        $item = $this->getMockFile($myclass, 'MyClass.php');
+
         $visitor = new ClassWarningsVisitor([
             (new ApiChangeWarningSpec('SomeNamespace\\SomeClass', 'Error with SomeNamespace\\SomeClass'))
-        ], $this->getMockFile($input));
+        ], $item);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($item, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
         $this->assertContains('Error with SomeNamespace\\SomeClass', $warnings[0]->getMessage());
-        $this->assertContains('class MyClass extends SomeClass', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains('class MyClass extends SomeClass', $this->getLineForWarning($myclass, $warnings[0]));
     }
 
     public function testBaseClassWithInlineNamespace()
