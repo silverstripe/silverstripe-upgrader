@@ -2,7 +2,7 @@
 
 namespace SilverStripe\Upgrader\Console;
 
-use SilverStripe\Upgrader\Autoload\DiskCollectionAutoloader;
+use SilverStripe\Upgrader\Autoload\CollectionAutoloader;
 use SilverStripe\Upgrader\Autoload\IncludedProjectAutoloader;
 use SilverStripe\Upgrader\ChangeDisplayer;
 use SilverStripe\Upgrader\CodeCollection\DiskCollection;
@@ -101,7 +101,7 @@ class InspectCommand extends UpgradeCommand
         // Setup custom autoloading for the given upgrade path
         $filePath = $this->getFilePath($input);
         $codeBase = new DiskCollection($filePath);
-        $collectionLoader = new DiskCollectionAutoloader();
+        $collectionLoader = new CollectionAutoloader();
         $collectionLoader->addCollection($codeBase);
         $collectionLoader->register();
     }

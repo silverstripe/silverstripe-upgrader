@@ -3,20 +3,20 @@
 namespace SilverStripe\Upgrader\Autoload;
 
 use Generator;
-use SilverStripe\Upgrader\CodeCollection\DiskCollection;
-use SilverStripe\Upgrader\CodeCollection\DiskItem;
+use SilverStripe\Upgrader\CodeCollection\CollectionInterface;
+use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 
 /**
  * Provides autoloading for a disk collection.
  *
  * Note: This loader supports modification of the underlying collection after registration
  */
-class DiskCollectionAutoloader implements Autoloader
+class CollectionAutoloader implements Autoloader
 {
     /**
      * List of disk collections
      *
-     * @var DiskCollection[]
+     * @var CollectionInterface[]
      */
     protected $collections = [];
 
@@ -43,10 +43,10 @@ class DiskCollectionAutoloader implements Autoloader
     /**
      * Add a collection to the loader
      *
-     * @param DiskCollection $collection
+     * @param CollectionInterface $collection
      * @return $this
      */
-    public function addCollection(DiskCollection $collection)
+    public function addCollection(CollectionInterface $collection)
     {
         $this->collections[] = $collection;
         $this->resetCache();
@@ -54,7 +54,7 @@ class DiskCollectionAutoloader implements Autoloader
     }
 
     /**
-     * @return DiskCollection[]
+     * @return CollectionInterface[]
      */
     public function getCollections()
     {
@@ -62,8 +62,8 @@ class DiskCollectionAutoloader implements Autoloader
     }
 
     /**
-     * @param DiskCollection[] $collections
-     * @return DiskCollectionAutoloader
+     * @param CollectionInterface[] $collections
+     * @return $this
      */
     public function setCollections(array $collections)
     {
@@ -83,13 +83,13 @@ class DiskCollectionAutoloader implements Autoloader
 
         // Lazy-autoload in case PSR-2 isn't setup
         $expectedFilename = basename($class) . '.php';
-        /** @var DiskItem[] $rest */
+        /** @var ItemInterface[] $rest */
         $rest = [];
         foreach ($files as $file) {
             // Try to load files with matching basename first
             if (strcasecmp($expectedFilename, $file->getFilename()) !== 0) {
                 $rest[] = $file;
-            } elseif ($this->loadDiskItem($file, $class)) {
+            } elseif ($this->loadItem($file, $class)) {
                 // Load and quit if successful
                 return;
             }
@@ -97,7 +97,7 @@ class DiskCollectionAutoloader implements Autoloader
 
         // Maybe one of the leftover files has this?
         foreach ($rest as $file) {
-            if ($this->loadDiskItem($file, $class)) {
+            if ($this->loadItem($file, $class)) {
                 return;
             }
         }
@@ -111,7 +111,7 @@ class DiskCollectionAutoloader implements Autoloader
     /**
      * Get list of files as simple array (with caching)
      *
-     * @return DiskItem[]
+     * @return ItemInterface[]
      */
     protected function getFiles()
     {
@@ -138,7 +138,7 @@ class DiskCollectionAutoloader implements Autoloader
     protected function getFileIterator()
     {
         foreach ($this->getCollections() as $collection) {
-            /** @var DiskItem $collectionItem */
+            /** @var ItemInterface $collectionItem */
             foreach ($collection->iterateItems() as $collectionItem) {
                 if ($collectionItem->getExtension() === 'php') {
                     yield $collectionItem;
@@ -150,11 +150,11 @@ class DiskCollectionAutoloader implements Autoloader
     /**
      * Autoload the given disk item
      *
-     * @param DiskItem $file
+     * @param ItemInterface $file
      * @param string $class Class to test for
      * @return bool True if successful
      */
-    protected function loadDiskItem(DiskItem $file, $class)
+    protected function loadItem(ItemInterface $file, $class)
     {
         require_once($file->getFullPath());
         return class_exists($class, false);

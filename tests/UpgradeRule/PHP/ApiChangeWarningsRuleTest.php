@@ -3,9 +3,11 @@
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP;
 
 use PHPUnit_Framework_TestCase;
+use SilverStripe\Upgrader\Autoload\CollectionAutoloader;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\Tests\FixtureLoader;
 use SilverStripe\Upgrader\Tests\MockCodeCollection;
+use SilverStripe\Upgrader\Tests\MockCollectionAutoloader;
 use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeWarningsRule;
 use SilverStripe\Upgrader\Util\PHPStanState;
 
@@ -18,13 +20,28 @@ class ApiChangeWarningsRuleTest extends PHPUnit_Framework_TestCase
      */
     protected $state = null;
 
+    /**
+     * @var CollectionAutoloader
+     */
+    protected $autoloader = null;
+
     protected function setUp()
     {
         parent::setUp();
 
-        // Setup state
+        // Setup state and autoloading
         $this->state = new PHPStanState();
         $this->state->init();
+
+        $this->autoloader = new MockCollectionAutoloader();
+        $this->autoloader->register();
+    }
+
+    protected function tearDown()
+    {
+        // Disable autoloader
+        $this->autoloader->unregister();
+        parent::tearDown();
     }
 
     public function testClassExtendsWithoutReplacement()
@@ -33,11 +50,7 @@ class ApiChangeWarningsRuleTest extends PHPUnit_Framework_TestCase
         $input = <<<PHP
 <?php
 
-use SomeNamespaced\NamespacedClass;
-
-class object {}
-
-class MyClass extends object
+class MyClass extends Object
 {
 }
 PHP;
@@ -57,19 +70,19 @@ PHP;
 
         // Build mock collection
         $code = new MockCodeCollection([
-            'test.php' => $input
+            'MyClass.php' => $input,
+            'object.php' => '<?php class object {} ',
         ]);
-        $file = $code->itemByPath('test.php');
+        $this->autoloader->addCollection($code);
+        $file = $code->itemByPath('MyClass.php');
         $changeset = new CodeChangeSet();
 
-        // Bypass autoloading
-        eval($file->getContents());
         $updater->upgradeFile($input, $file, $changeset);
 
-        $this->assertTrue($changeset->hasWarnings('test.php'));
-        $warnings = $changeset->warningsForPath('test.php');
+        $this->assertTrue($changeset->hasWarnings('MyClass.php'));
+        $warnings = $changeset->warningsForPath('MyClass.php');
         $this->assertEquals(count($warnings), 1);
-        $this->assertContains('test.php:5', $warnings[0]);
+        $this->assertContains('MyClass.php:3', $warnings[0]);
         $this->assertContains('Classes extending Object need to use traits', $warnings[0]);
         $this->assertContains('class MyClass extends Object', $this->getLineForWarning($input, $warnings[0]));
     }
