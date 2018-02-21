@@ -49,81 +49,75 @@ class MethodWarningsVisitor extends WarningsVisitor
      */
     protected function matchesSpec(Node $node, ApiChangeWarningSpec $spec)
     {
+        // Parse spec
         $symbol = $spec->getSymbol();
-
-        // ::myMethod() or MyNamespace\MyClass::myMethod()
-        if (preg_match('/^(?<class>[\w\\\\]*)?::(?<method>[\w]+)\(\)$/', $symbol, $matches)) {
-            if (empty($matches['class'])) {
-                return $this->matchesStaticMethod($node, $matches['method']);
-            }
-            return $this->matchesStaticClassAndMethod($node, $matches['class'], $matches['method']);
+        $matches = $this->parseMethodSpec($symbol);
+        if (!$matches) {
+            $spec->invalidRule("Invalid method spec: {$symbol}");
+            return false;
         }
 
-        // ->myMethod() or MyNamespace\MyClass->myMethod()
-        if (preg_match('/^(?<class>[\w\\\\]*)?->(?<method>[\w]+)\(\)$/', $symbol, $matches)) {
-            if (empty($matches['class'])) {
-                return $this->matchesInstanceMethod($node, $matches['method']);
-            }
-            return $this->matchesInstanceClassAndMethod($node, $matches['class'], $matches['method']);
+        // Check method name matches
+        if (!$this->nodeMatchesSymbol($node, $matches['method'])) {
+            return false;
         }
 
-        // myMethod()
-        if (preg_match('/^(?<method>[\w]+)\(\)$/', $symbol, $matches)) {
-            return $this->nodeMatchesSymbol($node, $matches['method']);
+        // Check type
+        if (!empty($matches['type']) && !$this->nodeMatchesCallType($node, $matches['type'])) {
+            return false;
         }
 
-        // Invalid rule
-        $spec->invalidRule("Invalid method spec: {$symbol}");
-        return false;
+        // Check class
+        if (!empty($matches['class']) && !$this->nodeMatchesClass($node, $matches['class'])) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
-     * Is static, and matches class and method name
+     * Check the call type matches this node
      *
      * @param Node $node
-     * @param string $class FQCN
-     * @param string $method
+     * @param string $type
      * @return bool
      */
-    protected function matchesStaticClassAndMethod(Node $node, $class, $method)
+    protected function nodeMatchesCallType(Node $node, $type): bool
     {
-        return $node instanceof StaticCall && $this->nodeMatchesClassSymbol($node, $class, $method);
+        if ($node instanceof ClassMethod) {
+            // @todo validate method type
+            return true;
+        }
+        if ($type === '::') {
+            return $node instanceof StaticCall;
+        }
+        if ($type === '->') {
+            return $node instanceof MethodCall;
+        }
+        return true;
     }
 
     /**
-     * Is instance, matches class and method name
+     * Parse the method specification into parts with class, type, and method keys
      *
-     * @param Node $node
-     * @param string $class
-     * @param string $method
-     * @return bool
+     * @param string $symbol Spec to parse
+     * @return array|null Successfully parsed spec, or null if invalid
      */
-    protected function matchesInstanceClassAndMethod(Node $node, $class, $method)
+    protected function parseMethodSpec($symbol)
     {
-        return $node instanceof MethodCall && $this->nodeMatchesClassSymbol($node, $class, $method);
-    }
-
-    /**
-     * Is static, and matches method name
-     *
-     * @param Node $node
-     * @param string $method
-     * @return bool
-     */
-    protected function matchesStaticMethod(Node $node, $method)
-    {
-        return $node instanceof StaticCall && $this->nodeMatchesSymbol($node, $method);
-    }
-
-    /**
-     * Is instance, and matches method name
-     *
-     * @param Node $node
-     * @param string $method
-     * @return bool
-     */
-    protected function matchesInstanceMethod(Node $node, $method)
-    {
-        return $node instanceof MethodCall && $this->nodeMatchesSymbol($node, $method);
+        $pattern = <<<'PATTERN'
+/^
+(
+    (?<class>[\w\\\\]+)?    # Optional class name qualifier (requires static specifier)
+    (?<type>(::)|(->))      # Optional static specifier
+)?
+(?<method>[\w]+)            # Method name
+(\(\))?                     # Optional parentheses
+$/x
+PATTERN;
+        if (preg_match($pattern, $symbol, $matches)) {
+            return $matches;
+        }
+        return null;
     }
 }

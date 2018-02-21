@@ -50,8 +50,8 @@ class FunctionWarningsVisitor extends WarningsVisitor
     {
         $symbol = $spec->getSymbol();
 
-        // myFunction()
-        if (preg_match('/^(?<function>[\w]+)\(\)$/', $symbol, $matches)) {
+        // myFunction() / myFunction
+        if (preg_match('/^(?<function>[\w]+)(\(\))?$/', $symbol, $matches)) {
             return $this->nodeMatchesSymbol($node, $matches['function']);
         }
 

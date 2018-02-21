@@ -7,10 +7,25 @@ use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\Tests\FixtureLoader;
 use SilverStripe\Upgrader\Tests\MockCodeCollection;
 use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeWarningsRule;
+use SilverStripe\Upgrader\Util\PHPStanState;
 
 class ApiChangeWarningsRuleTest extends PHPUnit_Framework_TestCase
 {
     use FixtureLoader;
+
+    /**
+     * @var PHPStanState
+     */
+    protected $state = null;
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        // Setup state
+        $this->state = new PHPStanState();
+        $this->state->init();
+    }
 
     public function testClassExtendsWithoutReplacement()
     {
@@ -20,7 +35,9 @@ class ApiChangeWarningsRuleTest extends PHPUnit_Framework_TestCase
 
 use SomeNamespaced\NamespacedClass;
 
-class MyClass extends Object
+class object {}
+
+class MyClass extends object
 {
 }
 PHP;
@@ -36,7 +53,7 @@ PHP;
             ]
         ];
 
-        $updater = (new ApiChangeWarningsRule())->withParameters($parameters);
+        $updater = (new ApiChangeWarningsRule($this->state->getContainer()))->withParameters($parameters);
 
         // Build mock collection
         $code = new MockCodeCollection([
@@ -45,6 +62,8 @@ PHP;
         $file = $code->itemByPath('test.php');
         $changeset = new CodeChangeSet();
 
+        // Bypass autoloading
+        eval($file->getContents());
         $updater->upgradeFile($input, $file, $changeset);
 
         $this->assertTrue($changeset->hasWarnings('test.php'));

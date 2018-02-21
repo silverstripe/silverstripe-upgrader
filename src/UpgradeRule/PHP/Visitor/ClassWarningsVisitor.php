@@ -5,6 +5,7 @@ namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
@@ -44,17 +45,31 @@ class ClassWarningsVisitor extends WarningsVisitor
     protected function matchesSpec(Node $node, ApiChangeWarningSpec $spec)
     {
         $class = $spec->getSymbol();
+        $nodeClass = $this->getNodeClass($node);
+        return $nodeClass && $this->matchesClass($nodeClass, $class);
+    }
 
-        // class MyClass
-        if (isset($node->name) && $this->matchesClass((string)$node->name, $class)) {
-            return true;
+    /**
+     * Get name of class this node refers to
+     *
+     * @param Node|string $node
+     * @return null|string
+     */
+    protected function getNodeClass($node) {
+        // Literall name passed in
+        if (is_string($node)) {
+            return $node;
         }
-
-        // MyClass::someMethod()
-        if (isset($node->class) && $this->matchesClass((string)$node->class, $class)) {
-            return true;
+        if ($node instanceof Name) {
+            return $node->toString();
         }
-
-        return false;
+        // Base supported nodes
+        if ($node instanceof StaticCall || $node instanceof New_) {
+            return $this->getNodeClass($node->class);
+        }
+        if ($node instanceof Class_) {
+            return $this->getNodeClass($node->name);
+        }
+        return null;
     }
 }

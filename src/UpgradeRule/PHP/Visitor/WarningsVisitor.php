@@ -143,6 +143,9 @@ class WarningsVisitor implements NodeVisitor, ContainsWarnings
      * @return bool
      */
     protected function matchesClass($candidate, $class) {
+        if (empty($candidate) || empty($class)) {
+            false;
+        }
         // equality will bypass classloading
         if (strcasecmp($class, $candidate) === 0) {
             return true;
