@@ -7,10 +7,14 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 class PropertyWarningsVisitorTest extends BaseVisitorTest
 {
+    /**
+     * @runInSeparateProcess
+     */
     public function testInstancePropDefinitionWithoutClass()
     {
+        $this->scaffoldMockClass('SomeNamespace\\NamespacedClass');
 
-        $input = <<<PHP
+        $myCode = <<<PHP
 <?php
 
 namespace MyNamespace;
@@ -38,9 +42,10 @@ class MyOtherClass
 }
 PHP;
 
+        $input = $this->getMockFile($myCode);
         $visitor = new PropertyWarningsVisitor([
             (new ApiChangeWarningSpec('removedInstanceProp', 'Test instance prop'))
-        ], $this->getMockFile($input));
+        ], $input);
 
         $this->traverseWithVisitor($input, $visitor);
 
@@ -48,17 +53,21 @@ PHP;
         $this->assertCount(3, $warnings);
 
         $this->assertContains('Test instance prop', $warnings[0]->getMessage());
-        $this->assertContains('protected $removedInstanceProp', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains('protected $removedInstanceProp', $this->getLineForWarning($myCode, $warnings[0]));
 
         $this->assertContains('Test instance prop', $warnings[1]->getMessage());
-        $this->assertContains('$foo->removedInstanceProp', $this->getLineForWarning($input, $warnings[1]));
+        $this->assertContains('$foo->removedInstanceProp', $this->getLineForWarning($myCode, $warnings[1]));
 
         $this->assertContains('Test instance prop', $warnings[2]->getMessage());
-        $this->assertContains('$bar->removedInstanceProp', $this->getLineForWarning($input, $warnings[2]));
+        $this->assertContains('$bar->removedInstanceProp', $this->getLineForWarning($myCode, $warnings[2]));
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testInstancePropDefinitionWithClass()
     {
+        $this->scaffoldMockClass('SomeNamespace\\NamespacedClass');
 
         $input = <<<PHP
 <?php
@@ -88,11 +97,12 @@ class MyOtherClass
 }
 PHP;
 
+        $inputFile = $this->getMockFile($input);
         $visitor = new PropertyWarningsVisitor([
             (new ApiChangeWarningSpec('MyNamespace\\MyClass->removedInstanceProp', 'Test instance prop'))
-        ], $this->getMockFile($input));
+        ], $inputFile);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($inputFile, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(2, $warnings);
@@ -104,9 +114,12 @@ PHP;
         $this->assertContains('$foo->removedInstanceProp', $this->getLineForWarning($input, $warnings[1]));
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testStaticPropDefinitionWithClass()
     {
-
+        $this->scaffoldMockClass('SomeNamespace\\NamespacedClass');
         $input = <<<PHP
 <?php
 
@@ -129,11 +142,12 @@ class MyOtherClass
 }
 PHP;
 
+        $inputFile = $this->getMockFile($input);
         $visitor = new PropertyWarningsVisitor([
             (new ApiChangeWarningSpec('MyNamespace\\MyClass::removedStaticProp', 'Test staticprop'))
-        ], $this->getMockFile($input));
+        ], $inputFile);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($inputFile, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(2, $warnings);
@@ -148,9 +162,11 @@ PHP;
         $this->assertContains('MyClass::$removedStaticProp', $this->getLineForWarning($input, $warnings[1]));
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testIgnoresDynamicVars()
     {
-
         $input = <<<PHP
 <?php
 
@@ -169,11 +185,12 @@ class MyClass
 }
 PHP;
 
+        $inputFile = $this->getMockFile($input);
         $visitor = new PropertyWarningsVisitor([
             (new ApiChangeWarningSpec('removedProp', 'Test removedProp'))
-        ], $this->getMockFile($input));
+        ], $inputFile);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($inputFile, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);

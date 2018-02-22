@@ -49,6 +49,35 @@ abstract class BaseVisitorTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Add a dummy class to the manifest for this test
+     *
+     * @param string $class Name of class to mock
+     * @param string $parent Optional parent class
+     * @return ItemInterface
+     */
+    protected function scaffoldMockClass($class, $parent = null)
+    {
+        $php = "<?php\n";
+
+        // Check namespace
+        if ($split = strrpos($class, '\\')) {
+            $namespace = substr($class, 0, $split);
+            $class = substr($class, $split + 1);
+            $php .= "namespace {$namespace};\n";
+        }
+
+        // Build class
+        $php .= "class {$class}";
+        if ($parent) {
+            $php .= " extends \{$parent}";
+        }
+        $php .= ' {}';
+
+        // Mock file
+        return $this->getMockFile($php, $class . '.php');
+    }
+
+    /**
      * Mock a code item
      *
      * @param string $input

@@ -12,15 +12,7 @@ class ClassWarningsVisitorTest extends BaseVisitorTest
      */
     public function testBaseClass()
     {
-        // mock someclass
-        $someclass = <<<PHP
-<?php
-
-namespace MyNamespace;
-
-class SomeClass {}
-PHP;
-        $this->getMockFile($someclass, 'SomeClass.php');
+        $this->scaffoldMockClass('MyNamespace\\SomeClass');
 
         // Mock myclass
         $myclass = <<<PHP
@@ -51,15 +43,7 @@ PHP;
      */
     public function testBaseClassWithNamespace()
     {
-        // mock someclass
-        $someclass = <<<PHP
-<?php
-
-namespace SomeNamespace;
-
-class SomeClass {}
-PHP;
-        $this->getMockFile($someclass, 'SomeClass.php');
+        $this->scaffoldMockClass('SomeNamespace\\SomeClass');
 
         // Mock myclass
         $myclass = <<<PHP
@@ -93,15 +77,7 @@ PHP;
      */
     public function testBaseClassWithInlineNamespace()
     {
-        // mock someclass
-        $someclass = <<<PHP
-<?php
-
-namespace SomeNamespace;
-
-class SomeClass {}
-PHP;
-        $this->getMockFile($someclass, 'SomeClass.php');
+        $this->scaffoldMockClass('SomeNamespace\\SomeClass');
 
         // Mock myclass
         $myClass = <<<PHP
@@ -135,15 +111,7 @@ PHP;
      */
     public function testStaticClassUse()
     {
-        // mock someclass
-        $someclass = <<<PHP
-<?php
-
-namespace SomeNamespace;
-
-class SomeClass {}
-PHP;
-        $this->getMockFile($someclass, 'SomeClass.php');
+        $this->scaffoldMockClass('SomeNamespace\\SomeClass');
 
         //
         $myClass = <<<PHP
@@ -180,15 +148,7 @@ PHP;
      */
     public function testInstanciation()
     {
-        // mock someclass
-        $someclass = <<<PHP
-<?php
-
-namespace SomeNamespace;
-
-class SomeClass {}
-PHP;
-        $this->getMockFile($someclass, 'SomeClass.php');
+        $this->scaffoldMockClass('SomeNamespace\\SomeClass');
 
         // Mock my class
         $myClass = <<<PHP

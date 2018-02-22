@@ -2,6 +2,9 @@
 
 namespace SilverStripe\Upgrader\Tests\Util;
 
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Class_;
 use SilverStripe\Upgrader\Util\MutableSource;
 
 class MutableSourceTest extends \PHPUnit_Framework_TestCase
@@ -19,10 +22,11 @@ class MutableSourceTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('PhpParser\Node\Expr\New_', $ast[6]);
         $this->assertInstanceOf('PhpParser\Node\Expr\New_', $ast[4]);
 
-        $ast[6]->class->parts[0] = 'ReplacedClass';
+        // Replace with node
+        $replacement = new New_(new Name('ReplacedClass'));
 
         // replaceNode only looks at the attributes of the source node, so this syntax will work
-        $ms->replaceNode($ast[6], $ast[6]);
+        $ms->replaceNode($ast[6], $replacement);
 
         $ms->replaceNode($ast[4], "// replaced with a comment - node that the ; is still preseved: ");
 

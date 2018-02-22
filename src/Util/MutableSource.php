@@ -218,7 +218,7 @@ class MutableSource
      * @param Node $node
      * @return array [start, len] of the given node
      */
-    protected function nodeRange(Node $node)
+    public function nodeRange(Node $node)
     {
         $attributes = $node->getAttributes();
         if (!isset($attributes['startFilePos']) || !isset($attributes['endFilePos'])) {

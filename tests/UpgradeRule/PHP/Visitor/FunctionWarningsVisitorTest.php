@@ -7,15 +7,18 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 class FunctionWarningsVisitorTest extends BaseVisitorTest
 {
+    /**
+     * @runInSeparateProcess
+     */
     public function testGlobal()
     {
-
-        $input = <<<PHP
+        $myClass = <<<PHP
 <?php
 
-myFunction('some-arg');
-
-otherFunction();
+function wrap() {
+    myFunction('some-arg');    
+    otherFunction();
+}
 
 class MyClass
 {
@@ -26,9 +29,10 @@ class MyClass
 }
 PHP;
 
+        $input = $this->getMockFile($myClass);
         $visitor = new FunctionWarningsVisitor([
             (new ApiChangeWarningSpec('myFunction()', 'Test function'))
-        ], $this->getMockFile($input));
+        ], $input);
 
         $this->traverseWithVisitor($input, $visitor);
 
@@ -36,18 +40,21 @@ PHP;
         $this->assertCount(1, $warnings);
 
         $this->assertContains('Test function', $warnings[0]->getMessage());
-        $this->assertContains('myFunction(\'some-arg\')', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains('myFunction(\'some-arg\')', $this->getLineForWarning($myClass, $warnings[0]));
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testIgnoresDynamic()
     {
-
-        $input = <<<PHP
+        $myClass = <<<PHP
 <?php
 
-myFunction('some-arg');
-
-\$myFunction();
+function wrap() {
+    myFunction('some-arg');
+    \$myFunction();
+}
 
 class MyClass
 {
@@ -58,9 +65,10 @@ class MyClass
 }
 PHP;
 
+        $input = $this->getMockFile($myClass);
         $visitor = new FunctionWarningsVisitor([
             (new ApiChangeWarningSpec('myFunction()', 'Test function'))
-        ], $this->getMockFile($input));
+        ], $input);
 
         $this->traverseWithVisitor($input, $visitor);
 
@@ -68,6 +76,6 @@ PHP;
         $this->assertCount(1, $warnings);
 
         $this->assertContains('Test function', $warnings[0]->getMessage());
-        $this->assertContains('myFunction(\'some-arg\')', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains('myFunction(\'some-arg\')', $this->getLineForWarning($myClass, $warnings[0]));
     }
 }

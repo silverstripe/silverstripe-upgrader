@@ -7,10 +7,16 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 class MethodWarningsVisitorTest extends BaseVisitorTest
 {
+    /**
+     * @runInSeparateProcess
+     */
     public function testGlobalMethod()
     {
+        $this->scaffoldMockClass('SomeNamespace\SomeClass');
+        $this->scaffoldMockClass('GlobalClass');
 
-        $input = <<<PHP
+        // mock myclass
+        $myClass = <<<PHP
 <?php
 
 use SomeNamespace\SomeClass;
@@ -40,9 +46,10 @@ class MyClass
 }
 PHP;
 
+        $input = $this->getMockFile($myClass);
         $visitor = new MethodWarningsVisitor([
             (new ApiChangeWarningSpec('removedMethod()', 'Test global method'))
-        ], $this->getMockFile($input));
+        ], $input);
 
         $this->traverseWithVisitor($input, $visitor);
 
@@ -50,22 +57,39 @@ PHP;
         $this->assertCount(4, $warnings);
 
         $this->assertContains('Test global method', $warnings[0]->getMessage());
-        $this->assertContains('function removedMethod', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains('function removedMethod', $this->getLineForWarning($myClass, $warnings[0]));
 
         $this->assertContains('Test global method', $warnings[1]->getMessage());
-        $this->assertContains('$obj->removedMethod()', $this->getLineForWarning($input, $warnings[1]));
+        $this->assertContains('$obj->removedMethod()', $this->getLineForWarning($myClass, $warnings[1]));
 
         $this->assertContains('Test global method', $warnings[2]->getMessage());
-        $this->assertContains('GlobalClass::removedMethod()', $this->getLineForWarning($input, $warnings[2]));
+        $this->assertContains('GlobalClass::removedMethod()', $this->getLineForWarning($myClass, $warnings[2]));
 
         $this->assertContains('Test global method', $warnings[3]->getMessage());
-        $this->assertContains('SomeClass::removedMethod();', $this->getLineForWarning($input, $warnings[3]));
+        $this->assertContains('SomeClass::removedMethod();', $this->getLineForWarning($myClass, $warnings[3]));
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testStaticMethodWithClassQualifier()
     {
+        // mock someclass
+        $someclass = <<<PHP
+<?php
+namespace SomeNamespace;
+class SomeClass {}
+PHP;
+        $this->getMockFile($someclass, 'SomeClass.php');
 
-        $input = <<<PHP
+        // mock someclass
+        $globalClass = <<<PHP
+<?php
+class GlobalClass {}
+PHP;
+        $this->getMockFile($globalClass, 'GlobalClass.php');
+
+        $myClass = <<<PHP
 <?php
 
 use SomeNamespace\SomeClass;
@@ -84,13 +108,14 @@ class MyClass
 }
 PHP;
 
+        $input = $this->getMockFile($myClass);
         $visitor = new MethodWarningsVisitor([
             (new ApiChangeWarningSpec('GlobalClass::removedMethod()', 'Error in GlobalClass::removedMethod()')),
             (new ApiChangeWarningSpec(
                 'SomeNamespace\\SomeClass::removedMethod()',
                 'Error in SomeNamespace\\SomeClass::removedMethod()'
             )),
-        ], $this->getMockFile($input));
+        ], $input);
 
         $this->traverseWithVisitor($input, $visitor);
 
@@ -98,16 +123,19 @@ PHP;
         $this->assertCount(2, $warnings);
 
         $this->assertContains('Error in GlobalClass::removedMethod()', $warnings[0]->getMessage());
-        $this->assertContains('$foo = GlobalClass::removedMethod();', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains('$foo = GlobalClass::removedMethod();', $this->getLineForWarning($myClass, $warnings[0]));
 
         $this->assertContains('Error in SomeNamespace\\SomeClass::removedMethod()', $warnings[1]->getMessage());
-        $this->assertContains('return SomeClass::removedMethod()', $this->getLineForWarning($input, $warnings[1]));
+        $this->assertContains('return SomeClass::removedMethod()', $this->getLineForWarning($myClass, $warnings[1]));
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testIgnoresDynamic()
     {
 
-        $input = <<<PHP
+        $myClass = <<<PHP
 <?php
 
 use SomeNamespace\SomeClass;
@@ -131,9 +159,10 @@ class MyClass
 }
 PHP;
 
+        $input = $this->getMockFile($myClass);
         $visitor = new MethodWarningsVisitor([
             (new ApiChangeWarningSpec('removedMethod()', 'Error in removedMethod()'))
-        ], $this->getMockFile($input));
+        ], $input);
 
         $this->traverseWithVisitor($input, $visitor);
 
@@ -141,9 +170,9 @@ PHP;
         $this->assertCount(2, $warnings);
 
         $this->assertContains('Error in removedMethod()', $warnings[0]->getMessage());
-        $this->assertContains('$match = SomeClass::removedMethod()', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains('$match = SomeClass::removedMethod()', $this->getLineForWarning($myClass, $warnings[0]));
 
         $this->assertContains('Error in removedMethod', $warnings[1]->getMessage());
-        $this->assertContains('$match->removedMethod()', $this->getLineForWarning($input, $warnings[1]));
+        $this->assertContains('$match->removedMethod()', $this->getLineForWarning($myClass, $warnings[1]));
     }
 }

@@ -15,7 +15,7 @@ class MutableString
     private $string;
 
     // [[pos, len, newString]]
-    private $modifications = [];
+    public $modifications = [];
 
     public function __construct($string)
     {
@@ -49,18 +49,33 @@ class MutableString
 
     public function getModifiedString()
     {
-        // Sort by position
-        usort($this->modifications, function ($a, $b) {
-            return $a[0] - $b[0];
-        });
         $result = '';
         $startPos = 0;
-        foreach ($this->modifications as list($pos, $len, $newString)) {
+        foreach ($this->getSortedModifications() as list($pos, $len, $newString)) {
             $result .= substr($this->string, $startPos, $pos - $startPos);
             $result .= $newString;
             $startPos = $pos + $len;
         }
         $result .= substr($this->string, $startPos);
         return $result;
+    }
+
+    /**
+     * Sort modifications
+     *
+     * @return array
+     */
+    public function getSortedModifications()
+    {
+        $modifications = $this->modifications;
+        usort($modifications, function ($a, $b) {
+            // Sort based on start position
+            if ($a[0] !== $b[0]) {
+                return $a[0] - $b[0];
+            }
+            // Sort based on length (0 length = insert first)
+            return $a[1] - $b[1];
+        });
+        return $modifications;
     }
 }

@@ -7,10 +7,13 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 class ConstantWarningsVisitorTest extends BaseVisitorTest
 {
+    /**
+     * @runInSeparateProcess
+     */
     public function testGlobalConstantAssignment()
     {
 
-        $input = <<<PHP
+        $myClass = <<<PHP
 <?php
 
 namespace MyNamespace;
@@ -24,9 +27,10 @@ class MyClass
 }
 PHP;
 
+        $input = $this->getMockFile($myClass);
         $visitor = new ConstantWarningsVisitor([
             (new ApiChangeWarningSpec('REMOVED_CONSTANT', 'Test REMOVED_CONSTANT'))
-        ], $this->getMockFile($input));
+        ], $input);
 
         $this->traverseWithVisitor($input, $visitor);
 
@@ -36,14 +40,17 @@ PHP;
         $this->assertContains('Test REMOVED_CONSTANT', $warnings[0]->getMessage());
         $this->assertContains(
             '\'before\' . REMOVED_CONSTANT . \'after\'',
-            $this->getLineForWarning($input, $warnings[0])
+            $this->getLineForWarning($myClass, $warnings[0])
         );
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testClassConstant()
     {
 
-        $input = <<<PHP
+        $myClass = <<<PHP
 <?php
 
 namespace MyNamespace;
@@ -61,9 +68,10 @@ class MyClass
 }
 PHP;
 
+        $input = $this->getMockFile($myClass);
         $visitor = new ConstantWarningsVisitor([
             (new ApiChangeWarningSpec('SomeNamespace\\SomeClass::REMOVED_CONSTANT', 'Test REMOVED_CONSTANT'))
-        ], $this->getMockFile($input));
+        ], $input);
 
         $this->traverseWithVisitor($input, $visitor);
 
@@ -73,7 +81,7 @@ PHP;
         $this->assertContains('Test REMOVED_CONSTANT', $warnings[0]->getMessage());
         $this->assertContains(
             'SomeClass::REMOVED_CONSTANT',
-            $this->getLineForWarning($input, $warnings[0])
+            $this->getLineForWarning($myClass, $warnings[0])
         );
     }
 }
