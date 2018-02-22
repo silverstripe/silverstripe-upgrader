@@ -7,11 +7,13 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\NodeVisitor;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\RuleLevelHelper;
@@ -62,35 +64,7 @@ class SymbolContextVisitor implements NodeVisitor
 
         /** @var Scope $scope */
         $scope = $node->getAttribute('scope');
-
-        // Infer types from phpstan
-        $types = [];
-        if ($node instanceof MethodCall ||
-            $node instanceof PropertyFetch
-        ) {
-            // Resolve $var->something() types
-            $types = $this->resolveExpressionTypes($scope, $node->var);
-        } elseif ($node instanceof StaticCall ||
-            $node instanceof StaticPropertyFetch ||
-            $node instanceof ClassConstFetch
-        ) {
-            // Resolve Class::something() types
-            $types = $this->getStaticClasses($scope, $node);
-        } elseif ($node instanceof Class_) {
-            // Resolve Class extends OldClass
-            if ($node->extends) {
-                $types[] = $node->extends->toString();
-            }
-            // Resolve Class implements OldInterface
-            if ($node->implements) {
-                /** @var Name $extend */
-                foreach ($node->implements as $implement) {
-                    $types[] = $implement->toString();
-                }
-            }
-        }
-
-        // Set all types (even if empty)
+        $types = $this->resolveNodeTypes($scope, $node);
         $node->setAttribute('contextTypes', $types);
     }
 
@@ -152,5 +126,56 @@ class SymbolContextVisitor implements NodeVisitor
             ->findTypeToCheck($scope, $expression, "Could not resolve expression to type")
             ->getType()
             ->getReferencedClasses();
+    }
+
+    /**
+     * Extract type from node
+     *
+     * @param Scope $scope
+     * @param Node $node
+     * @return array|string[]
+     */
+    protected function resolveNodeTypes($scope, Node $node)
+    {
+        // Resolve $var->something() types
+        if ($node instanceof MethodCall || $node instanceof PropertyFetch) {
+            return $this->resolveExpressionTypes($scope, $node->var);
+        }
+
+        // Resolve Class::something() types
+        if ($node instanceof StaticCall ||
+            $node instanceof StaticPropertyFetch ||
+            $node instanceof ClassConstFetch
+        ) {
+            return $this->getStaticClasses($scope, $node);
+        }
+
+        // Resolve Class extends OldClass
+        if ($node instanceof Class_) {
+            $types = [];
+            if ($node->extends) {
+                $types[] = $node->extends->toString();
+            }
+            // Resolve Class implements OldInterface
+            if ($node->implements) {
+                /** @var Name $extend */
+                foreach ($node->implements as $implement) {
+                    $types[] = $implement->toString();
+                }
+            }
+            return $types;
+        }
+
+        // Resolve new SomeClass
+        if ($node instanceof New_) {
+            $class = $node->class;
+            if ($class instanceof Name) {
+                return [$class->toString()];
+            } elseif ($class instanceof Class_) {
+                return [$class->name];
+            }
+        }
+
+        return [];
     }
 }

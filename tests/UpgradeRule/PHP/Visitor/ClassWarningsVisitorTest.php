@@ -88,10 +88,23 @@ PHP;
         $this->assertContains('class MyClass extends SomeClass', $this->getLineForWarning($myclass, $warnings[0]));
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testBaseClassWithInlineNamespace()
     {
+        // mock someclass
+        $someclass = <<<PHP
+<?php
 
-        $input = <<<PHP
+namespace SomeNamespace;
+
+class SomeClass {}
+PHP;
+        $this->getMockFile($someclass, 'SomeClass.php');
+
+        // Mock myclass
+        $myClass = <<<PHP
 <?php
 
 namespace MyNamespace;
@@ -101,25 +114,39 @@ class MyClass extends \SomeNamespace\SomeClass
 }
 PHP;
 
+        $item = $this->getMockFile($myClass);
         $visitor = new ClassWarningsVisitor([
             (new ApiChangeWarningSpec('SomeNamespace\\SomeClass', 'Error with SomeNamespace\\SomeClass'))
-        ], $this->getMockFile($input));
+        ], $item);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($item, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
         $this->assertContains('Error with SomeNamespace\\SomeClass', $warnings[0]->getMessage());
         $this->assertContains(
             'class MyClass extends \SomeNamespace\\SomeClass',
-            $this->getLineForWarning($input, $warnings[0])
+            $this->getLineForWarning($myClass, $warnings[0])
         );
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testStaticClassUse()
     {
+        // mock someclass
+        $someclass = <<<PHP
+<?php
 
-        $input = <<<PHP
+namespace SomeNamespace;
+
+class SomeClass {}
+PHP;
+        $this->getMockFile($someclass, 'SomeClass.php');
+
+        //
+        $myClass = <<<PHP
 <?php
 
 namespace MyNamespace;
@@ -135,22 +162,36 @@ class MyClass
 }
 PHP;
 
+        $input = $this->getMockFile($myClass);
         $visitor = new ClassWarningsVisitor([
             (new ApiChangeWarningSpec('SomeNamespace\\SomeClass', 'Error with SomeNamespace\\SomeClass'))
-        ], $this->getMockFile($input));
+        ], $input);
 
         $this->traverseWithVisitor($input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
         $this->assertContains('Error with SomeNamespace\\SomeClass', $warnings[0]->getMessage());
-        $this->assertContains('SomeClass::bar()', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains('SomeClass::bar()', $this->getLineForWarning($myClass, $warnings[0]));
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testInstanciation()
     {
+        // mock someclass
+        $someclass = <<<PHP
+<?php
 
-        $input = <<<PHP
+namespace SomeNamespace;
+
+class SomeClass {}
+PHP;
+        $this->getMockFile($someclass, 'SomeClass.php');
+
+        // Mock my class
+        $myClass = <<<PHP
 <?php
 
 namespace MyNamespace;
@@ -166,15 +207,16 @@ class MyClass
 }
 PHP;
 
+        $input = $this->getMockFile($myClass);
         $visitor = new ClassWarningsVisitor([
             (new ApiChangeWarningSpec('SomeNamespace\\SomeClass', 'Error with SomeNamespace\\SomeClass'))
-        ], $this->getMockFile($input));
+        ], $input);
 
         $this->traverseWithVisitor($input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
         $this->assertContains('Error with SomeNamespace\\SomeClass', $warnings[0]->getMessage());
-        $this->assertContains('new SomeClass()', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains('new SomeClass()', $this->getLineForWarning($myClass, $warnings[0]));
     }
 }
