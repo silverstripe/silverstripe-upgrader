@@ -15,31 +15,29 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
  */
 class MethodWarningsVisitor extends WarningsVisitor
 {
-    public function enterNode(Node $node)
+    public function matchesNode(Node $node)
     {
-        parent::enterNode($node);
-
+        // Must be method
         $isMethodNode = (
             $node instanceof MethodCall ||
             $node instanceof StaticCall ||
             $node instanceof ClassMethod
         );
+        if (!$isMethodNode) {
+            return false;
+        }
+
+        // Must have name
+        if (!isset($node->name)) {
+            return false;
+        }
 
         // Don't process dynamic fetches ($obj->$someField)
-        $isNamedVarNode = (
-            isset($node->name) &&
-            $node->name instanceof Variable
-        );
-
-        if ($isMethodNode && !$isNamedVarNode) {
-            foreach ($this->specs as $spec) {
-                if (!$this->matchesSpec($node, $spec)) {
-                    continue;
-                }
-
-                $this->addWarning($node, $spec);
-            }
+        if ($node->name instanceof Variable) {
+            return false;
         }
+
+        return true;
     }
 
     /**

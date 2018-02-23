@@ -5,6 +5,7 @@ namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use SilverStripe\Upgrader\Tests\RecordingVisitor;
+use SilverStripe\Upgrader\Util\MutableSource;
 
 class SymbolContextVisitorTest extends BaseVisitorTest
 {
@@ -32,10 +33,10 @@ class MyClass {
 }
 PHP;
         $inputItem = $this->getMockFile($input, 'MyClass.php');
-
+        $source = new MutableSource($inputItem->getContents());
         // Record traversal and get static calls
         $recorder = new RecordingVisitor();
-        $this->traverseWithVisitor($inputItem, $recorder);
+        $this->traverseWithVisitor($source, $inputItem, $recorder);
         $methodSymbols = $recorder->getVisitedNodesOfType(StaticCall::class);
 
         // Check method symbols
@@ -77,11 +78,11 @@ class MyClass {
 }
 PHP;
         $inputItem = $this->getMockFile($input, 'MyClass.php');
-
+        $source = new MutableSource($inputItem->getContents());
 
         // Record traversal and get instance method calls
         $recorder = new RecordingVisitor();
-        $this->traverseWithVisitor($inputItem, $recorder);
+        $this->traverseWithVisitor($source, $inputItem, $recorder);
         $methodSymbols = $recorder->getVisitedNodesOfType(MethodCall::class);
 
         $this->assertCount(2, $methodSymbols);

@@ -4,6 +4,7 @@ namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\MethodWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
+use SilverStripe\Upgrader\Util\MutableSource;
 
 class MethodWarningsVisitorTest extends BaseVisitorTest
 {
@@ -47,11 +48,14 @@ class MyClass
 PHP;
 
         $input = $this->getMockFile($myClass);
+        $source = new MutableSource($input->getContents());
         $visitor = new MethodWarningsVisitor([
-            (new ApiChangeWarningSpec('removedMethod()', 'Test global method'))
-        ], $input);
+            new ApiChangeWarningSpec('removedMethod()', [
+                'message' => 'Test global method',
+            ])
+        ], $source, $input);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($source, $input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(4, $warnings);
@@ -109,15 +113,19 @@ class MyClass
 PHP;
 
         $input = $this->getMockFile($myClass);
+        $source = new MutableSource($input->getContents());
         $visitor = new MethodWarningsVisitor([
-            (new ApiChangeWarningSpec('GlobalClass::removedMethod()', 'Error in GlobalClass::removedMethod()')),
-            (new ApiChangeWarningSpec(
+            new ApiChangeWarningSpec(
+                'GlobalClass::removedMethod()',
+                ['message' => 'Error in GlobalClass::removedMethod()']
+            ),
+            new ApiChangeWarningSpec(
                 'SomeNamespace\\SomeClass::removedMethod()',
-                'Error in SomeNamespace\\SomeClass::removedMethod()'
-            )),
-        ], $input);
+                ['message' => 'Error in SomeNamespace\\SomeClass::removedMethod()']
+            ),
+        ], $source, $input);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($source, $input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(2, $warnings);
@@ -160,11 +168,14 @@ class MyClass
 PHP;
 
         $input = $this->getMockFile($myClass);
+        $source = new MutableSource($input->getContents());
         $visitor = new MethodWarningsVisitor([
-            (new ApiChangeWarningSpec('removedMethod()', 'Error in removedMethod()'))
-        ], $input);
+            new ApiChangeWarningSpec('removedMethod()', [
+                'message' =>'Error in removedMethod()',
+            ])
+        ], $source, $input);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($source, $input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(2, $warnings);

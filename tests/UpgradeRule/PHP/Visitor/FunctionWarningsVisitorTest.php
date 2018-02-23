@@ -4,6 +4,7 @@ namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\FunctionWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
+use SilverStripe\Upgrader\Util\MutableSource;
 
 class FunctionWarningsVisitorTest extends BaseVisitorTest
 {
@@ -30,11 +31,14 @@ class MyClass
 PHP;
 
         $input = $this->getMockFile($myClass);
+        $source = new MutableSource($input->getContents());
         $visitor = new FunctionWarningsVisitor([
-            (new ApiChangeWarningSpec('myFunction()', 'Test function'))
-        ], $input);
+            new ApiChangeWarningSpec('myFunction()', [
+                'message' => 'Test function',
+            ])
+        ], $source, $input);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($source, $input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
@@ -66,11 +70,14 @@ class MyClass
 PHP;
 
         $input = $this->getMockFile($myClass);
+        $source = new MutableSource($input->getContents());
         $visitor = new FunctionWarningsVisitor([
-            (new ApiChangeWarningSpec('myFunction()', 'Test function'))
-        ], $input);
+            new ApiChangeWarningSpec('myFunction()', [
+                'message' => 'Test function',
+            ])
+        ], $source, $input);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($source, $input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);

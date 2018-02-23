@@ -4,6 +4,7 @@ namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ClassWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
+use SilverStripe\Upgrader\Util\MutableSource;
 
 class ClassWarningsVisitorTest extends BaseVisitorTest
 {
@@ -25,12 +26,15 @@ class MyClass extends SomeClass
 }
 PHP;
         $item = $this->getMockFile($myclass, 'MyClass.php');
+        $source = new MutableSource($item->getContents());
 
         $visitor = new ClassWarningsVisitor([
-            new ApiChangeWarningSpec('MyNamespace\\SomeClass', 'Error with SomeClass')
-        ], $item);
+            new ApiChangeWarningSpec('MyNamespace\\SomeClass', [
+                'message' => 'Error with SomeClass',
+            ])
+        ], $source, $item);
 
-        $this->traverseWithVisitor($item, $visitor);
+        $this->traverseWithVisitor($source, $item, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
@@ -59,12 +63,14 @@ class MyClass extends SomeClass
 PHP;
 
         $item = $this->getMockFile($myclass, 'MyClass.php');
-
+        $source = new MutableSource($item->getContents());
         $visitor = new ClassWarningsVisitor([
-            (new ApiChangeWarningSpec('SomeNamespace\\SomeClass', 'Error with SomeNamespace\\SomeClass'))
-        ], $item);
+            new ApiChangeWarningSpec('SomeNamespace\\SomeClass', [
+                'message' => 'Error with SomeNamespace\\SomeClass',
+            ])
+        ], $source, $item);
 
-        $this->traverseWithVisitor($item, $visitor);
+        $this->traverseWithVisitor($source, $item, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
@@ -91,11 +97,14 @@ class MyClass extends \SomeNamespace\SomeClass
 PHP;
 
         $item = $this->getMockFile($myClass);
+        $source = new MutableSource($item->getContents());
         $visitor = new ClassWarningsVisitor([
-            (new ApiChangeWarningSpec('SomeNamespace\\SomeClass', 'Error with SomeNamespace\\SomeClass'))
-        ], $item);
+            new ApiChangeWarningSpec('SomeNamespace\\SomeClass', [
+                'message' => 'Error with SomeNamespace\\SomeClass',
+            ])
+        ], $source, $item);
 
-        $this->traverseWithVisitor($item, $visitor);
+        $this->traverseWithVisitor($source, $item, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
@@ -131,11 +140,14 @@ class MyClass
 PHP;
 
         $input = $this->getMockFile($myClass);
+        $source = new MutableSource($input->getContents());
         $visitor = new ClassWarningsVisitor([
-            (new ApiChangeWarningSpec('SomeNamespace\\SomeClass', 'Error with SomeNamespace\\SomeClass'))
-        ], $input);
+            new ApiChangeWarningSpec('SomeNamespace\\SomeClass', [
+                'message' => 'Error with SomeNamespace\\SomeClass',
+            ])
+        ], $source, $input);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($source, $input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
@@ -168,11 +180,14 @@ class MyClass
 PHP;
 
         $input = $this->getMockFile($myClass);
+        $source = new MutableSource($input->getContents());
         $visitor = new ClassWarningsVisitor([
-            (new ApiChangeWarningSpec('SomeNamespace\\SomeClass', 'Error with SomeNamespace\\SomeClass'))
-        ], $input);
+            new ApiChangeWarningSpec('SomeNamespace\\SomeClass', [
+                'message' => 'Error with SomeNamespace\\SomeClass',
+            ])
+        ], $source, $input);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($source, $input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);

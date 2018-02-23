@@ -4,7 +4,6 @@ namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use PhpParser\BuilderFactory;
 use PhpParser\Node;
-use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitor\NameResolver;
 use SilverStripe\Upgrader\Util\MutableSource;
 

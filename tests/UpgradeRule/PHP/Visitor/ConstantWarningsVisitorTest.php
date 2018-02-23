@@ -4,6 +4,7 @@ namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ConstantWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
+use SilverStripe\Upgrader\Util\MutableSource;
 
 class ConstantWarningsVisitorTest extends BaseVisitorTest
 {
@@ -28,11 +29,12 @@ class MyClass
 PHP;
 
         $input = $this->getMockFile($myClass);
+        $source = new MutableSource($input->getContents());
         $visitor = new ConstantWarningsVisitor([
-            (new ApiChangeWarningSpec('REMOVED_CONSTANT', 'Test REMOVED_CONSTANT'))
-        ], $input);
+            new ApiChangeWarningSpec('REMOVED_CONSTANT', ['message' => 'Test REMOVED_CONSTANT'])
+        ], $source, $input);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($source, $input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);
@@ -69,11 +71,14 @@ class MyClass
 PHP;
 
         $input = $this->getMockFile($myClass);
+        $source = new MutableSource($input->getContents());
         $visitor = new ConstantWarningsVisitor([
-            (new ApiChangeWarningSpec('SomeNamespace\\SomeClass::REMOVED_CONSTANT', 'Test REMOVED_CONSTANT'))
-        ], $input);
+            new ApiChangeWarningSpec('SomeNamespace\\SomeClass::REMOVED_CONSTANT', [
+                'message' => 'Test REMOVED_CONSTANT',
+            ])
+        ], $source, $input);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($source, $input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);

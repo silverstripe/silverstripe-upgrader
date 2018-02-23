@@ -15,25 +15,10 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
  */
 class ConstantWarningsVisitor extends WarningsVisitor
 {
-
-    public function enterNode(Node $node)
+    public function matchesNode(Node $node)
     {
-        parent::enterNode($node);
-
-        $isConstNode = (
-            $node instanceof ConstFetch ||
-            $node instanceof ClassConstFetch
-        );
-
-        if ($isConstNode) {
-            foreach ($this->specs as $spec) {
-                if (!$this->matchesSpec($node, $spec)) {
-                    continue;
-                }
-
-                $this->addWarning($node, $spec);
-            }
-        }
+        return $node instanceof ConstFetch ||
+            $node instanceof ClassConstFetch;
     }
 
     /**

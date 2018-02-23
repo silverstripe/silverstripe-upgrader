@@ -94,14 +94,15 @@ abstract class BaseVisitorTest extends PHPUnit_Framework_TestCase
     /**
      * Mock traversing an item with a single visitor
      *
+     * @param MutableSource $source
      * @param ItemInterface $item
      * @param NodeVisitor $visitor
      * @return MutableSource Result of visiting the rule
      */
-    protected function traverseWithVisitor(ItemInterface $item, NodeVisitor $visitor)
+    protected function traverseWithVisitor(MutableSource $source, ItemInterface $item, NodeVisitor $visitor)
     {
         // Build dummy rule
         $rule = new ApiChangeWarningsRule($this->state->getContainer());
-        return $rule->mutateSourceWithVisitors($item->getContents(), $item, [$visitor]);
+        return $rule->mutateSourceWithVisitors($source, $item, [$visitor]);
     }
 }

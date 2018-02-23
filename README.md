@@ -193,19 +193,30 @@ warnings:
   methods:
     'MyClass->myInstanceMethod()':
       message: 'Use otherMethod() instead'
+      replacement: 'otherMethod'
     'MyClass::myStaticMethod()':
       message: 'Use otherMethod instead'
+      replacement: 'otherMethod'
+    'obsoleteMethod()':
+      message: 'obsoleteMethod is removed'
   props:
     'MyClass->myInstanceProp'
       message: 'Use otherProp instead'
+      replacement: 'otherProp'
     'MyClass::myStaticProp'
       message: 'Use otherProp instead'
+      replacement: 'otherProp'
+    'obsoleteProp':
+      method: 'obsoleteProp is removed'
   functions:
     'myFunction()':
       message: 'Use otherFunction() instead'
+      replacement: 'otherFunction'
   constants:
     'MY_CONSTANT':
       message: 'Use OTHER_CONSTANT instead'
+      replacement: 'OTHER_CONSTANT'
     'MyClass::MY_CONSTANT':
       message: 'Use OTHER_CONSTANT instead'
+      replacement: 'OTHER_CONSTANT'
 ```

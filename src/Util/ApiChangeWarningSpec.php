@@ -9,19 +9,25 @@ namespace SilverStripe\Upgrader\Util;
  */
 class ApiChangeWarningSpec
 {
-
     /**
      * @var string String defining a class, method or property.
      */
     protected $symbol;
 
     /**
-     * @var String
+     * String to rewrite to
+     *
+     * @var string
+     */
+    protected $replacement;
+
+    /**
+     * @var string
      */
     protected $message;
 
     /**
-     * @var String URL to more details
+     * @var string URL to more details
      */
     protected $url = '';
 
@@ -33,13 +39,19 @@ class ApiChangeWarningSpec
     protected $invalidRuleShown = false;
 
     /**
-     * @param String $symbol
-     * @param String $message
+     * @param string $symbol
+     * @param array $spec Spec in array format
      */
-    public function __construct($symbol, $message)
+    public function __construct($symbol, $spec)
     {
         $this->symbol = $symbol;
-        $this->message = $message;
+        $this->message = $spec['message'];
+        if (isset($spec['url'])) {
+            $this->setUrl($spec['url']);
+        }
+        if (isset($spec['replacement'])) {
+            $this->setReplacement($spec['replacement']);
+        }
     }
 
     /**
@@ -70,6 +82,14 @@ class ApiChangeWarningSpec
     }
 
     /**
+     * @return string
+     */
+    public function getReplacement()
+    {
+        return $this->replacement;
+    }
+
+    /**
      * @return String The message with other info set.
      */
     public function getFullMessage()
@@ -94,5 +114,15 @@ class ApiChangeWarningSpec
         }
         user_error($error, E_USER_WARNING);
         $this->invalidRuleShown = true;
+    }
+
+    /**
+     * @param string $replacement
+     * @return $this
+     */
+    public function setReplacement(string $replacement)
+    {
+        $this->replacement = $replacement;
+        return $this;
     }
 }

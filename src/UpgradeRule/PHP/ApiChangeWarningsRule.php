@@ -46,12 +46,13 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
         if (!$this->appliesTo($file)) {
             return $contents;
         }
+        $source = new MutableSource($contents);
 
         // Build all rules from warnings config
-        $visitors = $this->buildRuleVisitors($file);
+        $visitors = $this->buildRuleVisitors($source, $file);
 
         // Mutate (note: public for testing)
-        $source = $this->mutateSourceWithVisitors($contents, $file, $visitors);
+        $this->mutateSourceWithVisitors($source, $file, $visitors);
 
         // Save all warnings from visitors
         foreach ($visitors as $visitor) {
@@ -66,28 +67,22 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
     /**
      * Traverse the contents with the given list of visitors
      *
-     * @param string $contents File contents
+     * @param MutableSource $source File contents
      * @param ItemInterface $file File container
      * @param NodeVisitor[] $visitors
-     * @return MutableSource
      */
-    public function mutateSourceWithVisitors($contents, ItemInterface $file, $visitors)
+    public function mutateSourceWithVisitors(MutableSource $source, ItemInterface $file, $visitors)
     {
-        // Prepare mutable source with AST
-        $source = new MutableSource($contents);
-        $tree = $source->getAst();
-
         // Rule helper
         /** @var RuleLevelHelper $ruleLevelHelper */
         $ruleLevelHelper = $this->container->getByType(RuleLevelHelper::class);
 
         // Perform pre-requisite serial visitations
+        $tree = $source->getAst();
         $this->transformWithVisitors($tree, [new NameResolver()]);
         $this->transformWithVisitors($tree, [new PHPStanScopeVisitor($this->container, $file)]);
         $this->transformWithVisitors($tree, [new SymbolContextVisitor($ruleLevelHelper)]);
         $this->transformWithVisitors($tree, $visitors);
-
-        return $source;
     }
 
     /**
@@ -114,20 +109,19 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
     {
         $out = [];
         foreach ($specs as $symbol => $spec) {
-            $url = isset($spec['url']) ? $spec['url'] : null;
-            $out[] = (new ApiChangeWarningSpec($symbol, $spec['message']))->setUrl($url);
+            $out[] = new ApiChangeWarningSpec($symbol, $spec);
         }
-
         return $out;
     }
 
     /**
      * Get list of warning visitors to check for this config
      *
+     * @param MutableSource $source
      * @param ItemInterface $file
      * @return WarningsVisitor[]
      */
-    protected function buildRuleVisitors(ItemInterface $file)
+    protected function buildRuleVisitors(MutableSource $source, ItemInterface $file)
     {
         // Nothing configured
         if (empty($this->parameters['warnings'])) {
@@ -142,19 +136,19 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
         // Build visitors based on warning types
         $visitors = [];
         if (isset($warnings['classes'])) {
-            $visitors[] = new ClassWarningsVisitor($warnings['classes'], $file);
+            $visitors[] = new ClassWarningsVisitor($warnings['classes'], $source, $file);
         }
         if (isset($warnings['methods'])) {
-            $visitors[] = new MethodWarningsVisitor($warnings['methods'], $file);
+            $visitors[] = new MethodWarningsVisitor($warnings['methods'], $source, $file);
         }
         if (isset($warnings['functions'])) {
-            $visitors[] = new FunctionWarningsVisitor($warnings['functions'], $file);
+            $visitors[] = new FunctionWarningsVisitor($warnings['functions'], $source, $file);
         }
         if (isset($warnings['constants'])) {
-            $visitors[] = new ConstantWarningsVisitor($warnings['constants'], $file);
+            $visitors[] = new ConstantWarningsVisitor($warnings['constants'], $source, $file);
         }
         if (isset($warnings['props'])) {
-            $visitors[] = new PropertyWarningsVisitor($warnings['props'], $file);
+            $visitors[] = new PropertyWarningsVisitor($warnings['props'], $source, $file);
         }
 
         return $visitors;

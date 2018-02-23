@@ -4,6 +4,7 @@ namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PropertyWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
+use SilverStripe\Upgrader\Util\MutableSource;
 
 class PropertyWarningsVisitorTest extends BaseVisitorTest
 {
@@ -43,11 +44,12 @@ class MyOtherClass
 PHP;
 
         $input = $this->getMockFile($myCode);
+        $source = new MutableSource($input->getContents());
         $visitor = new PropertyWarningsVisitor([
-            (new ApiChangeWarningSpec('removedInstanceProp', 'Test instance prop'))
-        ], $input);
+            (new ApiChangeWarningSpec('removedInstanceProp', ['message' => 'Test instance prop']))
+        ], $source, $input);
 
-        $this->traverseWithVisitor($input, $visitor);
+        $this->traverseWithVisitor($source, $input, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(3, $warnings);
@@ -98,11 +100,14 @@ class MyOtherClass
 PHP;
 
         $inputFile = $this->getMockFile($input);
+        $source = new MutableSource($inputFile->getContents());
         $visitor = new PropertyWarningsVisitor([
-            (new ApiChangeWarningSpec('MyNamespace\\MyClass->removedInstanceProp', 'Test instance prop'))
-        ], $inputFile);
+            new ApiChangeWarningSpec('MyNamespace\\MyClass->removedInstanceProp', [
+                'message' => 'Test instance prop',
+            ])
+        ], $source, $inputFile);
 
-        $this->traverseWithVisitor($inputFile, $visitor);
+        $this->traverseWithVisitor($source, $inputFile, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(2, $warnings);
@@ -143,11 +148,14 @@ class MyOtherClass
 PHP;
 
         $inputFile = $this->getMockFile($input);
+        $source = new MutableSource($inputFile->getContents());
         $visitor = new PropertyWarningsVisitor([
-            (new ApiChangeWarningSpec('MyNamespace\\MyClass::removedStaticProp', 'Test staticprop'))
-        ], $inputFile);
+            new ApiChangeWarningSpec('MyNamespace\\MyClass::removedStaticProp', [
+                'message' => 'Test staticprop',
+            ])
+        ], $source, $inputFile);
 
-        $this->traverseWithVisitor($inputFile, $visitor);
+        $this->traverseWithVisitor($source, $inputFile, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(2, $warnings);
@@ -186,11 +194,14 @@ class MyClass
 PHP;
 
         $inputFile = $this->getMockFile($input);
+        $source = new MutableSource($inputFile->getContents());
         $visitor = new PropertyWarningsVisitor([
-            (new ApiChangeWarningSpec('removedProp', 'Test removedProp'))
-        ], $inputFile);
+            new ApiChangeWarningSpec('removedProp', [
+                'message' => 'Test removedProp',
+            ])
+        ], $source, $inputFile);
 
-        $this->traverseWithVisitor($inputFile, $visitor);
+        $this->traverseWithVisitor($source, $inputFile, $visitor);
 
         $warnings = $visitor->getWarnings();
         $this->assertCount(1, $warnings);

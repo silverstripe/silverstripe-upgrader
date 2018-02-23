@@ -3,21 +3,19 @@
 namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr\New_;
 use PhpParser\NodeVisitor;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\ContainsWarnings;
+use SilverStripe\Upgrader\Util\MutableSource;
 use SilverStripe\Upgrader\Util\Warning;
 
 /**
  * Triggers warnings for symbol uses that can't be upgraded automatically.
  * Does not rewrite code (returns the original).
  * Should be run *after* {@link SilverStripe\Upgrader\UpgradeRule\PHP\RenameClasses}.
- *
- * @package SilverStripe\Upgrader\UpgradeRule
  */
-class WarningsVisitor implements NodeVisitor, ContainsWarnings
+abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
 {
     /**
      * @var ApiChangeWarningSpec[]
@@ -35,13 +33,20 @@ class WarningsVisitor implements NodeVisitor, ContainsWarnings
     protected $warnings = [];
 
     /**
+     * @var MutableSource
+     */
+    protected $source = null;
+
+    /**
      * @param ApiChangeWarningSpec[] $specs
+     * @param MutableSource $source
      * @param ItemInterface $file
      */
-    public function __construct($specs, ItemInterface $file)
+    public function __construct($specs, MutableSource $source, ItemInterface $file)
     {
         $this->specs = $specs;
         $this->file = $file;
+        $this->source = $source;
     }
 
     public function beforeTraverse(array $nodes)
@@ -50,6 +55,15 @@ class WarningsVisitor implements NodeVisitor, ContainsWarnings
 
     public function enterNode(Node $node)
     {
+        if (!$this->matchesNode($node)) {
+            return;
+        }
+
+        foreach ($this->specs as $spec) {
+            if ($this->matchesSpec($node, $spec)) {
+                $this->addWarning($node, $spec);
+            }
+        }
     }
 
     public function leaveNode(Node $node)
@@ -143,7 +157,8 @@ class WarningsVisitor implements NodeVisitor, ContainsWarnings
      * @param string $class Class to test against
      * @return bool
      */
-    protected function matchesClass($candidate, $class) {
+    protected function matchesClass($candidate, $class)
+    {
         if (empty($candidate) || empty($class)) {
             false;
         }
@@ -157,4 +172,21 @@ class WarningsVisitor implements NodeVisitor, ContainsWarnings
         }
         return false;
     }
+
+    /**
+     * Check if this visitor matches this node
+     *
+     * @param Node $node
+     * @return mixed
+     */
+    protected abstract function matchesNode(Node $node);
+
+    /**
+     * Check if this spec matches this node
+     *
+     * @param Node $node
+     * @param ApiChangeWarningSpec $spec
+     * @return bool
+     */
+    protected abstract function matchesSpec(Node $node, ApiChangeWarningSpec $spec);
 }

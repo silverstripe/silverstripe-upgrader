@@ -12,37 +12,32 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 /**
  * Relies on {@link SymbolContextVisitor} to annotate the
  * 'symbolContext' attribute of nodes.
- *
- * @package SilverStripe\Upgrader\UpgradeRule
  */
 class PropertyWarningsVisitor extends WarningsVisitor
 {
-
-    public function enterNode(Node $node)
+    public function matchesNode(Node $node)
     {
-        parent::enterNode($node);
-
+        // Must be property
         $isPropNode = (
             $node instanceof PropertyProperty ||
             $node instanceof PropertyFetch ||
             $node instanceof StaticPropertyFetch
         );
+        if (!$isPropNode) {
+            return false;
+        }
+
+        // Must have name
+        if (!isset($node->name)) {
+            return false;
+        }
 
         // Don't process dynamic fetches ($obj->$someField)
-        $isNamedVarNode = (
-            isset($node->name) &&
-            $node->name instanceof Variable
-        );
-
-        if ($isPropNode && !$isNamedVarNode) {
-            foreach ($this->specs as $spec) {
-                if (!$this->matchesSpec($node, $spec)) {
-                    continue;
-                }
-
-                $this->addWarning($node, $spec);
-            }
+        if ($node->name instanceof Variable) {
+            return false;
         }
+
+        return true;
     }
 
     /**

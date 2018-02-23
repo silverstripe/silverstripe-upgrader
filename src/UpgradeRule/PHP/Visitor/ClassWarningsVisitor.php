@@ -17,24 +17,11 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
  */
 class ClassWarningsVisitor extends WarningsVisitor
 {
-    public function enterNode(Node $node)
+    public function matchesNode(Node $node)
     {
-        parent::enterNode($node);
-
-        $isClassNode = (
-            $node instanceof Class_ ||
+        return $node instanceof Class_ ||
             $node instanceof StaticCall ||
-            $node instanceof New_
-        );
-        if ($isClassNode) {
-            foreach ($this->specs as $spec) {
-                if (!$this->matchesSpec($node, $spec)) {
-                    continue;
-                }
-
-                $this->addWarning($node, $spec);
-            }
-        }
+            $node instanceof New_;
     }
 
     /**
