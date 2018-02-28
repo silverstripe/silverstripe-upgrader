@@ -53,4 +53,42 @@ class ConstantWarningsVisitor extends WarningsVisitor
     {
         return $this->nodeMatchesSymbol($node, $const) && $this->nodeMatchesClass($node, $class);
     }
+
+    /**
+     * Implement any upgrade rule provided by this spec
+     *
+     * @param Node|ConstFetch|ClassConstFetch $node
+     * @param ApiChangeWarningSpec $spec
+     */
+    protected function rewriteWithSpec(Node $node, ApiChangeWarningSpec $spec)
+    {
+        // Skip if there is no replacement
+        $replacement = $spec->getReplacement();
+        if (!$replacement) {
+            return;
+        }
+
+        // If replacement includes class, it's a complete substitution
+        if (strstr($replacement, '::')) {
+            $this->source->replaceNode($node, $replacement);
+            return;
+        }
+
+        // Replace node name
+        $target = $node->name;
+
+        // If name a node, replace it directly
+        if ($target instanceof Node) {
+            $this->source->replaceNode($target, $replacement);
+            return;
+        }
+
+        // If it's a string, hunt down the location and do positional replacement
+        if (is_string($target)) {
+            list($start, $length) = $this->findNameInNode($node, $target);
+            if (isset($start) && isset($length)) {
+                $this->source->replace($start, $length, $replacement);
+            }
+        }
+    }
 }

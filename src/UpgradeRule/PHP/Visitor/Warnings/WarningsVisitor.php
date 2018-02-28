@@ -199,12 +199,34 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
      * @param Node $node
      * @param ApiChangeWarningSpec $spec
      */
-    protected function rewriteWithSpec($node, $spec)
+    protected function rewriteWithSpec(Node $node, ApiChangeWarningSpec $spec)
     {
         // Skip if there is no replacement
         $replacement = $spec->getReplacement();
         if ($replacement) {
             $this->source->replaceNode($node, $replacement);
         }
+    }
+
+    /**
+     * Given a node, return the position of $search inside it
+     *
+     * @param Node $node
+     * @param string $search
+     * @return array Array with start and length position
+     */
+    protected function findNameInNode(Node $node, $search)
+    {
+        // Limit to range of node
+        list($nodeStart,) = $this->source->nodeRange($node);
+
+        // Find the string for this method to replace
+        $start = strpos($this->source->getOrigString(), $search, $nodeStart);
+        if ($start === false) {
+            return [null, null];
+        }
+
+        // Return position and length
+        return [$start, strlen($search)];
     }
 }

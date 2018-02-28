@@ -36,6 +36,7 @@ PHP;
         $visitor = new FunctionWarningsVisitor([
             new ApiChangeWarningSpec('myFunction()', [
                 'message' => 'Test function',
+                'replacement' => 'newFunction',
             ])
         ], $source, $input);
 
@@ -46,6 +47,27 @@ PHP;
 
         $this->assertContains('Test function', $warnings[0]->getMessage());
         $this->assertContains('myFunction(\'some-arg\')', $this->getLineForWarning($myClass, $warnings[0]));
+
+        // Ensure rewrite works
+        $newClass = <<<PHP
+<?php
+
+function wrap() {
+    newFunction('some-arg');    
+    otherFunction();
+}
+
+class MyClass
+{
+    function myFunction()
+    {
+        \$this->myFunction();
+    }
+}
+PHP;
+        $actualClass = $source->getModifiedString();
+        $this->assertNotEquals($source->getOrigString(), $actualClass);
+        $this->assertEquals($newClass, $actualClass);
     }
 
     /**
@@ -75,6 +97,7 @@ PHP;
         $visitor = new FunctionWarningsVisitor([
             new ApiChangeWarningSpec('myFunction()', [
                 'message' => 'Test function',
+                'replacement' => 'newFunction',
             ])
         ], $source, $input);
 
@@ -85,5 +108,26 @@ PHP;
 
         $this->assertContains('Test function', $warnings[0]->getMessage());
         $this->assertContains('myFunction(\'some-arg\')', $this->getLineForWarning($myClass, $warnings[0]));
+
+        // Ensure rewrite works
+        $newClass = <<<PHP
+<?php
+
+function wrap() {
+    newFunction('some-arg');
+    \$myFunction();
+}
+
+class MyClass
+{
+    function foo()
+    {
+        \$this->\$myFunction();
+    }
+}
+PHP;
+        $actualClass = $source->getModifiedString();
+        $this->assertNotEquals($source->getOrigString(), $actualClass);
+        $this->assertEquals($newClass, $actualClass);
     }
 }

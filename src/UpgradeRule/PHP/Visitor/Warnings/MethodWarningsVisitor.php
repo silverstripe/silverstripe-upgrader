@@ -2,6 +2,7 @@
 
 namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings;
 
+use PhpParser\Builder\Method;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
@@ -117,5 +118,35 @@ PATTERN;
             return $matches;
         }
         return null;
+    }
+
+    /**
+     * @param Node|MethodCall|ClassMethod|StaticCall $node
+     * @param ApiChangeWarningSpec $spec
+     */
+    protected function rewriteWithSpec(Node $node, ApiChangeWarningSpec $spec)
+    {
+        // Skip if there is no replacement
+        $replacement = $spec->getReplacement();
+        if (!$replacement) {
+            return;
+        }
+
+        // Replace node name
+        $target = $node->name;
+
+        // If name a node, replace it directly
+        if ($target instanceof Node) {
+            $this->source->replaceNode($target, $replacement);
+            return;
+        }
+
+        // If it's a string, hunt down the location and do positional replacement
+        if (is_string($target)) {
+            list($start, $length) = $this->findNameInNode($node, $target);
+            if (isset($start) && isset($length)) {
+                $this->source->replace($start, $length, $replacement);
+            }
+        }
     }
 }

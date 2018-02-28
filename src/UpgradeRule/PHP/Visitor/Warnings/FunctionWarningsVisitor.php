@@ -52,4 +52,18 @@ class FunctionWarningsVisitor extends WarningsVisitor
         $spec->invalidRule("Invalid function rule: {$symbol}");
         return false;
     }
+
+    /**
+     * @param Node|FuncCall $node
+     * @param ApiChangeWarningSpec $spec
+     */
+    protected function rewriteWithSpec(Node $node, ApiChangeWarningSpec $spec)
+    {
+        // Skip if there is no replacement
+        $replacement = $spec->getReplacement();
+        if ($replacement) {
+            // Replace only name node, not entire fuction call
+            $this->source->replaceNode($node->name, $replacement);
+        }
+    }
 }

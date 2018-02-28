@@ -34,7 +34,7 @@ class ClassWarningsVisitor extends WarningsVisitor
         return $this->nodeMatchesClass($node, $class);
     }
 
-    protected function rewriteWithSpec($node, $spec)
+    protected function rewriteWithSpec(Node $node, ApiChangeWarningSpec $spec)
     {
         // no-op as class rewrites must be done via `mapping` not `warnings`
     }

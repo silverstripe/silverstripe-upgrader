@@ -53,6 +53,7 @@ PHP;
         $visitor = new MethodWarningsVisitor([
             new ApiChangeWarningSpec('removedMethod()', [
                 'message' => 'Test global method',
+                'replacement' => 'newMethod',
             ])
         ], $source, $input);
 
@@ -72,6 +73,40 @@ PHP;
 
         $this->assertContains('Test global method', $warnings[3]->getMessage());
         $this->assertContains('SomeClass::removedMethod();', $this->getLineForWarning($myClass, $warnings[3]));
+
+        // Ensure rewrite works
+        $newClass = <<<PHP
+<?php
+
+use SomeNamespace\SomeClass;
+
+class MyClass
+{
+    public function otherMethod()
+    {
+        return true;
+    }
+    
+    public function newMethod()
+    {
+        // Should be ignored
+        \$removedMethod = true;
+        return \$removedMethod;
+    }
+
+    public function useRemovedMethod()
+    {
+        \$obj = new stdClass();
+        \$obj->newMethod();
+        
+        GlobalClass::newMethod();
+        SomeClass::newMethod();
+    }
+}
+PHP;
+        $actualClass = $source->getModifiedString();
+        $this->assertNotEquals($source->getOrigString(), $actualClass);
+        $this->assertEquals($newClass, $actualClass);
     }
 
     /**
@@ -118,11 +153,17 @@ PHP;
         $visitor = new MethodWarningsVisitor([
             new ApiChangeWarningSpec(
                 'GlobalClass::removedMethod()',
-                ['message' => 'Error in GlobalClass::removedMethod()']
+                [
+                    'message' => 'Error in GlobalClass::removedMethod()',
+                    'replacement' => 'newGlobalMethod',
+                ]
             ),
             new ApiChangeWarningSpec(
                 'SomeNamespace\\SomeClass::removedMethod()',
-                ['message' => 'Error in SomeNamespace\\SomeClass::removedMethod()']
+                [
+                    'message' => 'Error in SomeNamespace\\SomeClass::removedMethod()',
+                    'replacement' => 'anotherNewMethod',
+                ]
             ),
         ], $source, $input);
 
@@ -136,6 +177,29 @@ PHP;
 
         $this->assertContains('Error in SomeNamespace\\SomeClass::removedMethod()', $warnings[1]->getMessage());
         $this->assertContains('return SomeClass::removedMethod()', $this->getLineForWarning($myClass, $warnings[1]));
+
+        // Ensure rewrite works
+        $newClass = <<<PHP
+<?php
+
+use SomeNamespace\SomeClass;
+
+class MyClass
+{
+    public function staticInvocation()
+    {
+        \$foo = GlobalClass::newGlobalMethod();
+    }
+    
+    public function staticNamespacedInvocation()
+    {
+        return SomeClass::anotherNewMethod();
+    }
+}
+PHP;
+        $actualClass = $source->getModifiedString();
+        $this->assertNotEquals($source->getOrigString(), $actualClass);
+        $this->assertEquals($newClass, $actualClass);
     }
 
     /**
@@ -143,7 +207,6 @@ PHP;
      */
     public function testIgnoresDynamic()
     {
-
         $myClass = <<<PHP
 <?php
 
@@ -173,6 +236,7 @@ PHP;
         $visitor = new MethodWarningsVisitor([
             new ApiChangeWarningSpec('removedMethod()', [
                 'message' =>'Error in removedMethod()',
+                'replacement' => 'newMethod',
             ])
         ], $source, $input);
 
@@ -186,5 +250,33 @@ PHP;
 
         $this->assertContains('Error in removedMethod', $warnings[1]->getMessage());
         $this->assertContains('$match->removedMethod()', $this->getLineForWarning($myClass, $warnings[1]));
+
+        // Ensure rewrite works
+        $newClass = <<<PHP
+<?php
+
+use SomeNamespace\SomeClass;
+
+class MyClass
+{
+    public function staticInvocation()
+    {
+        \$match = SomeClass::newMethod();
+        \$noMatch = SomeClass::\$removedMethod();
+    }
+    
+    public function instanceInvocation()
+    {
+        \$match = new SomeClass();
+        \$match->newMethod();
+        
+        \$noMatch = new SomeClass();
+        \$noMatch->\$removedMethod();
+    }
+}
+PHP;
+        $actualClass = $source->getModifiedString();
+        $this->assertNotEquals($source->getOrigString(), $actualClass);
+        $this->assertEquals($newClass, $actualClass);
     }
 }
