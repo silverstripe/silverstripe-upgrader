@@ -2,7 +2,7 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\FunctionWarningsVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\FunctionWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\MutableSource;
 
@@ -32,7 +32,7 @@ PHP;
 
         $input = $this->getMockFile($myClass);
         $source = new MutableSource($input->getContents());
-        $visitor = new FunctionWarningsVisitor([
+        $visitor = new \SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\FunctionWarningsVisitor([
             new ApiChangeWarningSpec('myFunction()', [
                 'message' => 'Test function',
             ])
@@ -71,7 +71,7 @@ PHP;
 
         $input = $this->getMockFile($myClass);
         $source = new MutableSource($input->getContents());
-        $visitor = new FunctionWarningsVisitor([
+        $visitor = new \SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\FunctionWarningsVisitor([
             new ApiChangeWarningSpec('myFunction()', [
                 'message' => 'Test function',
             ])

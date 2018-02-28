@@ -2,7 +2,7 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\MethodWarningsVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\MethodWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\MutableSource;
 
@@ -49,7 +49,7 @@ PHP;
 
         $input = $this->getMockFile($myClass);
         $source = new MutableSource($input->getContents());
-        $visitor = new MethodWarningsVisitor([
+        $visitor = new \SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\MethodWarningsVisitor([
             new ApiChangeWarningSpec('removedMethod()', [
                 'message' => 'Test global method',
             ])
@@ -114,7 +114,7 @@ PHP;
 
         $input = $this->getMockFile($myClass);
         $source = new MutableSource($input->getContents());
-        $visitor = new MethodWarningsVisitor([
+        $visitor = new \SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\MethodWarningsVisitor([
             new ApiChangeWarningSpec(
                 'GlobalClass::removedMethod()',
                 ['message' => 'Error in GlobalClass::removedMethod()']
@@ -169,7 +169,7 @@ PHP;
 
         $input = $this->getMockFile($myClass);
         $source = new MutableSource($input->getContents());
-        $visitor = new MethodWarningsVisitor([
+        $visitor = new \SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\MethodWarningsVisitor([
             new ApiChangeWarningSpec('removedMethod()', [
                 'message' =>'Error in removedMethod()',
             ])

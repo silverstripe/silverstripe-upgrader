@@ -2,7 +2,7 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PropertyWarningsVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\PropertyWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\MutableSource;
 
@@ -45,7 +45,7 @@ PHP;
 
         $input = $this->getMockFile($myCode);
         $source = new MutableSource($input->getContents());
-        $visitor = new PropertyWarningsVisitor([
+        $visitor = new \SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\PropertyWarningsVisitor([
             (new ApiChangeWarningSpec('removedInstanceProp', ['message' => 'Test instance prop']))
         ], $source, $input);
 
@@ -101,7 +101,7 @@ PHP;
 
         $inputFile = $this->getMockFile($input);
         $source = new MutableSource($inputFile->getContents());
-        $visitor = new PropertyWarningsVisitor([
+        $visitor = new \SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\PropertyWarningsVisitor([
             new ApiChangeWarningSpec('MyNamespace\\MyClass->removedInstanceProp', [
                 'message' => 'Test instance prop',
             ])

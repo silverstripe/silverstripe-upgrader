@@ -2,7 +2,7 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ConstantWarningsVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\ConstantWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\MutableSource;
 
@@ -30,7 +30,7 @@ PHP;
 
         $input = $this->getMockFile($myClass);
         $source = new MutableSource($input->getContents());
-        $visitor = new ConstantWarningsVisitor([
+        $visitor = new \SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\ConstantWarningsVisitor([
             new ApiChangeWarningSpec('REMOVED_CONSTANT', ['message' => 'Test REMOVED_CONSTANT'])
         ], $source, $input);
 
@@ -72,7 +72,7 @@ PHP;
 
         $input = $this->getMockFile($myClass);
         $source = new MutableSource($input->getContents());
-        $visitor = new ConstantWarningsVisitor([
+        $visitor = new \SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\ConstantWarningsVisitor([
             new ApiChangeWarningSpec('SomeNamespace\\SomeClass::REMOVED_CONSTANT', [
                 'message' => 'Test REMOVED_CONSTANT',
             ])

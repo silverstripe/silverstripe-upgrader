@@ -2,7 +2,7 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\ClassWarningsVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\ClassWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\MutableSource;
 
