@@ -30,6 +30,12 @@ class MockCollectionAutoloader extends CollectionAutoloader
         return class_exists($class, false);
     }
 
+    protected function canAutoloadItem(ItemInterface $collectionItem)
+    {
+        // Enable autoloading for all mocked files
+        return true;
+    }
+
     /**
      * Eval a string, but only once this process
      *

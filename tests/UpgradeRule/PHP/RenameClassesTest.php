@@ -26,7 +26,7 @@ class RenameClassesTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideTests
-     * @param $fixture
+     * @param string $fixture
      */
     public function testNamespaceAddition($fixture)
     {

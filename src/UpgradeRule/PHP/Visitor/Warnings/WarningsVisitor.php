@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
+namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings;
 
 use PhpParser\Node;
 use PhpParser\NodeVisitor;
@@ -61,7 +61,10 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
 
         foreach ($this->specs as $spec) {
             if ($this->matchesSpec($node, $spec)) {
+                // Only match first spec that matches this node
+                $this->rewriteWithSpec($node, $spec);
                 $this->addWarning($node, $spec);
+                return;
             }
         }
     }
@@ -189,4 +192,19 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
      * @return bool
      */
     protected abstract function matchesSpec(Node $node, ApiChangeWarningSpec $spec);
+
+    /**
+     * Implement any upgrade rule provided by this spec
+     *
+     * @param Node $node
+     * @param ApiChangeWarningSpec $spec
+     */
+    protected function rewriteWithSpec($node, $spec)
+    {
+        // Skip if there is no replacement
+        $replacement = $spec->getReplacement();
+        if ($replacement) {
+            $this->source->replaceNode($node, $replacement);
+        }
+    }
 }

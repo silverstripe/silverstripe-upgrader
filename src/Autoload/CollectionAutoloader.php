@@ -140,7 +140,7 @@ class CollectionAutoloader implements Autoloader
         foreach ($this->getCollections() as $collection) {
             /** @var ItemInterface $collectionItem */
             foreach ($collection->iterateItems() as $collectionItem) {
-                if ($collectionItem->getExtension() === 'php') {
+                if ($this->canAutoloadItem($collectionItem)) {
                     yield $collectionItem;
                 }
             }
@@ -158,5 +158,26 @@ class CollectionAutoloader implements Autoloader
     {
         require_once($file->getFullPath());
         return class_exists($class, false);
+    }
+
+    /**
+     * Check if this item can be autoloaded
+     *
+     * @param ItemInterface $collectionItem
+     * @return bool
+     */
+    protected function canAutoloadItem(ItemInterface $collectionItem)
+    {
+        // Skip all lowercase file since they tend not to have classes in them.
+        // E.g. index.php
+        $name = $collectionItem->getFilename();
+        if ($name === strtolower($name)) {
+            return false;
+        }
+        // Skip non-php files
+        if ($collectionItem->getExtension() !== 'php') {
+            return false;
+        }
+        return true;
     }
 }

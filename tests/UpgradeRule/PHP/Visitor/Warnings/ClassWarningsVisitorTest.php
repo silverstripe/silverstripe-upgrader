@@ -1,7 +1,8 @@
 <?php
 
-namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
+namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor\Warnings;
 
+use SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor\BaseVisitorTest;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\ClassWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\MutableSource;
@@ -31,6 +32,7 @@ PHP;
         $visitor = new ClassWarningsVisitor([
             new ApiChangeWarningSpec('MyNamespace\\SomeClass', [
                 'message' => 'Error with SomeClass',
+                'replacement' => 'neveruse',
             ])
         ], $source, $item);
 
@@ -40,6 +42,7 @@ PHP;
         $this->assertCount(1, $warnings);
         $this->assertContains('Error with SomeClass', $warnings[0]->getMessage());
         $this->assertContains('class MyClass extends SomeClass', $this->getLineForWarning($myclass, $warnings[0]));
+        $this->assertEquals($source->getOrigString(), $source->getModifiedString(), 'Class warnings do not upgrade');
     }
 
     /**
@@ -67,6 +70,7 @@ PHP;
         $visitor = new ClassWarningsVisitor([
             new ApiChangeWarningSpec('SomeNamespace\\SomeClass', [
                 'message' => 'Error with SomeNamespace\\SomeClass',
+                'replacement' => 'neveruse',
             ])
         ], $source, $item);
 
@@ -76,6 +80,7 @@ PHP;
         $this->assertCount(1, $warnings);
         $this->assertContains('Error with SomeNamespace\\SomeClass', $warnings[0]->getMessage());
         $this->assertContains('class MyClass extends SomeClass', $this->getLineForWarning($myclass, $warnings[0]));
+        $this->assertEquals($source->getOrigString(), $source->getModifiedString(), 'Class warnings do not upgrade');
     }
 
     /**
@@ -101,6 +106,7 @@ PHP;
         $visitor = new ClassWarningsVisitor([
             new ApiChangeWarningSpec('SomeNamespace\\SomeClass', [
                 'message' => 'Error with SomeNamespace\\SomeClass',
+                'replacement' => 'neveruse',
             ])
         ], $source, $item);
 
@@ -113,6 +119,7 @@ PHP;
             'class MyClass extends \SomeNamespace\\SomeClass',
             $this->getLineForWarning($myClass, $warnings[0])
         );
+        $this->assertEquals($source->getOrigString(), $source->getModifiedString(), 'Class warnings do not upgrade');
     }
 
     /**
@@ -144,6 +151,7 @@ PHP;
         $visitor = new ClassWarningsVisitor([
             new ApiChangeWarningSpec('SomeNamespace\\SomeClass', [
                 'message' => 'Error with SomeNamespace\\SomeClass',
+                'replacement' => 'neveruse',
             ])
         ], $source, $input);
 
@@ -153,6 +161,7 @@ PHP;
         $this->assertCount(1, $warnings);
         $this->assertContains('Error with SomeNamespace\\SomeClass', $warnings[0]->getMessage());
         $this->assertContains('SomeClass::bar()', $this->getLineForWarning($myClass, $warnings[0]));
+        $this->assertEquals($source->getOrigString(), $source->getModifiedString(), 'Class warnings do not upgrade');
     }
 
     /**
@@ -184,6 +193,7 @@ PHP;
         $visitor = new ClassWarningsVisitor([
             new ApiChangeWarningSpec('SomeNamespace\\SomeClass', [
                 'message' => 'Error with SomeNamespace\\SomeClass',
+                'replacement' => 'neveruse',
             ])
         ], $source, $input);
 
@@ -193,5 +203,6 @@ PHP;
         $this->assertCount(1, $warnings);
         $this->assertContains('Error with SomeNamespace\\SomeClass', $warnings[0]->getMessage());
         $this->assertContains('new SomeClass()', $this->getLineForWarning($myClass, $warnings[0]));
+        $this->assertEquals($source->getOrigString(), $source->getModifiedString(), 'Class warnings do not upgrade');
     }
 }

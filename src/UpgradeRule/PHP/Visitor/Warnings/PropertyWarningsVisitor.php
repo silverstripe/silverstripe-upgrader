@@ -1,12 +1,12 @@
 <?php
 
-namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
+namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticPropertyFetch;
-use PhpParser\Node\Stmt\PropertyProperty;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Stmt\PropertyProperty;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 /**

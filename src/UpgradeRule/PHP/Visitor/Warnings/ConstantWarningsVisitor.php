@@ -1,17 +1,15 @@
 <?php
 
-namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
+namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\ConstFetch;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 
 /**
  * Relies on {@link SymbolContextVisitor} to annotate the
  * 'symbolContext' attribute of nodes.
- *
- * @package SilverStripe\Upgrader\UpgradeRule
  */
 class ConstantWarningsVisitor extends WarningsVisitor
 {

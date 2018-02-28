@@ -12,26 +12,56 @@ use PhpParser\Node;
  */
 class MutableString
 {
-    private $string;
+    /**
+     * Original value
+     * @var string
+     */
+    protected $string;
 
-    // [[pos, len, newString]]
-    public $modifications = [];
+    /** Array of modification, each modification an array of
+     * format [pos, len, newString]
+     *
+     * @var array
+     */
+    protected $modifications = [];
 
+    /**
+     * @param string $string
+     */
     public function __construct($string)
     {
         $this->string = $string;
     }
 
+    /**
+     * Insert value at position
+     *
+     * @param int $pos Position to insert at
+     * @param string $newString String to insert
+     */
     public function insert($pos, $newString)
     {
         $this->modifications[] = [$pos, 0, $newString];
     }
 
+    /**
+     * Remove string at position
+     *
+     * @param int $pos Position to remove from
+     * @param int $len Number of characters to remove
+     */
     public function remove($pos, $len)
     {
         $this->modifications[] = [$pos, $len, ''];
     }
 
+    /**
+     * Replace a string at a given position
+     *
+     * @param int $pos Position to insert at
+     * @param int $len Number of characters to replace
+     * @param string $newString New value of string
+     */
     public function replace($pos, $len, $newString)
     {
         $this->modifications[] = [$pos, $len, $newString];

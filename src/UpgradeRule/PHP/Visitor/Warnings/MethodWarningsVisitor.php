@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
+namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;

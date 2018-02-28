@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
+namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\FuncCall;
@@ -10,8 +10,6 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 /**
  * Relies on {@link SymbolContextVisitor} to annotate the
  * 'symbolContext' attribute of nodes.
- *
- * @package SilverStripe\Upgrader\UpgradeRule
  */
 class FunctionWarningsVisitor extends WarningsVisitor
 {

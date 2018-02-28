@@ -17,9 +17,7 @@ class AddNamespaceTest extends \PHPUnit_Framework_TestCase
     public function testNamespaceFolder()
     {
         list($parameters, $input1, $output1, $input2, $output2) =
-            $this->loadFixture(
-                __DIR__ .'/fixtures/add-namespace.testfixture'
-            );
+            $this->loadFixture(__DIR__ .'/fixtures/add-namespace.testfixture');
 
         // Build mock collection
         $code = new MockCodeCollection([
