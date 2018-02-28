@@ -63,7 +63,7 @@ class FunctionWarningsVisitor extends WarningsVisitor
         $replacement = $spec->getReplacement();
         if ($replacement) {
             // Replace only name node, not entire fuction call
-            $this->source->replaceNode($node->name, $replacement);
+            $this->replaceNodePart($node, $node->name, $replacement);
         }
     }
 }

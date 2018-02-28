@@ -75,6 +75,20 @@ class PropertyWarningsVisitor extends WarningsVisitor
         return false;
     }
 
+    /**
+     * @param Node|PropertyProperty|PropertyFetch|StaticPropertyFetch $node
+     * @param ApiChangeWarningSpec $spec
+     */
+    protected function rewriteWithSpec(Node $node, ApiChangeWarningSpec $spec)
+    {
+        // Skip if there is no replacement
+        $replacement = $spec->getReplacement();
+        if ($replacement) {
+            // Replace name only
+            $this->replaceNodePart($node, $node->name, $replacement);
+        }
+    }
+
 
     /**
      * Is static, and matches class and property name

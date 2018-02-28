@@ -47,7 +47,10 @@ PHP;
         $input = $this->getMockFile($myCode);
         $source = new MutableSource($input->getContents());
         $visitor = new PropertyWarningsVisitor([
-            (new ApiChangeWarningSpec('removedInstanceProp', ['message' => 'Test instance prop']))
+            new ApiChangeWarningSpec('removedInstanceProp', [
+                'message' => 'Test instance prop',
+                'replacement' => 'newInstanceProp',
+            ])
         ], $source, $input);
 
         $this->traverseWithVisitor($source, $input, $visitor);
@@ -63,6 +66,38 @@ PHP;
 
         $this->assertContains('Test instance prop', $warnings[2]->getMessage());
         $this->assertContains('$bar->removedInstanceProp', $this->getLineForWarning($myCode, $warnings[2]));
+
+        // Ensure rewrite works
+        $newClass = <<<PHP
+<?php
+
+namespace MyNamespace;
+
+use SomeNamespace\NamespacedClass;
+
+class MyClass
+{
+    protected \$newInstanceProp = true;
+}
+
+class MyOtherClass
+{
+    function useProp()
+    {
+        \$foo = new MyClass();
+        \$foo->newInstanceProp;
+    }
+    
+    function noMatch()
+    {
+        \$bar = new MyOtherClass();
+        \$bar->newInstanceProp;
+    }
+}
+PHP;
+        $actualClass = $source->getModifiedString();
+        $this->assertNotEquals($source->getOrigString(), $actualClass);
+        $this->assertEquals($newClass, $actualClass);
     }
 
     /**
@@ -71,6 +106,7 @@ PHP;
     public function testInstancePropDefinitionWithClass()
     {
         $this->scaffoldMockClass('SomeNamespace\\NamespacedClass');
+        $this->scaffoldMockClass('MyNamespace\\MyClass');
 
         $input = <<<PHP
 <?php
@@ -79,7 +115,7 @@ namespace MyNamespace;
 
 use SomeNamespace\NamespacedClass;
 
-class MyClass
+class SubClass extends MyClass
 {
     protected \$removedInstanceProp = true;
 }
@@ -105,6 +141,7 @@ PHP;
         $visitor = new PropertyWarningsVisitor([
             new ApiChangeWarningSpec('MyNamespace\\MyClass->removedInstanceProp', [
                 'message' => 'Test instance prop',
+                'replacement' => 'newInstanceProp',
             ])
         ], $source, $inputFile);
 
@@ -118,6 +155,38 @@ PHP;
 
         $this->assertContains('Test instance prop', $warnings[1]->getMessage());
         $this->assertContains('$foo->removedInstanceProp', $this->getLineForWarning($input, $warnings[1]));
+
+        // Ensure rewrite works
+        $newClass = <<<PHP
+<?php
+
+namespace MyNamespace;
+
+use SomeNamespace\NamespacedClass;
+
+class SubClass extends MyClass
+{
+    protected \$newInstanceProp = true;
+}
+
+class MyOtherClass
+{
+    function useProp()
+    {
+        \$foo = new MyClass();
+        \$foo->newInstanceProp;
+    }
+    
+    function noMatch()
+    {
+        \$bar = new MyOtherClass();
+        \$bar->removedInstanceProp;
+    }
+}
+PHP;
+        $actualClass = $source->getModifiedString();
+        $this->assertNotEquals($source->getOrigString(), $actualClass);
+        $this->assertEquals($newClass, $actualClass);
     }
 
     /**
@@ -126,6 +195,7 @@ PHP;
     public function testStaticPropDefinitionWithClass()
     {
         $this->scaffoldMockClass('SomeNamespace\\NamespacedClass');
+        $this->scaffoldMockClass('MyNamespace\\MyClass');
         $input = <<<PHP
 <?php
 
@@ -133,7 +203,7 @@ namespace MyNamespace;
 
 use SomeNamespace\NamespacedClass;
 
-class MyClass
+class SubClass extends MyClass
 {
     protected static \$removedStaticProp = true;
 }
@@ -153,6 +223,7 @@ PHP;
         $visitor = new PropertyWarningsVisitor([
             new ApiChangeWarningSpec('MyNamespace\\MyClass::removedStaticProp', [
                 'message' => 'Test staticprop',
+                'replacement' => 'newStaticProp',
             ])
         ], $source, $inputFile);
 
@@ -169,6 +240,32 @@ PHP;
 
         $this->assertContains('Test staticprop', $warnings[1]->getMessage());
         $this->assertContains('MyClass::$removedStaticProp', $this->getLineForWarning($input, $warnings[1]));
+
+        // Ensure rewrite works
+        $newClass = <<<PHP
+<?php
+
+namespace MyNamespace;
+
+use SomeNamespace\NamespacedClass;
+
+class SubClass extends MyClass
+{
+    protected static \$newStaticProp = true;
+}
+
+class MyOtherClass
+{
+    function useProp()
+    {
+        \$foo = MyClass::\$newStaticProp;
+        \$noMatch = MyOtherClass::\$removedStaticProp;
+    }
+}
+PHP;
+        $actualClass = $source->getModifiedString();
+        $this->assertNotEquals($source->getOrigString(), $actualClass);
+        $this->assertEquals($newClass, $actualClass);
     }
 
     /**
@@ -199,6 +296,7 @@ PHP;
         $visitor = new PropertyWarningsVisitor([
             new ApiChangeWarningSpec('removedProp', [
                 'message' => 'Test removedProp',
+                'replacement' => 'newProp',
             ])
         ], $source, $inputFile);
 
@@ -212,5 +310,28 @@ PHP;
             '$match->removedProp',
             $this->getLineForWarning($input, $warnings[0])
         );
+
+
+        // Ensure rewrite works
+        $newClass = <<<PHP
+<?php
+
+namespace MyNamespace;
+
+class MyClass
+{
+    function useProp()
+    {
+        \$match = new MyClass();
+        \$match->newProp;
+        
+        \$noMatch = new MyClass();
+        \$noMatch->\$removedProp;
+    }
+}
+PHP;
+        $actualClass = $source->getModifiedString();
+        $this->assertNotEquals($source->getOrigString(), $actualClass);
+        $this->assertEquals($newClass, $actualClass);
     }
 }
