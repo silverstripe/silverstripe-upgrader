@@ -79,7 +79,8 @@ class PHPStanScopeVisitor implements NodeVisitor
                 foreach ($this->registry->getRules(get_class($node)) as $rule) {
                     $rule->processNode($node, $scope);
                 }
-            });
+            }
+        );
     }
 
     public function leaveNode(Node $node)

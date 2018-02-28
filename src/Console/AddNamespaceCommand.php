@@ -97,9 +97,14 @@ class AddNamespaceCommand extends AbstractCommand
             'add-namespace' => [
                 [
                     'namespace' => $namespace,
-                    'path' => substr($filePath, strlen($rootPath))
-                ]
-            ]
+                    'path' => substr($filePath, strlen($rootPath)),
+                    'skipClasses' => [
+                        'Page',
+                        'Page_Controller',
+                        'PageController',
+                    ],
+                ],
+            ],
         ];
 
         // Add spec to rule

@@ -182,7 +182,7 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
      * @param Node $node
      * @return mixed
      */
-    protected abstract function matchesNode(Node $node);
+    abstract protected function matchesNode(Node $node);
 
     /**
      * Check if this spec matches this node
@@ -191,7 +191,7 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
      * @param ApiChangeWarningSpec $spec
      * @return bool
      */
-    protected abstract function matchesSpec(Node $node, ApiChangeWarningSpec $spec);
+    abstract protected function matchesSpec(Node $node, ApiChangeWarningSpec $spec);
 
     /**
      * Implement any upgrade rule provided by this spec
@@ -199,7 +199,7 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
      * @param Node $node
      * @param ApiChangeWarningSpec $spec
      */
-    protected abstract function rewriteWithSpec(Node $node, ApiChangeWarningSpec $spec);
+    abstract protected function rewriteWithSpec(Node $node, ApiChangeWarningSpec $spec);
 
 
     /**

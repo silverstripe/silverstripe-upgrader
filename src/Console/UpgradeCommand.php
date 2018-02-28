@@ -27,9 +27,8 @@ class UpgradeCommand extends AbstractCommand
             ->setDefinition([
                 new InputArgument(
                     'path',
-                    InputArgument::OPTIONAL,
-                    'The root path to your code needing to be upgraded. Defaults to current directory.',
-                    '.'
+                    InputArgument::REQUIRED,
+                    'The root path to your code needing to be upgraded. This must be a subdirectory of base path.'
                 ),
                 new InputOption(
                     'rule',
@@ -122,7 +121,7 @@ class UpgradeCommand extends AbstractCommand
 
         // Find module name
         $rootPath = $this->getRootPath($input);
-        if (stripos($filePath, $rootPath) !== 0) {
+        if (($filePath === $rootPath) || stripos($filePath, $rootPath) !== 0) {
             throw new InvalidArgumentException(
                 "root-dir \"{$rootPath}\" is not a parent of the specified path \"{$filePath}\""
             );

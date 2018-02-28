@@ -24,9 +24,8 @@ class InspectCommand extends UpgradeCommand
             ->setDefinition([
                 new InputArgument(
                     'path',
-                    InputArgument::OPTIONAL,
-                    'The root path to your code needing to be upgraded. Defaults to current directory.',
-                    '.'
+                    InputArgument::REQUIRED,
+                    'The root path to your code needing to be upgraded. This must be a subdirectory of base path.'
                 ),
                 new InputOption(
                     'root-dir',

@@ -36,8 +36,8 @@ class RecordingVisitor implements NodeVisitor
             $this->getVisitedNodes(),
             function (Node $node) use ($type) {
                 return is_a($node, $type, true);
-            })
-        );
+            }
+        ));
     }
 
     public function beforeTraverse(array $nodes)

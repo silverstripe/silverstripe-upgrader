@@ -55,7 +55,37 @@ class AddNamespaceRule extends PHPUpgradeRule
      * @param ItemInterface $file
      * @return string
      */
-    public function getNamespaceForFile($file)
+    public function getNamespaceForFile(ItemInterface $file)
+    {
+        $modification = $this->getModificationForFile($file);
+        if ($modification && isset($modification['namespace'])) {
+            return $modification['namespace'];
+        }
+        return null;
+    }
+
+    /**
+     * For a given upgrade file, determine which classes we should skip upgrade for if we
+     * see in this class.
+     *
+     * @param ItemInterface $file
+     * @return array
+     */
+    public function getExcludedClasseForFile(ItemInterface $file)
+    {
+        $modification = $this->getModificationForFile($file);
+        if ($modification && isset($modification['skipClasses'])) {
+            return $modification['skipClasses'];
+        }
+        return [];
+    }
+
+
+    /**
+     * @param ItemInterface $file
+     * @return array
+     */
+    public function getModificationForFile(ItemInterface $file)
     {
         $path = $file->getFullPath();
         foreach ($this->getAddedNamespaces() as $modification) {
@@ -63,7 +93,7 @@ class AddNamespaceRule extends PHPUpgradeRule
             // any add-namespace config, then match it against base rules.
             $nextPath = $this->root . $modification['path'];
             if (stripos($path, $nextPath) === 0) {
-                return $modification['namespace'];
+                return $modification;
             }
         }
         return null;
@@ -111,6 +141,11 @@ class AddNamespaceRule extends PHPUpgradeRule
             return;
         }
 
+        // Skip if any classes are excluded
+        if ($this->anyClassesExcluded($fileClasses, $file)) {
+            return;
+        }
+
         // Add classes in this file to namespace mapping
         $newNamespace = $this->getNamespaceForFile($file);
         foreach ($fileClasses as $class) {
@@ -132,13 +167,19 @@ class AddNamespaceRule extends PHPUpgradeRule
 
         // Do initial parse of this file
         $source = new MutableSource($contents);
-        list($fileNamespace) = $this->findClasses($source);
+        /** @var Namespace_ $fileNamespace */
+        list($fileNamespace, $fileClasses) = $this->findClasses($source);
 
         // We can only add namespace if none is already applied
         $newNamespace = $this->getNamespaceForFile($file);
         if ($fileNamespace) {
             // Validate any already-applied namespace
             $this->validateNamespaceMatches($fileNamespace, $newNamespace, $file, $changeset);
+            return $contents;
+        }
+
+        // Check if any blacklisted files are in this file
+        if ($this->anyClassesExcluded($fileClasses, $file)) {
             return $contents;
         }
 
@@ -272,5 +313,31 @@ class AddNamespaceRule extends PHPUpgradeRule
     {
         return $this->getNamespaceForFile($file)
             && parent::appliesTo($file);
+    }
+
+    /**
+     * Test if any of the classes in $fileClasses are in the exclusion list
+     *
+     * @param array $fileClasses List of classes that exist
+     * @param ItemInterface $file
+     * @return bool
+     */
+    protected function anyClassesExcluded($fileClasses, $file)
+    {
+        // Ensure candidate list exists
+        if (empty($fileClasses)) {
+            return false;
+        }
+        // Ensule check list exists
+        $excludedClasses = $this->getExcludedClasseForFile($file);
+        if (empty($excludedClasses)) {
+            return false;
+        }
+        // Case insensitive lookup
+        $fileClasses = array_map('strtolower', $fileClasses);
+        $excludedClasses = array_map('strtolower', $excludedClasses);
+
+        // If any of the classes are excluded, skip entire file
+        return array_intersect($fileClasses, $excludedClasses);
     }
 }

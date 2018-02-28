@@ -43,13 +43,13 @@ class AddNamespaceTest extends \PHPUnit_Framework_TestCase
                 'RenamedInterface',
                 'Traitee',
             ],
-            $namespacer->getClassesInNamespace('Upgrader\NewNamespace')
+            $namespacer->getClassesInNamespace('Upgrader\\NewNamespace')
         );
 
 
         // Check loading namespace from config
-        $this->assertEquals('Upgrader\NewNamespace', $namespacer->getNamespaceForFile($file1));
-        $this->assertEquals('Upgrader\NewNamespace', $namespacer->getNamespaceForFile($file2));
+        $this->assertEquals('Upgrader\\NewNamespace', $namespacer->getNamespaceForFile($file1));
+        $this->assertEquals('Upgrader\\NewNamespace', $namespacer->getNamespaceForFile($file2));
         $this->assertNull($namespacer->getNamespaceForFile($otherfile));
 
         // Test upgrading file1
@@ -61,5 +61,36 @@ class AddNamespaceTest extends \PHPUnit_Framework_TestCase
         $generated2 = $namespacer->upgradeFile($input2, $file2, $changeset);
         $this->assertFalse($changeset->hasWarnings($file2->getPath()));
         $this->assertEquals($output2, $generated2);
+    }
+
+    /**
+     * Test that skipClasses skips certain files
+     */
+    public function testNamespaceSkipsClasses()
+    {
+        list($parameters, $input, $output) =
+            $this->loadFixture(__DIR__ .'/fixtures/add-namespace-skipped.testfixture');
+
+        // Build mock collection
+        $code = new MockCodeCollection([
+            'dir/test1.php' => $input,
+        ]);
+        $file1 = $code->itemByPath('dir/test1.php');
+
+        // Add spec to rule
+        $namespacer = new AddNamespaceRule();
+        $namespacer
+            ->withParameters($parameters)
+            ->withRoot('');
+
+        // Test that pre-post hooks skips all skippedClasses
+        $changeset = new CodeChangeSet();
+        $namespacer->beforeUpgradeCollection($code, $changeset);
+        $this->assertEmpty($namespacer->getClassesInNamespace('Upgrader\\NewNamespace'));
+
+        // Test upgrading file1 is no-op
+        $generated = $namespacer->upgradeFile($input, $file1, $changeset);
+        $this->assertEquals($output, $input);
+        $this->assertEquals($output, $generated);
     }
 }

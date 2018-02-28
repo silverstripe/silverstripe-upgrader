@@ -5,7 +5,8 @@ namespace SilverStripe\Upgrader\Autoload;
 /**
  * Generic autoloader
  */
-interface Autoloader {
+interface Autoloader
+{
 
     /**
      * Activate this autoloader
