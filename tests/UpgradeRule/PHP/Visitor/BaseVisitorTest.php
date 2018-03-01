@@ -3,7 +3,7 @@
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
 use PhpParser\NodeVisitor;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\Tests\InspectCodeTrait;
 use SilverStripe\Upgrader\Tests\MockCodeCollection;
@@ -11,7 +11,7 @@ use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeWarningsRule;
 use SilverStripe\Upgrader\Util\MutableSource;
 use SilverStripe\Upgrader\Util\Warning;
 
-abstract class BaseVisitorTest extends PHPUnit_Framework_TestCase
+abstract class BaseVisitorTest extends TestCase
 {
     use InspectCodeTrait;
 

@@ -4,10 +4,10 @@ namespace SilverStripe\Upgrader\Tests\Util;
 
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Name;
-use PhpParser\Node\Stmt\Class_;
+use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Util\MutableSource;
 
-class MutableSourceTest extends \PHPUnit_Framework_TestCase
+class MutableSourceTest extends TestCase
 {
     public function testMutableString()
     {

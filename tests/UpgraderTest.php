@@ -2,10 +2,11 @@
 
 namespace SilverStripe\Upgrader\Tests;
 
+use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Upgrader;
 use SilverStripe\Upgrader\UpgradeSpec;
 
-class UpgraderTest extends \PHPUnit_Framework_TestCase
+class UpgraderTest extends TestCase
 {
     public function testUpgrader()
     {

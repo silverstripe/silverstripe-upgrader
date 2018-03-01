@@ -2,13 +2,13 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\JS;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\Tests\FixtureLoader;
 use SilverStripe\Upgrader\Tests\MockCodeCollection;
 use SilverStripe\Upgrader\UpgradeRule\YML\RenameYMLLangKeys;
 
-class RenameYMLLangKeysTest extends PHPUnit_Framework_TestCase
+class RenameYMLLangKeysTest extends TestCase
 {
     use FixtureLoader;
 
