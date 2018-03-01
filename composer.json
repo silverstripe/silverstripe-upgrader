@@ -1,37 +1,43 @@
 {
-  "name": "silverstripe/upgrader",
-  "description": "A tool to help upgrade your code to handle API changes in packages you used.",
-  "license": "BSD-3-Clause",
-  "authors": [
-    {
-      "name": "Sam Minnee",
-      "email": "sam@silverstripe.com"
-    }
-  ],
-  "require": {
-    "nikic/php-parser": "^3.1",
-    "symfony/console": "^3.2",
-    "symfony/yaml": "^3.2",
-    "phpspec/php-diff": "^1",
-    "phpstan/phpstan": "^0.10",
-    "phpstan/phpstan-php-parser": "^0.10"
-  },
-  "bin": [
-    "bin/upgrade-code"
-  ],
-  "require-dev": {
-    "phpunit/phpunit": "^4.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "SilverStripe\\Upgrader\\": "src/",
-      "SilverStripe\\Upgrader\\Tests\\": "tests/"
-    }
-  },
-  "scripts": {
-    "lint": "phpcs src/ tests/",
-    "lint-clean": "phpcbf src/ tests/"
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true
+    "name": "silverstripe/upgrader",
+    "description": "A tool to help upgrade your code to handle API changes in packages you used.",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Sam Minnee",
+            "email": "sam@silverstripe.com"
+        }
+    ],
+    "require": {
+        "php": "^7",
+        "nikic/php-parser": "^3.1",
+        "symfony/console": "^3.2",
+        "symfony/yaml": "^3.2",
+        "phpspec/php-diff": "^1",
+        "phpstan/phpstan": "^0.10",
+        "phpstan/phpstan-php-parser": "^0.10"
+    },
+    "bin": [
+        "bin/upgrade-code"
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^7"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.1.x-dev"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "SilverStripe\\Upgrader\\": "src/",
+            "SilverStripe\\Upgrader\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "lint": "phpcs src/ tests/",
+        "lint-clean": "phpcbf src/ tests/"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
