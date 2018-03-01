@@ -44,7 +44,7 @@ that referenced the un-namespaced versions of these classes.
 
 Once you have finished namespacing your code, you can run the below code to rename all references.
 
-`upgrade-code upgrade <path> [--root-dir=<root>] [--recursive] [--write] [--rule] [-vvv]`
+`upgrade-code upgrade <path> [--root-dir=<root>] [--write] [--rule] [-vvv]`
 
 E.g.
 
@@ -72,7 +72,7 @@ You can run this command (with a necessary refresh of composer autoload files) w
 
 ```
 composer dump-autoload
-upgrade-code inspect <path> [--root-dir=<root>] [--recursive] [--write] [-vvv]
+upgrade-code inspect <path> [--root-dir=<root>] [--write] [-vvv]
 ```
 
 This will load all classes into memory, and infer the types of all objects used in each file. It will
