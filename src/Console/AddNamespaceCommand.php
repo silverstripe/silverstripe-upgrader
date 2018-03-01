@@ -77,14 +77,15 @@ class AddNamespaceCommand extends AbstractCommand
         if (stripos($namespace, "\\") === false) {
             throw new \InvalidArgumentException("Namespace \"{$namespace}\" doesn't seem escaped properly");
         }
-        // Find module name
-        if (stripos($filePath, $rootPath) !== 0) {
+        // Validate rootpath
+        if (($filePath === $rootPath) || stripos($filePath, $rootPath) !== 0) {
             throw new \InvalidArgumentException(
                 "root-dir \"{$rootPath}\" is not a parent of the specified path \"{$filePath}\""
             );
         }
-        $relativePath = trim(substr($filePath, strlen($rootPath)), DIRECTORY_SEPARATOR);
-        $module = strtok($relativePath, DIRECTORY_SEPARATOR);
+
+        // Find module name
+        $module = $this->getModuleName($filePath, $rootPath);
         if (empty($module)) {
             throw new \InvalidArgumentException(
                 "Could not find module name for path \"{$filePath}\""
@@ -142,5 +143,27 @@ class AddNamespaceCommand extends AbstractCommand
         } else {
             $output->writeln("Changes not saved; Run with --write to commit to disk");
         }
+    }
+
+    /**
+     * Get path to module root
+     *
+     * @param string $filePath Path being upgrade
+     * @param string $rootPath Root dir
+     * @return string Path to module root dir
+     */
+    protected function getModuleName($filePath, $rootPath)
+    {
+        $relativePath = trim(substr($filePath, strlen($rootPath)), DIRECTORY_SEPARATOR);
+
+        // If not in vendor, just return the basename
+        $base = strtok($relativePath, DIRECTORY_SEPARATOR);
+        if ($base !== 'vendor') {
+            return $base;
+        }
+        // Get first three levels
+        return $base
+            . DIRECTORY_SEPARATOR . strtok(DIRECTORY_SEPARATOR)
+            . DIRECTORY_SEPARATOR . strtok(DIRECTORY_SEPARATOR);
     }
 }
