@@ -14,8 +14,6 @@ To install globally run:
 
 `composer global require silverstripe/upgrader`
 
-
-
 Make sure your `$HOME/.composer/vendor/bin` directory is in your PATH (or the equivalent for your OS e.g. `C:\Users\<COMPUTER NAME>\AppData\Roaming\Composer\vendor\bin` on Windows).
 
 `echo 'export PATH=$PATH:~/.composer/vendor/bin/'  >> ~/.bash_profile`
@@ -46,17 +44,41 @@ that referenced the un-namespaced versions of these classes.
 
 Once you have finished namespacing your code, you can run the below code to rename all references.
 
-`upgrade-code upgrade <path> [--root-dir=<root>] [--recursive] [--write] [--rule] [-vvv]`
+`upgrade-code upgrade <path> [--root-dir=<root>] [--write] [--rule] [-vvv]`
 
 E.g.
 
-`upgrade-code upgrade .`
+`upgrade-code upgrade ./mysite/code`
 
 This will look at all class maps, and rename any references to renamed classes to the correct value.
 
 In addition all .yml config files will have strings re-written. In order to upgrade only PHP files
 you can use the `--rule=code`. If you have already upgraded your code, you can target only
 config files with `--rule=config`.
+
+## Post-upgrade inspection of code
+
+Once a project has all class names migrated, and is brought up to a "loadable" state (that is, where 
+all classes reference or extend real classes) then the `inspect` command can be run to perform
+additional automatic code rewrites.
+
+This step will also warn of any upgradable code issues that may prevent a succesful upgrade.
+
+Note: This step is separate from `upgrade` because your project code is loaded into real
+memory during this step in order to get the complete project context. In order to prepare for this step
+your site should be updated to a basic stage, including all module upgrades and namespace changes.
+
+You can run this command (with a necessary refresh of composer autoload files) with the below:
+
+```
+composer dump-autoload
+upgrade-code inspect <path> [--root-dir=<root>] [--write] [-vvv]
+```
+
+This will load all classes into memory and infer the types of all objects used in each file. It will
+use these inferred types to automatically update method usages.
+
+## Excluding strings from upgrade
 
 When upgrading code that contains strings, the upgrader will need to make assumptions about whether
 a string refers to a class name or not, and will determine if that is a candidate for replacement.
@@ -136,17 +158,6 @@ You can run the upgrader on these keys with the below command:
 Since this upgrade is normally only done on projects that provide their own strings,
 this rule is not included by default when running a normal upgrade.
 
-## Inspecting unfixable code
-
-Some code can be detected as likely causing upgrade issues,
-but not with enough confidence to automatically fix it.
-In this case, we're doing our best to show you useful warnings
-and point to the line of code in question.
-
-You can run the inspection *after* upgrading your code through `upgrade-code upgrade`.
-
-`upgrade-code inspect <path>`
-
 ## .upgrade.yml spec
 
 The .upgrade.yml file will follow the below spec:
@@ -182,19 +193,30 @@ warnings:
   methods:
     'MyClass->myInstanceMethod()':
       message: 'Use otherMethod() instead'
+      replacement: 'otherMethod'
     'MyClass::myStaticMethod()':
       message: 'Use otherMethod instead'
+      replacement: 'otherMethod'
+    'obsoleteMethod()':
+      message: 'obsoleteMethod is removed'
   props:
     'MyClass->myInstanceProp'
       message: 'Use otherProp instead'
+      replacement: 'otherProp'
     'MyClass::myStaticProp'
       message: 'Use otherProp instead'
+      replacement: 'otherProp'
+    'obsoleteProp':
+      method: 'obsoleteProp is removed'
   functions:
     'myFunction()':
       message: 'Use otherFunction() instead'
+      replacement: 'otherFunction'
   constants:
     'MY_CONSTANT':
       message: 'Use OTHER_CONSTANT instead'
+      replacement: 'OTHER_CONSTANT'
     'MyClass::MY_CONSTANT':
       message: 'Use OTHER_CONSTANT instead'
+      replacement: 'OTHER_CONSTANT'
 ```

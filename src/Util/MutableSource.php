@@ -95,6 +95,19 @@ class MutableSource
     }
 
     /**
+     * Get original string for this node
+     *
+     * @param Node $node
+     * @return string Value of string
+     */
+    public function getNodeString(Node $node)
+    {
+        list($start, $length) = $this->nodeRange($node);
+        $original = $this->source->getOrigString();
+        return substr($original, $start, $length);
+    }
+
+    /**
      * @param int $pos Position to insert before
      * @param string|Node|array The entity to insert. A string, Node, or array of Nodes
      */
@@ -218,7 +231,7 @@ class MutableSource
      * @param Node $node
      * @return array [start, len] of the given node
      */
-    protected function nodeRange(Node $node)
+    public function nodeRange(Node $node)
     {
         $attributes = $node->getAttributes();
         if (!isset($attributes['startFilePos']) || !isset($attributes['endFilePos'])) {

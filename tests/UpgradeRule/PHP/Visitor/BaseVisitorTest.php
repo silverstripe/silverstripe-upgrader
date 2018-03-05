@@ -2,16 +2,41 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
-use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
+use SilverStripe\Upgrader\CodeCollection\ItemInterface;
+use SilverStripe\Upgrader\Tests\InspectCodeTrait;
 use SilverStripe\Upgrader\Tests\MockCodeCollection;
+use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeWarningsRule;
 use SilverStripe\Upgrader\Util\MutableSource;
 use SilverStripe\Upgrader\Util\Warning;
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\SymbolContextVisitor;
 
-abstract class BaseVisitorTest extends PHPUnit_Framework_TestCase
+abstract class BaseVisitorTest extends TestCase
 {
+    use InspectCodeTrait;
+
+    /**
+     * @var MockCodeCollection
+     */
+    protected $codeCollection = null;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->setUpInspect();
+
+        // Setup mock collection for this visitor
+        $this->codeCollection = new MockCodeCollection([]);
+        $this->autoloader->addCollection($this->codeCollection);
+    }
+
+    protected function tearDown()
+    {
+        $this->codeCollection = null;
+        $this->tearDownInspect();
+        parent::tearDown();
+    }
+
     /**
      * @param string $input
      * @param Warning $warning
@@ -24,28 +49,59 @@ abstract class BaseVisitorTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string $input
-     * @param string $name
-     * @return \SilverStripe\Upgrader\CodeCollection\ItemInterface
+     * Add a dummy class to the manifest for this test
+     *
+     * @param string $class Name of class to mock
+     * @param string $parent Optional parent class
+     * @return ItemInterface
      */
-    protected function getMockFile($input, $name = 'test.php')
+    protected function scaffoldMockClass($class, $parent = null)
     {
-        $code = new MockCodeCollection([
-            $name => $input
-        ]);
-        return $code->itemByPath($name);
+        $php = "<?php\n";
+
+        // Check namespace
+        if ($split = strrpos($class, '\\')) {
+            $namespace = substr($class, 0, $split);
+            $class = substr($class, $split + 1);
+            $php .= "namespace {$namespace};\n";
+        }
+
+        // Build class
+        $php .= "class {$class}";
+        if ($parent) {
+            $php .= " extends \{$parent}";
+        }
+        $php .= ' {}';
+
+        // Mock file
+        return $this->getMockFile($php, $class . '.php');
     }
 
     /**
+     * Mock a code item
+     *
      * @param string $input
+     * @param string $name
+     * @return ItemInterface
+     */
+    protected function getMockFile($input, $name = 'test.php')
+    {
+        // Register item
+        $this->codeCollection->setItemContent($name, $input);
+        return $this->codeCollection->itemByPath($name);
+    }
+
+    /**
+     * Mock traversing an item with a single visitor
+     *
+     * @param MutableSource $source
+     * @param ItemInterface $item
      * @param NodeVisitor $visitor
      */
-    protected function traverseWithVisitor($input, NodeVisitor $visitor)
+    protected function traverseWithVisitor(MutableSource $source, ItemInterface $item, NodeVisitor $visitor)
     {
-        $source = new MutableSource($input);
-        $traverser = new NodeTraverser;
-        $traverser->addVisitor(new SymbolContextVisitor());
-        $traverser->addVisitor($visitor);
-        $traverser->traverse($source->getAst());
+        // Build dummy rule
+        $rule = new ApiChangeWarningsRule($this->state->getContainer());
+        $rule->mutateSourceWithVisitors($source, $item, [$visitor]);
     }
 }

@@ -49,6 +49,11 @@ class DiskItem implements ItemInterface
         return $this->basePath . '/' . $this->relativePath;
     }
 
+    public function getExtension()
+    {
+        return strtolower(pathinfo($this->relativePath, PATHINFO_EXTENSION));
+    }
+
     /**
      * Return the base path of the collection that this item is part of
      *

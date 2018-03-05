@@ -2,9 +2,11 @@
 
 namespace SilverStripe\Upgrader\Tests\Util;
 
+use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Util\ConfigFile;
 
-class ConfigFileTest extends \PHPUnit_Framework_TestCase
+class ConfigFileTest extends TestCase
 {
     public function testLoadConfig()
     {
@@ -28,8 +30,8 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
 
     public function testCantMergeType()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
+        $this->expectException(InvalidARgumentException::class);
+        $this->expectExceptionMessage(
             'Config option fileExtensions cannot merge non-array with array value.'
         );
         ConfigFile::loadCombinedConfig(__DIR__ . '/fixtures/invalid');
@@ -37,8 +39,8 @@ class ConfigFileTest extends \PHPUnit_Framework_TestCase
 
     public function testCantRedeclare()
     {
-        $this->setExpectedException(
-            'InvalidArgumentException',
+        $this->expectException(InvalidARgumentException::class);
+        $this->expectExceptionMessage(
             'Config option MyClass is defined with different values in multiple files.'
         );
         ConfigFile::loadCombinedConfig(__DIR__ . '/fixtures/invalid2');

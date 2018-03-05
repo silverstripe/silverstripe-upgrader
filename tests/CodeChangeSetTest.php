@@ -2,9 +2,10 @@
 
 namespace SilverStripe\Upgrader\Tests;
 
+use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 
-class CodeChangeSetTest extends \PHPUnit_Framework_TestCase
+class CodeChangeSetTest extends TestCase
 {
     protected function fixture()
     {

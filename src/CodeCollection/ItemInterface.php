@@ -22,6 +22,13 @@ interface ItemInterface
     public function getFullPath();
 
     /**
+     * Get file extension
+     *
+     * @return mixed
+     */
+    public function getExtension();
+
+    /**
      * Get filename
      *
      * @return string

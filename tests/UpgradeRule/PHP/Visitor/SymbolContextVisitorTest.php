@@ -2,15 +2,21 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor;
 
-use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\SymbolContextVisitor;
-use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
+use SilverStripe\Upgrader\Tests\RecordingVisitor;
+use SilverStripe\Upgrader\Util\MutableSource;
 
 class SymbolContextVisitorTest extends BaseVisitorTest
 {
+    /**
+     * @runInSeparateProcess
+     */
     public function testStaticMethod()
     {
+        $this->scaffoldMockClass('SomeNamespace\\SomeClass');
+        $this->scaffoldMockClass('SomeNamespace\\OtherClass');
+
         $input = <<<PHP
 <?php
 
@@ -26,29 +32,29 @@ class MyClass {
     }
 }
 PHP;
+        $inputItem = $this->getMockFile($input, 'MyClass.php');
+        $source = new MutableSource($inputItem->getContents());
+        // Record traversal and get static calls
+        $recorder = new RecordingVisitor();
+        $this->traverseWithVisitor($source, $inputItem, $recorder);
+        $methodSymbols = $recorder->getVisitedNodesOfType(StaticCall::class);
 
-        $visitor = new SymbolContextVisitor();
-        $this->traverseWithVisitor($input, $visitor);
-
-        $symbols = $visitor->getSymbols();
-        $methodSymbols = array_values(array_filter($symbols, function ($symbol) {
-            return ($symbol instanceof StaticCall);
-        }));
-
+        // Check method symbols
         $this->assertCount(1, $methodSymbols);
-
         $this->assertEquals(
-            $methodSymbols[0]->getAttribute('symbolContext')['uses'],
-            ['SomeNamespace\\SomeClass','SomeNamespace\\OtherClass']
-        );
-        $this->assertEquals(
-            $methodSymbols[0]->getAttribute('symbolContext')['staticClass'],
-            'SomeNamespace\\SomeClass'
+            ['SomeNamespace\\SomeClass'],
+            $methodSymbols[0]->getAttribute('contextTypes')
         );
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testInstanceMethod()
     {
+        $this->scaffoldMockClass('SomeNamespace\\SomeClass');
+        $this->scaffoldMockClass('SomeNamespace\\OtherClass');
+
         $input = <<<PHP
 <?php
 
@@ -71,39 +77,24 @@ class MyClass {
     }
 }
 PHP;
+        $inputItem = $this->getMockFile($input, 'MyClass.php');
+        $source = new MutableSource($inputItem->getContents());
 
-        $visitor = new SymbolContextVisitor();
-        $this->traverseWithVisitor($input, $visitor);
-
-        $symbols = $visitor->getSymbols();
-        $methodSymbols = array_values(array_filter($symbols, function ($symbol) {
-            return ($symbol instanceof MethodCall);
-        }));
+        // Record traversal and get instance method calls
+        $recorder = new RecordingVisitor();
+        $this->traverseWithVisitor($source, $inputItem, $recorder);
+        $methodSymbols = $recorder->getVisitedNodesOfType(MethodCall::class);
 
         $this->assertCount(2, $methodSymbols);
 
         $this->assertEquals(
-            $methodSymbols[0]->getAttribute('symbolContext')['uses'],
-            ['SomeNamespace\\SomeClass','SomeNamespace\\OtherClass']
-        );
-        $this->assertNull(
-            $methodSymbols[0]->getAttribute('symbolContext')['staticClass']
-        );
-        $this->assertEquals(
-            $methodSymbols[0]->getAttribute('symbolContext')['methodClasses'],
-            ['SomeNamespace\\SomeClass']
+            ['SomeNamespace\\SomeClass'],
+            $methodSymbols[0]->getAttribute('contextTypes')
         );
 
         $this->assertEquals(
-            $methodSymbols[1]->getAttribute('symbolContext')['uses'],
-            ['SomeNamespace\\SomeClass','SomeNamespace\\OtherClass']
-        );
-        $this->assertNull(
-            $methodSymbols[1]->getAttribute('symbolContext')['staticClass']
-        );
-        $this->assertEquals(
-            $methodSymbols[1]->getAttribute('symbolContext')['methodClasses'],
-            ['SomeNamespace\\OtherClass']
+            ['SomeNamespace\\OtherClass'],
+            $methodSymbols[1]->getAttribute('contextTypes')
         );
     }
 }

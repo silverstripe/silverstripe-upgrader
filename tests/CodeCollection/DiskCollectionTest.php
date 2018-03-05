@@ -2,10 +2,11 @@
 
 namespace SilverStripe\Upgrader\Tests\CodeCollection;
 
+use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 
-class DiskCollectionTest extends \PHPUnit_Framework_TestCase
+class DiskCollectionTest extends TestCase
 {
     public function testIterateItems()
     {

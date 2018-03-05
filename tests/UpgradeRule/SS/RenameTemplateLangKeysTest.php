@@ -2,13 +2,13 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\SS;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\Tests\FixtureLoader;
 use SilverStripe\Upgrader\Tests\MockCodeCollection;
 use SilverStripe\Upgrader\UpgradeRule\SS\RenameTemplateLangKeys;
 
-class RenameTemplateLangKeysTest extends PHPUnit_Framework_TestCase
+class RenameTemplateLangKeysTest extends TestCase
 {
     use FixtureLoader;
 

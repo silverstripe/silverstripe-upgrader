@@ -2,9 +2,10 @@
 
 namespace SilverStripe\Upgrader\Tests\Util;
 
+use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Util\MutableString;
 
-class MutableStringTest extends \PHPUnit_Framework_TestCase
+class MutableStringTest extends TestCase
 {
     public function testMutableString()
     {

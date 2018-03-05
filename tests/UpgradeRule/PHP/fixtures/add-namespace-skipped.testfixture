@@ -1,0 +1,90 @@
+{
+    "add-namespace": [
+        {
+            "namespace": "Upgrader\\NewNamespace",
+            "path": "/dir",
+            "skipClasses": [
+                "ExampleSubclass",
+                "AnotherClass"
+            ]
+        }
+    ]
+}
+------
+<?php
+
+use Exception;
+use SomeNamespaced\NamespacedClass;
+use SomeNamespaced\OtherClass as OtherAlias;
+
+// Arbirtary whitespace differences should be preserved
+class ExampleSubclass extends ExampleField implements ExampleInterface
+{
+    function fn(ExampleField $foo, ExampleInterface $bar, $baz) {
+        Upgrader\NewNamespace\ShouldHaveNamespaceRemoved::start();
+        OtherAlias::start();
+        NamespacedClass::start();
+        if   ($baz instanceof ExampleInterface) {
+            return true;
+        }
+        if(interface_exists('ExampleInterface')) return true;
+        parent::fn();
+        new static();
+        new self();
+        try {
+            echo 'hello';
+        } catch(Exception $e) {}
+    }
+
+    use Traitee;
+    use Traitor;
+}
+
+ExampleField::doSomething();
+new ExampleField();
+new SomeClass();
+NextExampleField::A_CONST === 5;
+ExampleField3::$aStatic === 5;
+new SpaceClass();
+
+
+new OtherClass();
+------
+<?php
+
+use Exception;
+use SomeNamespaced\NamespacedClass;
+use SomeNamespaced\OtherClass as OtherAlias;
+
+// Arbirtary whitespace differences should be preserved
+class ExampleSubclass extends ExampleField implements ExampleInterface
+{
+    function fn(ExampleField $foo, ExampleInterface $bar, $baz) {
+        Upgrader\NewNamespace\ShouldHaveNamespaceRemoved::start();
+        OtherAlias::start();
+        NamespacedClass::start();
+        if   ($baz instanceof ExampleInterface) {
+            return true;
+        }
+        if(interface_exists('ExampleInterface')) return true;
+        parent::fn();
+        new static();
+        new self();
+        try {
+            echo 'hello';
+        } catch(Exception $e) {}
+    }
+
+    use Traitee;
+    use Traitor;
+}
+
+ExampleField::doSomething();
+new ExampleField();
+new SomeClass();
+NextExampleField::A_CONST === 5;
+ExampleField3::$aStatic === 5;
+new SpaceClass();
+
+
+new OtherClass();

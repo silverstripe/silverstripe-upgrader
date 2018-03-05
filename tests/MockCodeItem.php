@@ -61,4 +61,14 @@ class MockCodeItem implements ItemInterface
     {
         return basename($this->getPath());
     }
+
+    /**
+     * Get file extension
+     *
+     * @return mixed
+     */
+    public function getExtension()
+    {
+        return strtolower(pathinfo($this->getPath(), PATHINFO_EXTENSION));
+    }
 }

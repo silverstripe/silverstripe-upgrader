@@ -2,20 +2,21 @@
 
 namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor;
 
+use LogicException;
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Use_;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Namespace_;
-use PhpParser\Node\Stmt\PropertyProperty;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\ConstFetch;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\StaticPropertyFetch;
-use PhpParser\NodeVisitor\NameResolver;
+use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassLike;
+use PhpParser\NodeVisitor;
+use PHPStan\Analyser\Scope;
+use PHPStan\Rules\RuleLevelHelper;
 
 /**
  * Accumulates symbols found in a class that might be meaningful
@@ -32,39 +33,24 @@ use PhpParser\NodeVisitor\NameResolver;
  * Since the PHP syntax parser works sequentially, it will only determine
  * context that's defined before the symbol in question is used.
  *
- * Since the PHP syntax parser doesn't actually understand symbol relationships,
- * and doesn't resolve dependencies and hierarchies, this isn't a very reliable
- * methodology, and should only be used for warnings rather than code rewrites.
- *
- * @package SilverStripe\Upgrader\Util
+ * List of inferred types for any node can be retrieved with $node->getAttribute('contextTypes')
  */
-class SymbolContextVisitor extends NameResolver
+class SymbolContextVisitor implements NodeVisitor
 {
+    /**
+     * @var RuleLevelHelper
+     */
+    protected $ruleLevelHelper;
 
     /**
-     * @var Node[]
+     * Build context decorator with a phpstan rule helper for added context extraction
+     *
+     * @param RuleLevelHelper $ruleLevelHelper
      */
-    protected $symbols = [];
-
-    /**
-     * @var array
-     */
-    protected $uses = [];
-
-    /**
-     * @var string[] Will be reset when exiting method scope
-     */
-    protected $methodClasses = [];
-
-    /**
-     * @var string Current class context
-     */
-    protected $parentClass;
-
-    /**
-     * @var string
-     */
-    protected $namespace;
+    public function __construct(RuleLevelHelper $ruleLevelHelper)
+    {
+        $this->ruleLevelHelper = $ruleLevelHelper;
+    }
 
     public function beforeTraverse(array $nodes)
     {
@@ -72,75 +58,18 @@ class SymbolContextVisitor extends NameResolver
 
     public function enterNode(Node $node)
     {
-        parent::enterNode($node);
-
-        if ($node instanceof Namespace_) {
-            $this->namespace = implode('\\', $node->name->parts);
+        if (!$node->hasAttribute('scope')) {
+            throw new LogicException("PHPStan not properly initialised");
         }
 
-        if ($node instanceof Class_) {
-            $this->parentClass = implode(
-                '\\',
-                array_filter([$this->namespace, (string)$node->name])
-            );
-        }
-
-        if ($node instanceof Use_) {
-            foreach ($node->uses as $use) {
-                $this->uses[] = implode('\\', $use->name->parts);
-            }
-        }
-
-        $staticClass = null;
-        if ($node instanceof StaticCall ||
-            $node instanceof StaticPropertyFetch ||
-            $node instanceof ClassConstFetch
-        ) {
-            $staticClass = $this->getClass($node);
-            $this->methodClasses[] = $staticClass;
-        }
-
-        if ($node instanceof New_) {
-            $this->methodClasses[] = $this->getClass($node);
-        }
-
-        // Limit metadata to nodes we're actually interested in
-        // within other visitors
-        $isSymbolNode = (
-            $node instanceof MethodCall ||
-            $node instanceof StaticCall ||
-            $node instanceof Class_ ||
-            $node instanceof PropertyProperty ||
-            $node instanceof PropertyFetch ||
-            $node instanceof StaticPropertyFetch ||
-            $node instanceof New_ ||
-            $node instanceof ClassMethod ||
-            $node instanceof ConstFetch ||
-            $node instanceof ClassConstFetch
-        );
-
-        if ($isSymbolNode) {
-            $context = [
-                'namespace' => $this->namespace,
-                'uses' => $this->uses,
-                'class' => $this->parentClass,
-                'staticClass' => $staticClass,
-                'methodClasses' => $this->methodClasses
-            ];
-            $node->setAttribute('symbolContext', $context);
-            $this->symbols[] = $node;
-        }
+        /** @var Scope $scope */
+        $scope = $node->getAttribute('scope');
+        $types = $this->resolveNodeTypes($scope, $node);
+        $node->setAttribute('contextTypes', $types);
     }
 
     public function leaveNode(Node $node)
     {
-        if ($node instanceof Class_) {
-            $this->parentClass = null;
-        }
-
-        if ($node instanceof ClassMethod) {
-            $this->methodClasses = [];
-        }
     }
 
     public function afterTraverse(array $nodes)
@@ -148,27 +77,110 @@ class SymbolContextVisitor extends NameResolver
     }
 
     /**
-     * @return Node[]
+     * Namespaces are inlined via NameResolver parent class already.
+     *
+     * Basically reverse engineered from phpstan
+     * @see \PHPStan\Rules\Classes\ClassConstantRule
+     *
+     * @param Scope $scope
+     * @param Node|StaticCall|StaticPropertyFetch|ClassConstFetch $node
+     * @return array
      */
-    public function getSymbols()
+    public function getStaticClasses(Scope $scope, Node $node)
     {
-        return $this->symbols;
+        // Check node class. If variable, delegate to variable lookup
+        $classNode = $node->class;
+        if (!$classNode instanceof Node\Name) {
+            return $this->resolveExpressionTypes($scope, $classNode);
+        }
+
+        // Resolve name to literal class
+        $class = $classNode->toString();
+
+        // Resolve static prefixes
+        switch ($class) {
+            case 'self':
+            case 'static':
+                return [$scope->getClassReflection()->getName()];
+            case 'parent':
+                return [$scope->getClassReflection()->getParentClass()->getName()];
+            default:
+                return [$class];
+        }
     }
 
     /**
-     * Namespaces are inlined via NameResolver parent class already.
+     * Get list of clasess for a named variable node
      *
-     * @param Node $node
-     * @return String
+     * Basically reverse engineered from phpstan
+     * @see \PHPStan\Rules\Methods\CallMethodsRule
+     *
+     * @param Scope $scope
+     * @param Expr $expression Any expression to type. Could be a variable, or a complex expression
+     * @return string[] List of resolved candidate classes
      */
-    public function getClass(Node $node)
+    protected function resolveExpressionTypes($scope, $expression)
     {
-        if (isset($node->class->parts)) {
-            $class = implode('\\', $node->class->parts);
-        } else {
-            $class = (string)$node->class->name;
+        return $this
+            ->ruleLevelHelper
+            ->findTypeToCheck($scope, $expression, "Could not resolve expression to type")
+            ->getType()
+            ->getReferencedClasses();
+    }
+
+    /**
+     * Extract type from node
+     *
+     * @param Scope $scope
+     * @param Node $node
+     * @return array|string[]
+     */
+    protected function resolveNodeTypes($scope, Node $node)
+    {
+        // Resolve $var->something() types
+        if ($node instanceof MethodCall || $node instanceof PropertyFetch) {
+            return $this->resolveExpressionTypes($scope, $node->var);
         }
 
-        return $class;
+        // Resolve Class::something() types
+        if ($node instanceof StaticCall ||
+            $node instanceof StaticPropertyFetch ||
+            $node instanceof ClassConstFetch
+        ) {
+            return $this->getStaticClasses($scope, $node);
+        }
+
+        // Resolve Class extends OldClass
+        if ($node instanceof Class_) {
+            $types = [];
+            if ($node->extends) {
+                $types[] = $node->extends->toString();
+            }
+            // Resolve Class implements OldInterface
+            if ($node->implements) {
+                /** @var Name $extend */
+                foreach ($node->implements as $implement) {
+                    $types[] = $implement->toString();
+                }
+            }
+            return $types;
+        }
+
+        // Resolve new SomeClass
+        if ($node instanceof New_) {
+            $class = $node->class;
+            if ($class instanceof Name) {
+                return [$class->toString()];
+            } elseif ($class instanceof Class_) {
+                return [$class->name];
+            }
+        }
+
+        // Resolve `protected $prop`
+        if ($node instanceof Node\Stmt\PropertyProperty) {
+            return [ $scope->getClassReflection()->getName() ];
+        }
+
+        return [];
     }
 }
