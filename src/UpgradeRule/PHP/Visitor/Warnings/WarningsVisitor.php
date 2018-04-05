@@ -3,6 +3,7 @@
 namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr;
 use PhpParser\NodeVisitor;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
@@ -123,6 +124,10 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
     {
         // No symbol available
         if (!isset($node->name)) {
+            return false;
+        }
+        // Don't resolve expressions e.g. $obj->{"get".$name}
+        if ($node->name instanceof Expr) {
             return false;
         }
         return strcasecmp((string)$node->name, $name) === 0;
