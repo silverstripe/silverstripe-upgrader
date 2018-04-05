@@ -126,6 +126,7 @@ class MyOtherClass
     {
         \$foo = new MyClass();
         \$foo->removedInstanceProp;
+        \$foo->{"removedInstanceProp"};
     }
     
     function noMatch()
@@ -175,6 +176,7 @@ class MyOtherClass
     {
         \$foo = new MyClass();
         \$foo->newInstanceProp;
+        \$foo->{"removedInstanceProp"};
     }
     
     function noMatch()
