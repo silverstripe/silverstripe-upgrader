@@ -20,16 +20,14 @@ use SilverStripe\Upgrader\ChangeDisplayer;
 
 class UpgradeCommand extends AbstractCommand
 {
+    use FileCommandTrait;
+
     protected function configure()
     {
         $this->setName('upgrade')
             ->setDescription('Upgrade a set of code files to work with a newer version of a library ')
             ->setDefinition([
-                new InputArgument(
-                    'path',
-                    InputArgument::REQUIRED,
-                    'The root path to your code needing to be upgraded. This must be a subdirectory of base path.'
-                ),
+                $this->getPathInputArgument(),
                 new InputOption(
                     'rule',
                     'r',
@@ -38,13 +36,7 @@ class UpgradeCommand extends AbstractCommand
                     . "<comment> [allowed: [\"code\",\"config\",\"lang\"]]</comment>\n",
                     ['code', 'config']
                 ),
-                new InputOption(
-                    'root-dir',
-                    'd',
-                    InputOption::VALUE_REQUIRED,
-                    'Specify project root dir, if not the current directory',
-                    '.'
-                ),
+                $this->getRootInputOption(),
                 new InputOption(
                     'write',
                     'w',
@@ -87,46 +79,6 @@ class UpgradeCommand extends AbstractCommand
         } else {
             $output->writeln("Changes not saved; Run with --write to commit to disk");
         }
-    }
-
-    /**
-     * Get root path
-     *
-     * @param InputInterface $input
-     * @return string
-     */
-    protected function getRootPath(InputInterface $input): string
-    {
-        $rootPathArg = $input->getOption('root-dir');
-        $rootPath = $this->realPath($rootPathArg);
-        if (!is_dir($rootPath)) {
-            throw new InvalidArgumentException("No silverstripe project found in root-dir \"{$rootPathArg}\"");
-        }
-        return $rootPath;
-    }
-
-    /**
-     * Get path to files to upgrade
-     *
-     * @param InputInterface $input
-     * @return string
-     */
-    protected function getFilePath(InputInterface $input): string
-    {
-        $filePathArg = $input->getArgument('path');
-        $filePath = $this->realPath($filePathArg);
-        if (!file_exists($filePath)) {
-            throw new InvalidArgumentException("path \"{$filePathArg}\" specified doesn't exist");
-        }
-
-        // Find module name
-        $rootPath = $this->getRootPath($input);
-        if (($filePath === $rootPath) || stripos($filePath, $rootPath) !== 0) {
-            throw new InvalidArgumentException(
-                "root-dir \"{$rootPath}\" is not a parent of the specified path \"{$filePath}\""
-            );
-        }
-        return $filePath;
     }
 
     /**

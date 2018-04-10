@@ -17,23 +17,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InspectCommand extends UpgradeCommand
 {
+    use FileCommandTrait;
+
     protected function configure()
     {
         $this->setName('inspect')
             ->setDescription('Runs additional post-upgrade inspections, warnings, and rewrites to tidy up loose ends')
             ->setDefinition([
-                new InputArgument(
-                    'path',
-                    InputArgument::REQUIRED,
-                    'The root path to your code needing to be upgraded. This must be a subdirectory of base path.'
-                ),
-                new InputOption(
-                    'root-dir',
-                    'd',
-                    InputOption::VALUE_REQUIRED,
-                    'Specify project root dir, if not the current directory',
-                    '.'
-                ),
+                $this->getPathInputArgument(),
+                $this->getRootInputOption(),
                 new InputOption(
                     'write',
                     'w',
