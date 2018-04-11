@@ -2,8 +2,10 @@
 
 namespace SilverStripe\Upgrader\Util;
 use PhpParser\ParserFactory;
+use PhpParser\NodeTraverser;
 use PhpParser\Lexer;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\EnvironmentVisitor;
 
 /**
  * Utility class to help parse the content of an environment file.
@@ -38,8 +40,14 @@ class EnvParser
 
     public function isValid()
     {
-        $ast = $this->ast;
-        return true;
+        $traverser = new NodeTraverser;
+
+        $visitor = new EnvironmentVisitor();
+
+        $traverser->addVisitor($visitor);
+        $traverser->traverse($this->ast);
+
+        return $visitor->getIsValid();
     }
 
     // private function

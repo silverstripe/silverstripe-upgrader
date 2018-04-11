@@ -46,7 +46,12 @@ class EnvironmentCommand extends AbstractCommand
 
         // Try to find an environment file. Quit if we don't
         $envFile = $this->findSS3EnvFile($rootPath);
-        if (!$envFile) {
+        if ($envFile) {
+            $output->writeln(sprintf(
+                "Converting `%s` ",
+                $envFile->getFullPath()
+            ));
+        } else {
             $output->writeln(sprintf(
                 "Could not find any `%s` file. Skipping environement upgrade.",
                 self::SS3_ENV_FILE
@@ -58,6 +63,12 @@ class EnvironmentCommand extends AbstractCommand
         $parser = new EnvParser($envFile, $rootPath);
 
         // Test file to see if it's suitable
+        if (!$parser->isValid()) {
+            $output->writeln(
+                "Your environment file contains unusual constructs. " .
+                "Upgrader will try to convert it any way, but take time to validate the result."
+            );
+        }
 
         // Get constants from the file and get them added
         $consts = $parser->getSSFourEnv();
