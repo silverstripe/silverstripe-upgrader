@@ -68,10 +68,6 @@ class EnvironmentCommand extends AbstractCommand
             return null;
         }
 
-
-
-
-
         // Test file to see if it's suitable
         if (!$parser->isValid()) {
             $output->writeln(
