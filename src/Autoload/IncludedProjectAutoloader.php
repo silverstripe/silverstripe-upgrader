@@ -1,6 +1,7 @@
 <?php
 
 namespace SilverStripe\Upgrader\Autoload;
+use \InvalidArgumentException;
 
 class IncludedProjectAutoloader implements Autoloader
 {
