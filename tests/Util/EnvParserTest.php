@@ -76,6 +76,13 @@ class EnvTest extends TestCase
 
     }
 
+    public function testMalformed()
+    {
+        $this->expectException(\Exception::class);
+        $parser = new EnvParser($this->loadTestFile('malformed', false), '/var/www');
+        $parser->getSSFourEnv();
+    }
+
     /**
      * Utility method to load our sample env file into a DiskItem.
      * @param  string $filename name of the file to load without the extension.

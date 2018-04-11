@@ -60,7 +60,17 @@ class EnvironmentCommand extends AbstractCommand
         }
 
         // Load the env file into a parser
-        $parser = new EnvParser($envFile, $rootPath);
+        try {
+            $parser = new EnvParser($envFile, $rootPath);
+        } catch (\Exception $ex) {
+            $output->writeln("There was an error when parsing your `_ss_environment.php` file.");
+            $output->writeln($ex->getMessage());
+            return null;
+        }
+
+
+
+
 
         // Test file to see if it's suitable
         if (!$parser->isValid()) {
@@ -74,8 +84,8 @@ class EnvironmentCommand extends AbstractCommand
         $consts = $parser->getSSFourEnv();
         // @TODO get comments
         $this->writeFile($consts, $rootPath);
-
         $output->writeln(".env file written.");
+
         return null;
     }
 
