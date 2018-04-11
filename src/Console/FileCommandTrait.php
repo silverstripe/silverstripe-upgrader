@@ -75,7 +75,7 @@ trait FileCommandTrait {
      */
     protected function getRootInputOption(): InputOption
     {
-        return new new InputOption(
+        return new InputOption(
             'root-dir',
             'd',
             InputOption::VALUE_REQUIRED,
