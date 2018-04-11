@@ -27,4 +27,5 @@ $application->add(new Upgrader\UpgradeCommand());
 $application->add(new Upgrader\AddNamespaceCommand());
 $application->add(new Upgrader\DoctorCommand());
 $application->add(new Upgrader\InspectCommand());
+$application->add(new Upgrader\EnvironmentCommand());
 $application->run();
