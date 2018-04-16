@@ -10,7 +10,6 @@ use SilverStripe\Upgrader\Upgrader;
 use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeWarningsRule;
 use SilverStripe\Upgrader\UpgradeSpec;
 use SilverStripe\Upgrader\Util\PHPStanState;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;

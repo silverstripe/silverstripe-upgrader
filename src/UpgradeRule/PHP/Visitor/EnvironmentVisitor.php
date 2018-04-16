@@ -41,7 +41,7 @@ class EnvironmentVisitor extends NodeVisitorAbstract
      *
      * @param Node $node Node
      *
-     * @return null|Node Node
+     * @return null|int|Node Node
      */
     public function enterNode(Node $node)
     {
@@ -96,5 +96,4 @@ class EnvironmentVisitor extends NodeVisitorAbstract
     {
         return $this->isValid;
     }
-
 }

@@ -1,6 +1,7 @@
 <?php
 
 namespace SilverStripe\Upgrader\Util;
+
 use PhpParser\ParserFactory;
 use PhpParser\NodeTraverser;
 use PhpParser\Lexer;
@@ -50,9 +51,8 @@ class LegacyEnvParser
         return $visitor->getIsValid();
     }
 
-    // private function
-
-    private function parse() {
+    protected function parse()
+    {
         $lexer = new Lexer\Emulative([
             'usedAttributes' => ['comments', 'startFilePos', 'endFilePos', 'startLine', 'endLine']
         ]);
