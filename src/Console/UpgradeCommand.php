@@ -3,20 +3,19 @@
 namespace SilverStripe\Upgrader\Console;
 
 use InvalidArgumentException;
+use SilverStripe\Upgrader\ChangeDisplayer;
+use SilverStripe\Upgrader\CodeCollection\DiskCollection;
+use SilverStripe\Upgrader\Upgrader;
 use SilverStripe\Upgrader\UpgradeRule\PHP\RenameClasses;
 use SilverStripe\Upgrader\UpgradeRule\PHP\RenameTranslateKeys;
+use SilverStripe\Upgrader\UpgradeRule\SS\RenameTemplateLangKeys;
 use SilverStripe\Upgrader\UpgradeRule\YML\RenameYMLLangKeys;
 use SilverStripe\Upgrader\UpgradeRule\YML\UpdateConfigClasses;
-use SilverStripe\Upgrader\UpgradeRule\SS\RenameTemplateLangKeys;
-use SilverStripe\Upgrader\Util\ConfigFile;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use SilverStripe\Upgrader\Upgrader;
 use SilverStripe\Upgrader\UpgradeSpec;
-use SilverStripe\Upgrader\CodeCollection\DiskCollection;
-use SilverStripe\Upgrader\ChangeDisplayer;
+use SilverStripe\Upgrader\Util\ConfigFile;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class UpgradeCommand extends AbstractCommand
 {

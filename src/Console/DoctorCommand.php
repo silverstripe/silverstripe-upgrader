@@ -3,10 +3,8 @@
 namespace SilverStripe\Upgrader\Console;
 
 use BadMethodCallException;
-use InvalidArgumentException;
 use SilverStripe\Upgrader\Util\ConfigFile;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class DoctorCommand extends AbstractCommand
@@ -29,7 +27,6 @@ class DoctorCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $settings = array_merge($input->getOptions(), $input->getArguments());
         $rootPath = $this->getRootPath($input);
 
         // Load the code to be upgraded and run the upgrade process

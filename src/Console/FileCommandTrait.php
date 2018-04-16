@@ -3,17 +3,15 @@ namespace SilverStripe\Upgrader\Console;
 
 use InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Trait to encapsualte basic file access logic for Commands. Expects to be added to a subsclass of
  * {@link AbstractCommand}.
  */
-trait FileCommandTrait {
-
+trait FileCommandTrait
+{
     /**
      * Get root path from the command input.
      *

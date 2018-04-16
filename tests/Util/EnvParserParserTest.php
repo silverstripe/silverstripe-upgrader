@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Util\EnvParser;
 use SilverStripe\Upgrader\CodeCollection\DiskItem;
 
-class EnvTest extends TestCase
+class EnvParserTest extends TestCase
 {
     ########################
     # Valid Tests          #
@@ -72,8 +72,6 @@ class EnvTest extends TestCase
             ['SS_BASE_URL' => 'http://simon.geek.nz'],
             '`getSSFourEnv` should read base URL from environment file.'
         );
-
-
     }
 
     public function testMalformed()
@@ -85,7 +83,9 @@ class EnvTest extends TestCase
 
     /**
      * Utility method to load our sample env file into a DiskItem.
-     * @param  string $filename name of the file to load without the extension.
+     *
+     * @param string $filename name of the file to load without the extension.
+     * @param bool $valid
      * @return DiskItem
      */
     private function loadTestFile(string $filename, bool $valid): DiskItem
