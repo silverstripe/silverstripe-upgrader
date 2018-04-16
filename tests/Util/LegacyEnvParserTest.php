@@ -3,10 +3,10 @@
 namespace SilverStripe\Upgrader\Tests\Util;
 
 use PHPUnit\Framework\TestCase;
-use SilverStripe\Upgrader\Util\EnvParser;
+use SilverStripe\Upgrader\Util\LegacyEnvParser;
 use SilverStripe\Upgrader\CodeCollection\DiskItem;
 
-class EnvTest extends TestCase
+class LegacyEnvTest extends TestCase
 {
     ########################
     # Valid Tests          #
@@ -15,21 +15,21 @@ class EnvTest extends TestCase
 
     public function testDefine()
     {
-        $parser = new EnvParser($this->loadTestFile('singleDefine', true), '/var/www');
+        $parser = new LegacyEnvParser($this->loadTestFile('singleDefine', true), '/var/www');
 
         $this->assertTrue($parser->isValid(), "`define` statement with scalar should be valid.");
     }
 
     public function testComment()
     {
-        $parser = new EnvParser($this->loadTestFile('commentsOnly', true), '/var/www');
+        $parser = new LegacyEnvParser($this->loadTestFile('commentsOnly', true), '/var/www');
 
         $this->assertTrue($parser->isValid(), "Comments should be valid.");
     }
 
     public function testFileUrlMapping()
     {
-        $parser = new EnvParser($this->loadTestFile('fileToUrlMappingOnly', true), '/var/www');
+        $parser = new LegacyEnvParser($this->loadTestFile('fileToUrlMappingOnly', true), '/var/www');
 
         $this->assertTrue($parser->isValid(), "Assignning to `\$_FILE_TO_URL_MAPPING` should be valid.");
     }
@@ -40,14 +40,14 @@ class EnvTest extends TestCase
 
     public function testConditional()
     {
-        $parser = new EnvParser($this->loadTestFile('conditional', false), '/var/www');
+        $parser = new LegacyEnvParser($this->loadTestFile('conditional', false), '/var/www');
 
         $this->assertFalse($parser->isValid(), "`if` statement should not be valid.");
     }
 
     public function testDefineWithNonScallar()
     {
-        $parser = new EnvParser($this->loadTestFile('defineNonScalar', false), '/var/www');
+        $parser = new LegacyEnvParser($this->loadTestFile('defineNonScalar', false), '/var/www');
 
         $this->assertFalse($parser->isValid(), "`define` statement with non scalar should be invalid.");
     }
@@ -59,14 +59,14 @@ class EnvTest extends TestCase
 
     public function testReadOfConst()
     {
-        $parser = new EnvParser($this->loadTestFile('singleDefine', true), '/var/www');
+        $parser = new LegacyEnvParser($this->loadTestFile('singleDefine', true), '/var/www');
         $this->assertEquals(
             $parser->getSSFourEnv(),
             ['SS_HELLO' => 'World'],
             '`getSSFourEnv` should get constants defined in environment file.'
         );
 
-        $parser = new EnvParser($this->loadTestFile('fileToUrlMappingOnly', true), '/var/www');
+        $parser = new LegacyEnvParser($this->loadTestFile('fileToUrlMappingOnly', true), '/var/www');
         $this->assertEquals(
             $parser->getSSFourEnv(),
             ['SS_BASE_URL' => 'http://simon.geek.nz'],
@@ -79,7 +79,7 @@ class EnvTest extends TestCase
     public function testMalformed()
     {
         $this->expectException(\Exception::class);
-        $parser = new EnvParser($this->loadTestFile('malformed', false), '/var/www');
+        $parser = new LegacyEnvParser($this->loadTestFile('malformed', false), '/var/www');
         $parser->getSSFourEnv();
     }
 

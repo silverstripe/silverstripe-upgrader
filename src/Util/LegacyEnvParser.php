@@ -10,7 +10,7 @@ use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\EnvironmentVisitor;
 /**
  * Utility class to help parse the content of an environment file.
  */
-class EnvParser
+class LegacyEnvParser
 {
 
     /**
