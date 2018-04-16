@@ -5,7 +5,7 @@ namespace SilverStripe\Upgrader\Console;
 use BadMethodCallException;
 use InvalidArgumentException;
 use SilverStripe\Upgrader\Util\ConfigFile;
-use SilverStripe\Upgrader\Util\EnvParser;
+use SilverStripe\Upgrader\Util\LegacyEnvParser;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -30,7 +30,8 @@ class EnvironmentCommand extends AbstractCommand
         $this->setName('environment')
             ->setDescription('Migrate settings from `_ss_environment.php` to .env')
             ->setDefinition([
-                $this->getRootInputOption()
+                $this->getRootInputOption(),
+                $this->getWriteInputOption()
             ]);
     }
 
@@ -61,7 +62,7 @@ class EnvironmentCommand extends AbstractCommand
 
         // Load the env file into a parser
         try {
-            $parser = new EnvParser($envFile, $rootPath);
+            $parser = new LegacyEnvParser($envFile, $rootPath);
         } catch (\Exception $ex) {
             $output->writeln("There was an error when parsing your `_ss_environment.php` file.");
             $output->writeln($ex->getMessage());

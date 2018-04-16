@@ -35,12 +35,7 @@ class AddNamespaceCommand extends AbstractCommand
                     'Set to recursively namespace'
                 ),
                 $this->getRootInputOption(),
-                new InputOption(
-                    'write',
-                    'w',
-                    InputOption::VALUE_NONE,
-                    'Actually write the changes, rather than merely displaying them'
-                )
+                $this->getWriteInputOption()
             ]);
     }
 

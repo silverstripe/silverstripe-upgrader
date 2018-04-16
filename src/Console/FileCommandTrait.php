@@ -83,4 +83,18 @@ trait FileCommandTrait {
             '.'
         );
     }
+
+    /**
+     * Instanciate a _Write Change_ InputOption instance.
+     * @return InputOption
+     */
+    protected function getWriteInputOption(): InputOption
+    {
+        return new InputOption(
+            'write',
+            'w',
+            InputOption::VALUE_NONE,
+            'Actually write the changes, rather than merely displaying them'
+        );
+    }
 }

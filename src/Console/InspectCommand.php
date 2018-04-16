@@ -26,12 +26,7 @@ class InspectCommand extends UpgradeCommand
             ->setDefinition([
                 $this->getPathInputArgument(),
                 $this->getRootInputOption(),
-                new InputOption(
-                    'write',
-                    'w',
-                    InputOption::VALUE_NONE,
-                    'Actually write the changes (to disk and to upgrade-spec), rather than merely displaying them'
-                )
+                $this->getWriteInputOption()
             ]);
     }
 
