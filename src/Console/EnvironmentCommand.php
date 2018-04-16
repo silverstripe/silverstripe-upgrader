@@ -2,15 +2,10 @@
 
 namespace SilverStripe\Upgrader\Console;
 
-use BadMethodCallException;
-use InvalidArgumentException;
-use SilverStripe\Upgrader\Util\ConfigFile;
+use SilverStripe\Upgrader\CodeCollection\DiskItem;
 use SilverStripe\Upgrader\Util\EnvParser;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use SilverStripe\Upgrader\CodeCollection\DiskItem;
-
 
 /**
  * Command to convert a SilverStripe 3 `_ss_environment.php` to a SilverStripe 4 `.env` file.
@@ -41,7 +36,6 @@ class EnvironmentCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $settings = array_merge($input->getOptions(), $input->getArguments());
         $rootPath = $this->getRootPath($input);
 
         // Try to find an environment file. Quit if we don't
@@ -56,7 +50,7 @@ class EnvironmentCommand extends AbstractCommand
                 "Could not find any `%s` file. Skipping environement upgrade.",
                 self::SS3_ENV_FILE
             ));
-            return;
+            return null;
         }
 
         // Load the env file into a parser
@@ -90,31 +84,28 @@ class EnvironmentCommand extends AbstractCommand
      * @internal The logic to find the file is adapted from
      * [Constants.php](https://github.com/silverstripe/silverstripe-framework/blob/3/core/Constants.php#L34). I don't
      * want to improve it too much to make sure it's as close as possible to the original.
+     *
+     * @param string $path
      * @return DiskItem|null SS3 Environment file reference or null if could not be found.
      */
     private function findSS3EnvFile($path)
     {
-        //check this dir and every parent dir (until we hit the base of the drive)
+        // Check this dir and every parent dir (until we hit the base of the drive)
         // or until we hit a dir we can't read
-        while (true) {
-            //if it's readable, go ahead
-            if (@is_readable($path)) {
-                //if the file exists, then we include it, set relevant vars and break out
-                if (file_exists($path . DIRECTORY_SEPARATOR . self::SS3_ENV_FILE)) {
-                    return new DiskItem($path, self::SS3_ENV_FILE);
-                }
+        while ($path && @is_readable($path)) {
+            //if the file exists, then we include it, set relevant vars and break out
+            if (file_exists($path . DIRECTORY_SEPARATOR . self::SS3_ENV_FILE)) {
+                return new DiskItem($path, self::SS3_ENV_FILE);
             }
-            else {
-                //break out of the while loop, we can't read the dir
+            // Break out if we get to the root of the device.
+            $parentPath = dirname($path);
+            if ($parentPath === $path) {
                 return null;
             }
-            if (dirname($path) == $path) {
-                //break out if we get to the root of the device.
-                return null;
-            }
-            //go up a directory
-            $path = dirname($path);
+            // Go up a directory
+            $path = $parentPath;
         }
+        return null;
     }
 
     /**
