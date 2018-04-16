@@ -15,7 +15,8 @@
         "symfony/yaml": "^3.2",
         "phpspec/php-diff": "^1",
         "phpstan/phpstan": "^0.10",
-        "phpstan/phpstan-php-parser": "^0.10"
+        "phpstan/phpstan-php-parser": "^0.10",
+        "m1/env": "^2.1"
     },
     "bin": [
         "bin/upgrade-code"
