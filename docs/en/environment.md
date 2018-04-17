@@ -3,11 +3,15 @@
 You can use this command to migrate an SilverStripe 3 `_ss_environment.php` file to the `.env` format used by
 SilverStripe 4.
 
-`upgrade-code environment [--root-dir=<dir>] [--write] [--recursive] [-vvv]`
+```bash
+upgrade-code environment [--root-dir=<dir>] [--write] [--recursive] [-vvv]
+```
 
 E.g.
 
-`upgrade-code add-namespace --root-dir=/var/www/SS_project --write -vvv`
+```bash
+upgrade-code add-namespace --root-dir=/var/www/SS_project --write -vvv
+```
 
 * The command doesn't assume your `_ss_environment.php` file is in your root folder. Like SilverStripe 3, it will
 recursively check the parent folder until it finds an `_ss_environment.php` or an unreadable folder.
