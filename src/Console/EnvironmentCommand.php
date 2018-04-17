@@ -2,11 +2,12 @@
 
 namespace SilverStripe\Upgrader\Console;
 
-
 use SilverStripe\Upgrader\CodeCollection\DiskItem;
 use SilverStripe\Upgrader\Util\LegacyEnvParser;
+use SilverStripe\Upgrader\Util\DotEnvLoader;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use SilverStripe\Upgrader\ChangeDisplayer;
 
 /**
  * Command to convert a SilverStripe 3 `_ss_environment.php` to a SilverStripe 4 `.env` file.
@@ -39,6 +40,7 @@ class EnvironmentCommand extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $rootPath = $this->getRootPath($input);
+        $write = $input->getOption('write');
 
         // Try to find an environment file. Quit if we don't
         $envFile = $this->findSS3EnvFile($rootPath);
@@ -72,11 +74,26 @@ class EnvironmentCommand extends AbstractCommand
             );
         }
 
-        // Get constants from the file and get them added
+        // Get constants from the legacy file
         $consts = $parser->getSSFourEnv();
-        // @TODO get comments
-        $this->writeFile($consts, $rootPath);
-        $output->writeln(".env file written.");
+
+
+        // Load any .env const and mixin our legacy value
+        $dotEnvLoader = new DotEnvLoader($rootPath . DIRECTORY_SEPARATOR . '.env', $consts);
+
+        //
+        $display = new ChangeDisplayer();
+        $display->displayChanges($output, $dotEnvLoader->getCodeChangeSet());
+
+
+
+        // Apply them to the project
+        if ($write) {
+            $dotEnvLoader->writeChange();
+            $output->writeln("Changes have been saved to your `.env` file");
+        } else {
+            $output->writeln("Changes not saved; Run with --write to commit to disk");
+        }
 
         return null;
     }
@@ -108,21 +125,5 @@ class EnvironmentCommand extends AbstractCommand
             $path = $parentPath;
         }
         return null;
-    }
-
-    /**
-     * Write a new .env file to the root of the project folder
-     * @param  string[]  $consts List of constants. Key should be the name of the conts.
-     * @param  string $path Folder where the file should be written.
-     * @return void
-     */
-    private function writeFile(array $consts, string $path)
-    {
-        $content = '';
-        foreach ($consts as $key => $val) {
-            $content .= $key . ":\"" . addslashes($val) . "\"\n";
-        }
-
-        file_put_contents($path . DIRECTORY_SEPARATOR . '.env', $content);
     }
 }
