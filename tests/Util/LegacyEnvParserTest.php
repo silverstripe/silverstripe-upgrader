@@ -72,8 +72,6 @@ class LegacyEnvTest extends TestCase
             ['SS_BASE_URL' => 'http://simon.geek.nz'],
             '`getSSFourEnv` should read base URL from environment file.'
         );
-
-
     }
 
     public function testMalformed()

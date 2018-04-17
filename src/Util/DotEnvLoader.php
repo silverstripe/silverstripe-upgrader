@@ -1,15 +1,13 @@
 <?php
 namespace SilverStripe\Upgrader\Util;
+
 use M1\Env\Parser;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
-
 
 /**
  * Load an existing `.env` file and provide a way for merging it with a new set of value.
  *
  * Loads environment variables from .env files
- *
- * @internal Adapted from `SilverStripe\Core\EnvironmentLoader`.
  *
  */
 class DotEnvLoader
@@ -57,6 +55,9 @@ class DotEnvLoader
         return $changeSet;
     }
 
+    /**
+     * Write the updated environment file.
+     */
     public function writeChange()
     {
         file_put_contents($this->envFilePath, $this->outputContent);

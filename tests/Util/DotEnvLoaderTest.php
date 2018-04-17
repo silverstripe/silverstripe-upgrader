@@ -19,20 +19,24 @@ class DotEnvLoaderTest extends TestCase
     public function setUp()
     {
         $this->root = vfsStream::setup('ss_project_root');
-
-
     }
 
     public function testGetInputContent()
     {
         // Let's try without any .env file
         $dotenv = new DotEnvLoader($this->root->url() . '/.env', []);
-        $this->assertEmpty($dotenv->getInputContent(), "Input content should be empty when there's no .env file");
+        $this->assertEmpty(
+            $dotenv->getInputContent(),
+            "Input content should be empty when there's no .env file"
+        );
 
         // Let's try with an empty .env file.
         vfsStream::newFile('.env')->withContent('')->at($this->root);
         $dotenv = new DotEnvLoader($this->root->url() . '/.env', []);
-        $this->assertEmpty($dotenv->getInputContent(), "", "Input content should be empty when the .env is empty to begin with.");
+        $this->assertEmpty(
+            $dotenv->getInputContent(),
+            "Input content should be empty when the .env is empty to begin with."
+        );
 
         // Let's try with an non empty .env fiel
         vfsStream::newFile('.env')->withContent('SS_ENVIRONMENT_TYPE="dev"')->at($this->root);
@@ -54,7 +58,11 @@ class DotEnvLoaderTest extends TestCase
 
         // Empty .env file with some consts.
         $dotenv = new DotEnvLoader($this->root->url() . '/.env', $consts);
-        $this->assertEnvContentMatchArray($dotenv->getOutputContent(), $consts, "Output should match the const when an empty .env file is provided.");
+        $this->assertEnvContentMatchArray(
+            $dotenv->getOutputContent(),
+            $consts,
+            "Output should match the const when an empty .env file is provided."
+        );
 
         // .env file with some values that don't clash with our provided constant.
         vfsStream::newFile('.env')->withContent('SS_DATABASE_NAME="SS_foobar"')->at($this->root);
@@ -67,7 +75,7 @@ class DotEnvLoaderTest extends TestCase
 
         // .env file with some values that clash with our provided constant.
         vfsStream::newFile('.env')
-            ->withContent( <<<EOF
+            ->withContent(<<<EOF
 SS_DATABASE_NAME="SS_foobar"
 SS_DEFAULT_ADMIN_USERNAME="root"
 EOF
@@ -110,10 +118,9 @@ EOF
      * @param  array  $consts
      * @param  string $message
      */
-    private function assertEnvContentMatchArray(string $dotEnvContent, array $consts, $message="")
+    private function assertEnvContentMatchArray(string $dotEnvContent, array $consts, $message = "")
     {
         $constFromString = Parser::parse($dotEnvContent);
         $this->assertEquals($constFromString, $consts, $message);
     }
-
 }
