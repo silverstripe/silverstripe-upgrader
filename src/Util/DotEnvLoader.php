@@ -43,7 +43,7 @@ class DotEnvLoader
 
         $this->inputContent = $this->readFile();
         $outputConsts = $this->parseFile($consts);
-        $this->outputContent = $this->buildOutput();
+        $this->outputContent = $this->buildOutput($outputConsts);
     }
 
     /**
@@ -60,6 +60,24 @@ class DotEnvLoader
     public function writeChange()
     {
         file_put_contents($this->envFilePath, $this->outputContent);
+    }
+
+    /**
+     * Accessor to get the current content of the `.env` file.
+     * @return string
+     */
+    public function getInputContent()
+    {
+        return $this->inputContent;
+    }
+
+    /**
+     * Accessor to get the content that will be written to the output .env file.
+     * @return string
+     */
+    public function getOutputContent()
+    {
+        return $this->outputContent;
     }
 
     /**
