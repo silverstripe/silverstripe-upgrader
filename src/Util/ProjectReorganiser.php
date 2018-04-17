@@ -110,7 +110,7 @@ class ProjectReorganiser
             return $projectStatus;
         }
 
-        // Pick whatever we'll be looking for our code folder in `myste` or `app`.
+        // Pick whatever we'll be looking for our code folder in `mysite` or `app`.
         $projectFolder = $projectStatus == self::ALREADY_UPGRADED ?
             $this->updatedProject :
             $this->legacyProject;
@@ -130,13 +130,13 @@ class ProjectReorganiser
      */
     private function checkGenericFolder($legacyPath, $updatedPath)
     {
-        // Do we have a mysite?
+        // Do we have a mysite? Is it a folder
         $legacy = $this->folderExists($legacyPath) ?
             self::UPGRADABLE_LEGACY :
             self::NOTHING;
 
-        // Do we have an app folder
-        $updated = $this->folderExists($updatedPath) ?
+        // Do we have an `app` folder? Doesn't matter if it's a folder really.
+        $updated = $this->exists($updatedPath) ?
             self::ALREADY_UPGRADED :
             self::NOTHING;
 
@@ -147,11 +147,13 @@ class ProjectReorganiser
 
     /**
      * Try to rename legacy project folder.
+     * @param bool $dryrun Pretent to do the operation
      * @throws LogicException
+     * @return array Files that are moved, the key being the original filename and the value being the destination
      */
     public function moveProjectFolder($dryrun = false): array
     {
-        switch ($this->checkCodeFolder()) {
+        switch ($this->checkProjectFolder()) {
             case self::BLOCKED_LEGACY:
                 throw new LogicException('Target folder already exists.');
 
@@ -170,7 +172,9 @@ class ProjectReorganiser
 
     /**
      * Try to rename a legacy `code` folder to `src`.
+     * @param bool $dryrun Pretent to do the operation
      * @throws LogicException
+     * @return array Files that are moved, the key being the original filename and the value being the destination
      */
     public function moveCodeFolder($dryrun = false): array
     {
@@ -201,8 +205,8 @@ class ProjectReorganiser
      * Utility method for moving a folder around and return an array describing the move.
      * @param  string $legacyPath
      * @param  string $updatedPath
-     * @param  bool   $dryrun Whatever we are doing this for real
-     * @return array
+     * @param  bool   $dryrun Whatever we are doing this for real.
+     * @return array Files that are moved, the key being the original filename and the value being the destination.
      */
     private function moveGenericFolder($legacyPath, $updatedPath, $dryrun): array
     {
@@ -226,6 +230,12 @@ class ProjectReorganiser
     {
         $path = $this->makeAbsolute($relativePath);
         return file_exists($path) && is_dir($path);
+    }
+
+    private function exists(string $relativePath)
+    {
+        $path = $this->makeAbsolute($relativePath);
+        return file_exists($path);
     }
 
 
