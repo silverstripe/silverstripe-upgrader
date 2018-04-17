@@ -24,6 +24,6 @@ use --root-dir=/path.
 ## Available commands
 
 The following commands are available:
-* `[add-namespace](docs/en/add-namespace.md)`
-* `[environment](docs/en/environment.md)`
-* `[upgrade](docs/en/upgrade.md)`
+* [`add-namespace`](docs/en/add-namespace.md)
+* [`environment`](docs/en/environment.md)
+* [`upgrade`](docs/en/upgrade.md)
