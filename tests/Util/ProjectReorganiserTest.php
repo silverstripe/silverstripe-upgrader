@@ -212,6 +212,19 @@ class ProjectReorganiserTest extends TestCase
             '`checkProjectFolder` should return `ProjectReorganiser::ALREADY_UPGRADED` after sucessfull `moveProjectFolder`.'
         );
 
+        // SS3 where code has already been renamed to source
+        $reorg = $this->initProjectReorganiser(self::NON_STANDARD_SS3);
+        $this->assertEquals(
+            $reorg->moveProjectFolder(),
+            ['vfs://ss_project_root/mysite' => 'vfs://ss_project_root/app'],
+            '`mysite` should have been renamed to `app`'
+        );
+        $this->assertEquals(
+            $reorg->checkProjectFolder(),
+            ProjectReorganiser::ALREADY_UPGRADED,
+            '`checkProjectFolder` should return `ProjectReorganiser::ALREADY_UPGRADED` after sucessfull `moveProjectFolder`.'
+        );
+
         // Trying to migrate something that doesn't need to be migrated.
         $reorg = $this->initProjectReorganiser(self::STANDARD_SS4);
         $this->assertEmpty(
@@ -322,6 +335,35 @@ class ProjectReorganiserTest extends TestCase
             '`checkCodeFolder` should still returned `ProjectReorganiser::ALREADY_UPGRADED` after calling `moveCodeFolder` on a non-standard project folder.'
         );
 
+    }
+
+    public function testDryRunMove()
+    {
+        $reorg = $this->initProjectReorganiser(self::STANDARD_SS3);
+
+        // Moving code with the dry run flag
+        $this->assertEquals(
+            $reorg->moveCodeFolder(true),
+            ['vfs://ss_project_root/mysite/code' => 'vfs://ss_project_root/mysite/src'],
+            'calling `moveCodeFolder` with the dryrun flag should still return the operation that would have occured.'
+        );
+        $this->assertEquals(
+            $reorg->checkCodeFolder(),
+            ProjectReorganiser::UPGRADABLE_LEGACY,
+            'Calling `moveCodeFolder` with the dryrun flag should not move the folder.'
+        );
+
+        // Moving project folder with the dry run flag
+        $this->assertEquals(
+            $reorg->moveProjectFolder(true),
+            ['vfs://ss_project_root/mysite' => 'vfs://ss_project_root/app'],
+            'calling `moveProjectFolder` with the dryrun flag should still return the operation that would have occured.'
+        );
+        $this->assertEquals(
+            $reorg->checkProjectFolder(),
+            ProjectReorganiser::UPGRADABLE_LEGACY,
+            'Calling `moveProjectFolder` with the dryrun flag should not have move the folder.'
+        );
     }
 
     public function testInvalidMoveCodeFolder()
