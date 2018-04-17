@@ -2,11 +2,15 @@
 
 Once you have finished [namespacing your code](add-namespace.md), you can run the below code to rename all references.
 
-`upgrade-code upgrade <path> [--root-dir=<root>] [--write] [--rule] [-vvv]`
+```bash
+upgrade-code upgrade <path> [--root-dir=<root>] [--write] [--rule] [-vvv]
+```
 
 E.g.
 
-`upgrade-code upgrade ./mysite/code`
+```bash
+upgrade-code upgrade ./mysite/code
+```
 
 This will look at all class maps, and rename any references to renamed classes to the correct value.
 
@@ -28,7 +32,7 @@ your site should be updated to a basic stage, including all module upgrades and 
 
 You can run this command (with a necessary refresh of composer autoload files) with the below:
 
-```
+```bash
 composer dump-autoload
 upgrade-code inspect <path> [--root-dir=<root>] [--write] [-vvv]
 ```
@@ -65,7 +69,7 @@ as these are not ambiguous, and the upgrader can safely update these references.
 
 If any DataObject subclasses have been namespaced, we will need to specify them in a config file ie. legacy.yml. This tells SilverStripe to remap these class names when dev/build is run.
 
-```
+```YML
 ---
 Name: mymodulelegacy
 ---
@@ -82,13 +86,13 @@ could be outdated and leave the site in an uninstallable condition.
 You can run the below command on a project to run a set of tasks designed to automatically
 resolve these issues:
 
-```
+```bash
 upgrade-code doctor [--root-dir=<root>]
 ```
 
 Tasks can be specified in `.upgrade.yml` with the following syntax:
 
-```
+```YML
 doctorTasks:
   SilverStripe\Dev\CleanupInstall: src/Dev/CleanupInstall.php
 ```
@@ -112,7 +116,9 @@ You can also upgrade all localisation strings in the below files:
 
 You can run the upgrader on these keys with the below command:
 
-`upgrade-code upgrade <path> --rule=lang`
+```bash
+upgrade-code upgrade <path> --rule=lang
+```
 
 Since this upgrade is normally only done on projects that provide their own strings,
 this rule is not included by default when running a normal upgrade.
