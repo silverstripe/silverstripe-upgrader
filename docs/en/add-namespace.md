@@ -2,11 +2,15 @@
 
 You can run the below to add namespace to any class
 
-`upgrade-code add-namespace <namespace> <filepath> [--root-dir=<dir>] [--write] [--recursive] [-vvv]`
+```bash
+upgrade-code add-namespace <namespace> <filepath> [--root-dir=<dir>] [--write] [--recursive] [-vvv]
+```
 
 E.g.
 
-`upgrade-code add-namespace "My\Namespace" ./mysite/code/SomeCode.php --write -vvv`
+```
+upgrade-code add-namespace "My\Namespace" ./mysite/code/SomeCode.php --write -vvv
+```
 
 * Make sure you run this in your project root, or set the root with --root-dir.
 * Note that it's important to either quote or double-escape slashes in the namespace.
