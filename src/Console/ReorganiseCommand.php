@@ -5,6 +5,9 @@ namespace SilverStripe\Upgrader\Console;
 use SilverStripe\Upgrader\Util\ProjectReorganiser;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use SilverStripe\Upgrader\CodeCollection\CodeGrep;
+use SilverStripe\Upgrader\CodeCollection\DiskCollection;
+use SilverStripe\Upgrader\ChangeDisplayer;
 
 /**
  * Command to convert a SilverStripe 3 `_ss_environment.php` to a SilverStripe 4 `.env` file.
@@ -82,6 +85,20 @@ class ReorganiseCommand extends AbstractCommand
         } else {
             $output->writeln("Changes not saved; Run with --write to commit to disk");
         }
+
+        // Display warning if we find any occurence of mysite
+        // @TODO It would be cool to exclude anything in `.gitignore`
+        $grep = new CodeGrep(
+            '/mysite/',
+            new DiskCollection($rootPath, true, ['#/vendor/#', 'framework/', '#/assets/#', '#/silverstripe-cache/#'])
+        );
+
+        $changeSet = $grep->findAsWarning();
+        $output->writeln(
+            "\nWe found occurences of `mysite` in your code base. You might replace those with `app`."
+        );
+        $display = new ChangeDisplayer();
+        $display->displayChanges($output, $changeSet);
 
         return null;
     }
