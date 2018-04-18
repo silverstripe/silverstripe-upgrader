@@ -80,6 +80,7 @@ class ReorganiseCommand extends AbstractCommand
                 break;
         }
 
+        // Give some insightfull feedback to our user.
         if ($write) {
             $output->writeln("Your project has been reorganised");
         } else {
@@ -90,15 +91,18 @@ class ReorganiseCommand extends AbstractCommand
         // @TODO It would be cool to exclude anything in `.gitignore`
         $grep = new CodeGrep(
             '/mysite/',
-            new DiskCollection($rootPath, true, ['#/vendor/#', 'framework/', '#/assets/#', '#/silverstripe-cache/#'])
+            new DiskCollection($rootPath.'/mysite/code', true, ['*/framework/*', '*/vendor/*', '*/assets/*', '*/cms/*'])
         );
 
         $changeSet = $grep->findAsWarning();
-        $output->writeln(
-            "\nWe found occurences of `mysite` in your code base. You might replace those with `app`."
-        );
-        $display = new ChangeDisplayer();
-        $display->displayChanges($output, $changeSet);
+        if ($changeSet->affectedFiles()) {
+            $output->writeln(
+                "\nWe found occurences of `mysite` in your code base. You might need to replace those with `app`."
+            );
+            $display = new ChangeDisplayer();
+            $display->displayChanges($output, $changeSet);
+        }
+
 
         return null;
     }
