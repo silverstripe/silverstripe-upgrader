@@ -39,7 +39,6 @@ class DotEnvLoader
 
     /**
      * @param string $envFilePath File Path to `.env` file
-     * @param array  $consts List of variables that should be added to envrionment file.
      */
     public function __construct(string $envFilePath)
     {
@@ -90,7 +89,7 @@ class DotEnvLoader
 
     /**
      * Override existing const with new values.
-     * @param  array $const
+     * @param  array $consts
      */
     public function apply(array $consts)
     {
@@ -115,7 +114,7 @@ class DotEnvLoader
 
     /**
      * Parse the content of the .env file into an array and merge it newly provided array.
-     * @param array $inputConsts New constant that should override existing constants read from the ``.env` file.
+     * @param string $content
      * @return array
      */
     private function parseFile(string $content)
@@ -126,7 +125,6 @@ class DotEnvLoader
 
     /**
      * Converts a list of constant to a string suitable for output to a ``.env` file.
-     * @param  array $outputConsts
      */
     private function buildOutput()
     {
