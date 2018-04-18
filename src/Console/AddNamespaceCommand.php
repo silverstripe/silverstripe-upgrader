@@ -15,6 +15,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AddNamespaceCommand extends AbstractCommand
 {
+    use FileCommandTrait;
+
     protected function configure()
     {
         $this->setName('add-namespace')
@@ -25,30 +27,15 @@ class AddNamespaceCommand extends AbstractCommand
                     InputArgument::REQUIRED,
                     'Namespace to add'
                 ),
-                new InputArgument(
-                    'path',
-                    InputArgument::REQUIRED,
-                    'Filename of PHP file or directory to write to'
-                ),
+                $this->getPathInputArgument(),
                 new InputOption(
                     'recursive',
                     'r',
                     InputOption::VALUE_NONE,
                     'Set to recursively namespace'
                 ),
-                new InputOption(
-                    'root-dir',
-                    'd',
-                    InputOption::VALUE_REQUIRED,
-                    'Specify project root dir, if not the current directory',
-                    '.'
-                ),
-                new InputOption(
-                    'write',
-                    'w',
-                    InputOption::VALUE_NONE,
-                    'Actually write the changes, rather than merely displaying them'
-                )
+                $this->getRootInputOption(),
+                $this->getWriteInputOption()
             ]);
     }
 
@@ -58,30 +45,15 @@ class AddNamespaceCommand extends AbstractCommand
         $settings = array_merge($input->getOptions(), $input->getArguments());
 
         // Strip out root directory from file path
-        $filePath = $this->realPath($settings['path']);
-        $rootPath = $this->realPath($settings['root-dir']);
+        $filePath = $this->getFilePath($input);
+        $rootPath = $this->getRootPath($input);
         $writeChanges = !empty($settings['write']);
         $namespace = $settings['namespace'];
         $recursive = !empty($settings['recursive']);
 
-        // Sanity check input
-        if (!is_dir($rootPath)) {
-            $rootPath = $settings['root-dir'];
-            throw new \InvalidArgumentException("No silverstripe project found in root-dir \"{$rootPath}\"");
-        }
-        if (!file_exists($filePath)) {
-            $filePath = $settings['path'];
-            throw new \InvalidArgumentException("path \"{$filePath}\" specified doesn't exist");
-        }
         // Capture missing double-escape in CLI for namespaces. :)
         if (stripos($namespace, "\\") === false) {
             throw new \InvalidArgumentException("Namespace \"{$namespace}\" doesn't seem escaped properly");
-        }
-        // Validate rootpath
-        if (($filePath === $rootPath) || stripos($filePath, $rootPath) !== 0) {
-            throw new \InvalidArgumentException(
-                "root-dir \"{$rootPath}\" is not a parent of the specified path \"{$filePath}\""
-            );
         }
 
         // Find module name

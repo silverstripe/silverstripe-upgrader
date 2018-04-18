@@ -3,26 +3,20 @@
 namespace SilverStripe\Upgrader\Console;
 
 use BadMethodCallException;
-use InvalidArgumentException;
 use SilverStripe\Upgrader\Util\ConfigFile;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class DoctorCommand extends AbstractCommand
 {
+    use FileCommandTrait;
+
     protected function configure()
     {
         $this->setName('doctor')
             ->setDescription('Run all cleanup tasks configured for this project')
             ->setDefinition([
-                new InputOption(
-                    'root-dir',
-                    'd',
-                    InputOption::VALUE_REQUIRED,
-                    'Specify project root dir, if not the current directory',
-                    '.'
-                )
+                $this->getRootInputOption()
             ]);
     }
 
@@ -33,14 +27,7 @@ class DoctorCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $settings = array_merge($input->getOptions(), $input->getArguments());
-        $rootPath = $this->realPath($settings['root-dir']);
-
-        // Sanity check input
-        if (!is_dir($rootPath)) {
-            $rootPath = $settings['root-dir'];
-            throw new InvalidArgumentException("No silverstripe project found in root-dir \"{$rootPath}\"");
-        }
+        $rootPath = $this->getRootPath($input);
 
         // Load the code to be upgraded and run the upgrade process
 

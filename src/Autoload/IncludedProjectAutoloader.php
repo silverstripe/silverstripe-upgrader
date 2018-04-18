@@ -2,6 +2,9 @@
 
 namespace SilverStripe\Upgrader\Autoload;
 
+use BadMethodCallException;
+use InvalidArgumentException;
+
 class IncludedProjectAutoloader implements Autoloader
 {
     /**

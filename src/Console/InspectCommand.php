@@ -10,36 +10,22 @@ use SilverStripe\Upgrader\Upgrader;
 use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeWarningsRule;
 use SilverStripe\Upgrader\UpgradeSpec;
 use SilverStripe\Upgrader\Util\PHPStanState;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class InspectCommand extends UpgradeCommand
 {
+    use FileCommandTrait;
+
     protected function configure()
     {
         $this->setName('inspect')
             ->setDescription('Runs additional post-upgrade inspections, warnings, and rewrites to tidy up loose ends')
             ->setDefinition([
-                new InputArgument(
-                    'path',
-                    InputArgument::REQUIRED,
-                    'The root path to your code needing to be upgraded. This must be a subdirectory of base path.'
-                ),
-                new InputOption(
-                    'root-dir',
-                    'd',
-                    InputOption::VALUE_REQUIRED,
-                    'Specify project root dir, if not the current directory',
-                    '.'
-                ),
-                new InputOption(
-                    'write',
-                    'w',
-                    InputOption::VALUE_NONE,
-                    'Actually write the changes (to disk and to upgrade-spec), rather than merely displaying them'
-                )
+                $this->getPathInputArgument(),
+                $this->getRootInputOption(),
+                $this->getWriteInputOption()
             ]);
     }
 
