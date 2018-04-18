@@ -57,7 +57,8 @@ class DotEnvLoaderTest extends TestCase
         ];
 
         // Empty .env file with some consts.
-        $dotenv = new DotEnvLoader($this->root->url() . '/.env', $consts);
+        $dotenv = new DotEnvLoader($this->root->url() . '/.env');
+        $dotenv->apply($consts);
         $this->assertEnvContentMatchArray(
             $dotenv->getOutputContent(),
             $consts,
@@ -66,7 +67,8 @@ class DotEnvLoaderTest extends TestCase
 
         // .env file with some values that don't clash with our provided constant.
         vfsStream::newFile('.env')->withContent('SS_DATABASE_NAME="SS_foobar"')->at($this->root);
-        $dotenv = new DotEnvLoader($this->root->url() . '/.env', $consts);
+        $dotenv = new DotEnvLoader($this->root->url() . '/.env');
+        $dotenv->apply($consts);
         $this->assertEnvContentMatchArray(
             $dotenv->getOutputContent(),
             array_merge(['SS_DATABASE_NAME'=>'SS_foobar'], $consts),
@@ -80,7 +82,8 @@ SS_DATABASE_NAME="SS_foobar"
 SS_DEFAULT_ADMIN_USERNAME="root"
 EOF
             )->at($this->root);
-        $dotenv = new DotEnvLoader($this->root->url() . '/.env', $consts);
+        $dotenv = new DotEnvLoader($this->root->url() . '/.env');
+        $dotenv->apply($consts);
         $this->assertEnvContentMatchArray(
             $dotenv->getOutputContent(),
             array_merge(['SS_DATABASE_NAME'=>'SS_foobar'], $consts),
@@ -97,7 +100,8 @@ EOF
         ];
 
         // Make sure the constructor doesn't auto-write the file.
-        $dotenv = new DotEnvLoader($this->root->url() . '/.env', $consts);
+        $dotenv = new DotEnvLoader($this->root->url() . '/.env');
+        $dotenv->apply($consts);
         $this->assertFalse($this->root->hasChild('.env'), '`__construct` should not write .env file.');
 
         // Make sure writeChange change write a file.

@@ -78,11 +78,12 @@ class EnvironmentCommand extends AbstractCommand
         $consts = $parser->getSSFourEnv();
 
         // Load any .env const and mixin our legacy value
-        $dotEnvLoader = new DotEnvLoader($rootPath . DIRECTORY_SEPARATOR . '.env', $consts);
+        $dotEnvLoader = new DotEnvLoader($rootPath . DIRECTORY_SEPARATOR . '.env');
+        $dotEnvLoader->apply($consts);
 
         //Display changes
         $display = new ChangeDisplayer();
-        $display->displayChanges($output, $dotEnvLoader->getCodeChangeSet());
+        $display->displayChanges($output, $dotEnvLoader->buildCodeChangeSet());
 
         // Apply them to the project
         if ($write) {

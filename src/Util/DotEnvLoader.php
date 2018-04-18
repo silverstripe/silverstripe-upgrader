@@ -21,37 +21,44 @@ class DotEnvLoader
 
     /**
      * Existing content of the .env file.
-     * @var [type]
+     * @var string
      */
     private $inputContent = '';
 
     /**
      * Content that will be outputted to the .env file.
-     * @var [type]
+     * @var string
      */
     private $outputContent;
+
+    /**
+     * Const used to generate new the new file.
+     * @var array
+     */
+    private $consts = [];
 
     /**
      * @param string $envFilePath File Path to `.env` file
      * @param array  $consts List of variables that should be added to envrionment file.
      */
-    public function __construct(string $envFilePath, array $consts)
+    public function __construct(string $envFilePath)
     {
         $this->envFilePath = $envFilePath;
 
-        $this->inputContent = $this->readFile();
-        $outputConsts = $this->parseFile($consts);
-        $this->outputContent = $this->buildOutput($outputConsts);
+        $this->inputContent = $this->readFile($this->envFilePath);
+        $this->consts = $this->parseFile($this->inputContent);
+
+        $this->outputContent = $this->inputContent;
     }
 
     /**
      * Get a Code Change set that can be displayed back to the user.
      * @return CodeChangeSet
      */
-    public function getCodeChangeSet()
+    public function buildCodeChangeSet()
     {
         $changeSet = new CodeChangeSet();
-        $changeSet->addFileChange($this->envFilePath, $this->outputContent, $this->inputContent);
+        $changeSet->addFileChange($this->envFilePath, $this->getOutputContent(), $this->getInputContent());
         return $changeSet;
     }
 
@@ -60,7 +67,7 @@ class DotEnvLoader
      */
     public function writeChange()
     {
-        file_put_contents($this->envFilePath, $this->outputContent);
+        file_put_contents($this->envFilePath, $this->getOutputContent());
     }
 
     /**
@@ -82,13 +89,24 @@ class DotEnvLoader
     }
 
     /**
+     * Override existing const with new values.
+     * @param  array $const
+     */
+    public function apply(array $consts)
+    {
+        $this->consts = array_merge($this->consts, $consts);
+        $this->buildOutput();
+    }
+
+    /**
      * Read the existing .env file if available
+     * @param string $envFilePath
      * @return string
      */
-    private function readFile()
+    private function readFile(string $envFilePath)
     {
-        if (file_exists($this->envFilePath) && is_readable($this->envFilePath)) {
-            return file_get_contents($this->envFilePath);
+        if (file_exists($envFilePath) && is_readable($envFilePath)) {
+            return file_get_contents($envFilePath);
         } else {
             return '';
         }
@@ -100,25 +118,23 @@ class DotEnvLoader
      * @param array $inputConsts New constant that should override existing constants read from the ``.env` file.
      * @return array
      */
-    private function parseFile(array $inputConsts)
+    private function parseFile(string $content)
     {
-        $const = Parser::parse($this->inputContent);
-        $const = array_merge($const, $inputConsts);
+        $const = Parser::parse($content);
         return $const;
     }
 
     /**
      * Converts a list of constant to a string suitable for output to a ``.env` file.
      * @param  array $outputConsts
-     * @return string
      */
-    private function buildOutput(array $outputConsts): string
+    private function buildOutput()
     {
         $content = '';
-        foreach ($outputConsts as $key => $val) {
+        foreach ($this->consts as $key => $val) {
             $content .= $key . "=\"" . addslashes($val) . "\"\n";
         }
 
-        return $content;
+        $this->outputContent = $content;
     }
 }
