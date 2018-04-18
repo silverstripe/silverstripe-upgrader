@@ -18,28 +18,6 @@ In addition all .yml config files will have strings re-written. In order to upgr
 you can use the `--rule=code`. If you have already upgraded your code, you can target only
 config files with `--rule=config`.
 
-## Post-upgrade inspection of code
-
-Once a project has all class names migrated, and is brought up to a "loadable" state (that is, where
-all classes reference or extend real classes) then the `inspect` command can be run to perform
-additional automatic code rewrites.
-
-This step will also warn of any upgradable code issues that may prevent a succesful upgrade.
-
-Note: This step is separate from `upgrade` because your project code is loaded into real
-memory during this step in order to get the complete project context. In order to prepare for this step
-your site should be updated to a basic stage, including all module upgrades and namespace changes.
-
-You can run this command (with a necessary refresh of composer autoload files) with the below:
-
-```bash
-composer dump-autoload
-upgrade-code inspect <path> [--root-dir=<root>] [--write] [-vvv]
-```
-
-This will load all classes into memory and infer the types of all objects used in each file. It will
-use these inferred types to automatically update method usages.
-
 ## Excluding strings from upgrade
 
 When upgrading code that contains strings, the upgrader will need to make assumptions about whether
@@ -77,34 +55,6 @@ SilverStripe\ORM\DatabaseAdmin:
   classname_value_remapping:
     MyModelClass: 'Me\MyProject\Model\MyModelClass'  
 ```
-
-## Upgrading project files / bootstrapping
-
-When migrating from prior versions certain project resources (e.g. .htaccess / index.php)
-could be outdated and leave the site in an uninstallable condition.
-
-You can run the below command on a project to run a set of tasks designed to automatically
-resolve these issues:
-
-```bash
-upgrade-code doctor [--root-dir=<root>]
-```
-
-Tasks can be specified in `.upgrade.yml` with the following syntax:
-
-```YML
-doctorTasks:
-  SilverStripe\Dev\CleanupInstall: src/Dev/CleanupInstall.php
-```
-
-The given task must have an `__invoke()` method. This will be passed the following args:
-
- - InputInterface $input
- - OutputInterface $output
- - string $basePath Path to project root
-
-Note: It's advisable to only run this if your site is non-responsive, as these may override
-user-made customisations to `.htaccess` or other project files.
 
 ## Upgrading localisations
 
