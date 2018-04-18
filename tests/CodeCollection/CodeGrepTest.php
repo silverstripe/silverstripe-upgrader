@@ -22,5 +22,4 @@ class CodeGrepTest extends TestCase
         $this->assertTrue($codeChange->hasWarnings('one_results.txt'), 'one_results.txt should have warnings');
         $this->assertTrue($codeChange->hasWarnings('many_results.txt'), 'many_results.txt should have warnings');
     }
-
 }

@@ -209,7 +209,7 @@ class ProjectReorganiserTest extends TestCase
         $this->assertEquals(
             $reorg->checkProjectFolder(),
             ProjectReorganiser::ALREADY_UPGRADED,
-            '`checkProjectFolder` should return `ProjectReorganiser::ALREADY_UPGRADED` after sucessfull `moveProjectFolder`.'
+            '`checkProjectFolder` should return `ALREADY_UPGRADED` after sucessfull `moveProjectFolder`.'
         );
 
         // SS3 where code has already been renamed to source
@@ -222,7 +222,7 @@ class ProjectReorganiserTest extends TestCase
         $this->assertEquals(
             $reorg->checkProjectFolder(),
             ProjectReorganiser::ALREADY_UPGRADED,
-            '`checkProjectFolder` should return `ProjectReorganiser::ALREADY_UPGRADED` after sucessfull `moveProjectFolder`.'
+            '`checkProjectFolder` should return `ALREADY_UPGRADED` after sucessfull `moveProjectFolder`.'
         );
 
         // Trying to migrate something that doesn't need to be migrated.
@@ -234,7 +234,7 @@ class ProjectReorganiserTest extends TestCase
         $this->assertEquals(
             $reorg->checkProjectFolder(),
             ProjectReorganiser::ALREADY_UPGRADED,
-            '`checkProjectFolder` should still returned `ProjectReorganiser::ALREADY_UPGRADED` after sucessfull `moveProjectFolder`.'
+            '`checkProjectFolder` should still return `ALREADY_UPGRADED` after sucessfull `moveProjectFolder`.'
         );
 
         // Trying to migrate something for which we can't find a mysite folder.
@@ -246,9 +246,9 @@ class ProjectReorganiserTest extends TestCase
         $this->assertEquals(
             $reorg->checkProjectFolder(),
             ProjectReorganiser::NOTHING,
-            '`checkProjectFolder` should still returned `ProjectReorganiser::NOTHING` after calling `moveProjectFolder` on a non-standard project folder.'
+            '`checkProjectFolder` should still return `NOTHING` after calling `moveProjectFolder` on a non-standard '.
+            'project folder.'
         );
-
     }
 
     public function testInvalidMoveProjectFolder()
@@ -264,7 +264,6 @@ class ProjectReorganiserTest extends TestCase
             self::STANDARD_SS4
         ));
         $reorg->moveProjectFolder();
-
     }
 
     public function testMoveCodeFolder()
@@ -295,7 +294,7 @@ class ProjectReorganiserTest extends TestCase
         $this->assertEquals(
             $reorg->checkCodeFolder(),
             ProjectReorganiser::ALREADY_UPGRADED,
-            '`checkProjectFolder` should still returned `ProjectReorganiser::ALREADY_UPGRADED` after sucessfull `moveCodeFolder`.'
+            '`checkProjectFolder` should still return `ALREADY_UPGRADED` after sucessfull `moveCodeFolder`.'
         );
 
         // `app` has `code` folder that needs to be renamed to `src`
@@ -308,7 +307,7 @@ class ProjectReorganiserTest extends TestCase
         $this->assertEquals(
             $reorg->checkCodeFolder(),
             ProjectReorganiser::ALREADY_UPGRADED,
-            '`checkProjectFolder` should still returned `ProjectReorganiser::ALREADY_UPGRADED` after sucessfull `moveCodeFolder`.'
+            '`checkProjectFolder` should still return `ALREADY_UPGRADED` after sucessfull `moveCodeFolder`.'
         );
 
         // There's no `mysite`, no `app`
@@ -320,7 +319,8 @@ class ProjectReorganiserTest extends TestCase
         $this->assertEquals(
             $reorg->checkCodeFolder(),
             ProjectReorganiser::NOTHING,
-            '`checkCodeFolder` should still returned `ProjectReorganiser::NOTHING` after calling `moveCodeFolder` on a non-standard project folder.'
+            '`checkCodeFolder` should still returned `NOTHING` after calling `moveCodeFolder` on a non-standard ' .
+            'project folder.'
         );
 
         // Our mysite folder only has a `src` folder
@@ -332,9 +332,9 @@ class ProjectReorganiserTest extends TestCase
         $this->assertEquals(
             $reorg->checkCodeFolder(),
             ProjectReorganiser::ALREADY_UPGRADED,
-            '`checkCodeFolder` should still returned `ProjectReorganiser::ALREADY_UPGRADED` after calling `moveCodeFolder` on a non-standard project folder.'
+            '`checkCodeFolder` should still return `ALREADY_UPGRADED` after calling `moveCodeFolder` on a ' .
+            'non-standard project folder.'
         );
-
     }
 
     public function testDryRunMove()
@@ -357,7 +357,8 @@ class ProjectReorganiserTest extends TestCase
         $this->assertEquals(
             $reorg->moveProjectFolder(true),
             ['vfs://ss_project_root/mysite' => 'vfs://ss_project_root/app'],
-            'calling `moveProjectFolder` with the dryrun flag should still return the operation that would have occured.'
+            'calling `moveProjectFolder` with the dryrun flag should still return the operation that would ' .
+            'have occured.'
         );
         $this->assertEquals(
             $reorg->checkProjectFolder(),
@@ -383,5 +384,4 @@ class ProjectReorganiserTest extends TestCase
         $root = vfsStream::setup('ss_project_root', null, $structure);
         return new ProjectReorganiser($root->url());
     }
-
 }

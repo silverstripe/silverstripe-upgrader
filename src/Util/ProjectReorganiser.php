@@ -119,7 +119,6 @@ class ProjectReorganiser
             $projectFolder . DIRECTORY_SEPARATOR . $this->legacyCode,
             $projectFolder . DIRECTORY_SEPARATOR . $this->updatedCode
         );
-
     }
 
     /**
@@ -218,7 +217,6 @@ class ProjectReorganiser
         }
 
         return [$orig => $dest];
-
     }
 
     /**

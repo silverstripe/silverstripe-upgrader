@@ -16,14 +16,14 @@ class ReorganiseCommand extends AbstractCommand
 {
     use FileCommandTrait;
 
-        protected function configure()
+    protected function configure()
     {
         $this->setName('reorganise')
-            ->setDescription('Reorganise project folders from the SS3 `mysite` convention to the SS4 `app` convention')
-            ->setDefinition([
-                $this->getRootInputOption(),
-                $this->getWriteInputOption()
-            ]);
+        ->setDescription('Reorganise project folders from the SS3 `mysite` convention to the SS4 `app` convention')
+        ->setDefinition([
+            $this->getRootInputOption(),
+            $this->getWriteInputOption()
+        ]);
     }
 
     /**
@@ -41,8 +41,7 @@ class ReorganiseCommand extends AbstractCommand
 
 
         // Looking at the code folder
-        switch ($reorg->checkCodeFolder())
-        {
+        switch ($reorg->checkCodeFolder()) {
             case ProjectReorganiser::NOTHING:
                 $output->writeln("Could not find a `code` folder");
                 break;
@@ -61,8 +60,7 @@ class ReorganiseCommand extends AbstractCommand
         }
 
         // Looking at the project folder
-        switch ($reorg->checkProjectFolder())
-        {
+        switch ($reorg->checkProjectFolder()) {
             case ProjectReorganiser::NOTHING:
                 $output->writeln("Could not find a `mysite` folder");
                 break;
@@ -114,8 +112,7 @@ class ReorganiseCommand extends AbstractCommand
      */
     private function outputMove(array $moves, OutputInterface $ouput)
     {
-        foreach ($moves as $org => $dest)
-        {
+        foreach ($moves as $org => $dest) {
             $ouput->writeln(sprintf(
                 '`%s` becomes `%s`',
                 $org,

@@ -64,7 +64,7 @@ class CodeGrep
             if (preg_match($this->pattern, $line)) {
                 $occurences[] = [
                     $num+1,
-                    preg_replace($this->pattern, '<question>$0</question>' , $line)
+                    preg_replace($this->pattern, '<question>$0</question>', $line)
                 ];
             }
         }
@@ -72,5 +72,4 @@ class CodeGrep
 
         return $occurences;
     }
-
 }
