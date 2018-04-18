@@ -10,7 +10,7 @@ upgrade-code environment [--root-dir=<dir>] [--write] [--recursive] [-vvv]
 E.g.
 
 ```bash
-upgrade-code add-namespace --root-dir=/var/www/SS_project --write -vvv
+upgrade-code environment --root-dir=/var/www/SS_project --write -vvv
 ```
 
 * The command doesn't assume your `_ss_environment.php` file is in your root folder. Like SilverStripe 3, it will
