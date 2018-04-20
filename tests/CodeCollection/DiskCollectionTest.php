@@ -11,7 +11,7 @@ class DiskCollectionTest extends TestCase
     public function testIterateItems()
     {
         $d = new DiskCollection(
-            __DIR__ . '/../../src/CodeCollection',
+            __DIR__ . '/fixtures/CodeCollection',
             true,
             [
                 '*/Disk*.php',
