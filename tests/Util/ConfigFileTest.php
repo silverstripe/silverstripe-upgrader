@@ -30,7 +30,7 @@ class ConfigFileTest extends TestCase
 
     public function testCantMergeType()
     {
-        $this->expectException(InvalidARgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             'Config option fileExtensions cannot merge non-array with array value.'
         );
