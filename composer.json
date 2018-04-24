@@ -17,7 +17,8 @@
         "phpstan/phpstan": "^0.10",
         "phpstan/phpstan-php-parser": "^0.10",
         "m1/env": "^2.1",
-        "ext-json": "*"
+        "ext-json": "*",
+        "composer/semver": "^1.4"
     },
     "bin": [
         "bin/upgrade-code"
