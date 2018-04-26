@@ -12,6 +12,11 @@ use Composer\Semver\VersionParser;
  */
 class Package {
 
+    const KNOWN_RECIPES = [
+        'silverstripe/recipe-core',
+        'silverstripe/recipe-cms',
+    ];
+
     /**
      * @var string
      */
@@ -128,6 +133,14 @@ class Package {
         );
     }
 
+    /**
+     * Check if this package is specifically designed to work with SilverStripe, based off its type.
+     * @return bool
+     */
+    public function isSilverStripeRelated(): bool
+    {
+        return (bool)preg_match('/^silverstripe-.*$/', $this->getData()['type']);
+    }
 
 
 }

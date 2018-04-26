@@ -10,7 +10,7 @@ class PackageTest extends TestCase
 
     public function testGetVersionNumbers()
     {
-        $package = $this->getRecipeCorePackage();
+        $package = $this->getPackage();
 
         $expectedVersions = [
             "1.1.0",
@@ -53,7 +53,7 @@ class PackageTest extends TestCase
 
     public function testGetVersion()
     {
-        $package = $this->getRecipeCorePackage();
+        $package = $this->getPackage();
         $version = $package->getVersion('~1.0.0');
         $this->assertEquals(
             $version->getId(),
@@ -65,18 +65,34 @@ class PackageTest extends TestCase
         $this->assertNull($version, 'The package should not have a version 10');
     }
 
+    public function testIsSilverStripeRelated()
+    {
+        $coreRecipe = $this->getPackage();
+        $this->assertTrue(
+            $coreRecipe->isSilverstripeRelated(),
+            '`silverstripe/recipe-core` is related to silverstripe'
+        );
+
+        $coreRecipe = $this->getPackage('madewithlove-elasticsearcher.json');
+        $this->assertFalse(
+            $coreRecipe->isSilverstripeRelated(),
+            '`madewithlove/elasticsearcher` is not silverstripe related.'
+        );
+    }
+
     /**
      * Instanciate a new package with the recipe-core info.
      * @return Package
      */
-    private function getRecipeCorePackage()
+    private function getPackage($file = 'recipe-core.json')
     {
-        $data = json_decode(file_get_contents(__DIR__ . '/fixture/recipe-core.json'), TRUE);
+        $data = json_decode(file_get_contents(__DIR__ . '/fixture/' . $file), TRUE);
 
         return new Package(
             'silverstripe/recipe-core',
-            $data
+            $data['package']
         );
     }
+
 
 }

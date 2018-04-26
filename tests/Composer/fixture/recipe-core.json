@@ -1,840 +1,866 @@
 {
-    "package": {
-        "versions": {
-          "1.0.0": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.0",
-            "version_normalized": "1.0.0.0",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "9e573b8e1c1cb540f350209b6ea36eda7bcbc16f"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/9e573b8e1c1cb540f350209b6ea36eda7bcbc16f",
-              "reference": "9e573b8e1c1cb540f350209b6ea36eda7bcbc16f",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2017-11-08T02:18:14+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.0.0@stable",
-              "silverstripe/config": "1.0.0@stable",
-              "silverstripe/framework": "4.0.0@stable",
-              "silverstripe/recipe-plugin": "^1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1711323
-          },
-          "1.0.0-beta2": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.0-beta2",
-            "version_normalized": "1.0.0.0-beta2",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "f3402fc4c5bc0f66a91a7a67e69ff7ddb9f94066"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/f3402fc4c5bc0f66a91a7a67e69ff7ddb9f94066",
-              "reference": "f3402fc4c5bc0f66a91a7a67e69ff7ddb9f94066",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2017-08-07T04:03:34+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config"
-              ],
-              "branch-alias": {
-                "1.x-dev": "1.0.x-dev",
-                "dev-master": "2.x-dev"
-              }
-            },
-            "require": {
-              "silverstripe/assets": "1.0.0-beta2",
-              "silverstripe/config": "1.0.0-beta2",
-              "silverstripe/framework": "4.0.0-beta2",
-              "silverstripe/recipe-plugin": ">=0.1@dev <1.0"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1540792
-          },
-          "1.0.0-beta3": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.0-beta3",
-            "version_normalized": "1.0.0.0-beta3",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "b34ee8b9bde349ce8985575b1cd0305fa299b0b0"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/b34ee8b9bde349ce8985575b1cd0305fa299b0b0",
-              "reference": "b34ee8b9bde349ce8985575b1cd0305fa299b0b0",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2017-09-08T05:14:56+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config"
-              ],
-              "branch-alias": {
-                "1.x-dev": "1.0.x-dev",
-                "dev-master": "2.x-dev"
-              }
-            },
-            "require": {
-              "silverstripe/assets": "1.0.0-beta3",
-              "silverstripe/config": "1.0.0-beta3",
-              "silverstripe/framework": "4.0.0-beta3",
-              "silverstripe/recipe-plugin": ">=0.1@dev <1.0"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1599359
-          },
-          "1.0.0-beta4": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.0-beta4",
-            "version_normalized": "1.0.0.0-beta4",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "633a59005eb20d68b3a93fda15688a6e24170c4f"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/633a59005eb20d68b3a93fda15688a6e24170c4f",
-              "reference": "633a59005eb20d68b3a93fda15688a6e24170c4f",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2017-10-11T04:51:02+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.0.0-beta4",
-              "silverstripe/config": "1.0.0-beta4",
-              "silverstripe/framework": "4.0.0-beta4",
-              "silverstripe/recipe-plugin": ">=0.1@dev <1.0"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1658808
-          },
-          "1.0.0-rc1": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.0-rc1",
-            "version_normalized": "1.0.0.0-RC1",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "98d235b216601858d6b674af43b379610de4f0c7"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/98d235b216601858d6b674af43b379610de4f0c7",
-              "reference": "98d235b216601858d6b674af43b379610de4f0c7",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2017-10-25T03:48:51+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.0.0-rc1",
-              "silverstripe/config": "1.0.0-rc1",
-              "silverstripe/framework": "4.0.0-rc1",
-              "silverstripe/recipe-plugin": "^1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1685734
-          },
-          "1.0.0-rc2": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.0-rc2",
-            "version_normalized": "1.0.0.0-RC2",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "d68a332809658e0ee1fcb091a07b0d4eb984d4f9"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/d68a332809658e0ee1fcb091a07b0d4eb984d4f9",
-              "reference": "d68a332809658e0ee1fcb091a07b0d4eb984d4f9",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2017-11-02T03:44:30+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.0.0-rc2",
-              "silverstripe/config": "1.0.0-rc2",
-              "silverstripe/framework": "4.0.0-rc2",
-              "silverstripe/recipe-plugin": "^1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1700490
-          },
-          "1.0.0-rc3": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.0-rc3",
-            "version_normalized": "1.0.0.0-RC3",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "32b7d489f0e9d629eff497bdd2bf3f6c8f678cb1"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/32b7d489f0e9d629eff497bdd2bf3f6c8f678cb1",
-              "reference": "32b7d489f0e9d629eff497bdd2bf3f6c8f678cb1",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2017-11-03T03:59:37+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.0.0-rc3",
-              "silverstripe/config": "1.0.0-rc3",
-              "silverstripe/framework": "4.0.0-rc3",
-              "silverstripe/recipe-plugin": "^1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1702707
-          },
-          "1.0.1": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.1",
-            "version_normalized": "1.0.1.0",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "83027f352a78f9bd006987692552f8de216d496c"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/83027f352a78f9bd006987692552f8de216d496c",
-              "reference": "83027f352a78f9bd006987692552f8de216d496c",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2017-12-07T00:49:17+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.0.1@stable",
-              "silverstripe/config": "1.0.1@stable",
-              "silverstripe/framework": "4.0.1@stable",
-              "silverstripe/recipe-plugin": "^1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1769405
-          },
-          "1.0.1-rc1": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.1-rc1",
-            "version_normalized": "1.0.1.0-RC1",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "2797e95842112ebf027936e9ec0f64b44117f227"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/2797e95842112ebf027936e9ec0f64b44117f227",
-              "reference": "2797e95842112ebf027936e9ec0f64b44117f227",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2017-12-07T00:03:54+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.0.1-rc1",
-              "silverstripe/config": "1.0.1-rc1",
-              "silverstripe/framework": "4.0.1-rc1",
-              "silverstripe/recipe-plugin": "^1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1769358
-          },
-          "1.0.2": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.2",
-            "version_normalized": "1.0.2.0",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "9ab9afdad0432a883a8796d2d7cb248c2eb3d7ff"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/9ab9afdad0432a883a8796d2d7cb248c2eb3d7ff",
-              "reference": "9ab9afdad0432a883a8796d2d7cb248c2eb3d7ff",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2018-01-24T23:28:42+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.0.2@stable",
-              "silverstripe/config": "1.0.2@stable",
-              "silverstripe/framework": "4.0.2@stable",
-              "silverstripe/recipe-plugin": "^1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1866052
-          },
-          "1.0.3": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.3",
-            "version_normalized": "1.0.3.0",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "2f4f3173f5314f6da5b2642ff08667f70f66e044"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/2f4f3173f5314f6da5b2642ff08667f70f66e044",
-              "reference": "2f4f3173f5314f6da5b2642ff08667f70f66e044",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2018-02-05T04:14:00+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.0.3@stable",
-              "silverstripe/config": "1.0.3@stable",
-              "silverstripe/framework": "4.0.3@stable",
-              "silverstripe/recipe-plugin": "^1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1891528
-          },
-          "1.0.x-dev": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.0.x-dev",
-            "version_normalized": "1.0.9999999.9999999-dev",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "425f787409db2d5614bb45ee50a9a2311dee5535"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/425f787409db2d5614bb45ee50a9a2311dee5535",
-              "reference": "425f787409db2d5614bb45ee50a9a2311dee5535",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2018-04-19T22:09:09+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*",
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.0.x-dev",
-              "silverstripe/config": "1.0.x-dev",
-              "silverstripe/framework": "4.0.x-dev",
-              "silverstripe/recipe-plugin": "^1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1658807
-          },
-          "1.1.0": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.1.0",
-            "version_normalized": "1.1.0.0",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "2ea41ab93589a34e492030367369457cca665ae6"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/2ea41ab93589a34e492030367369457cca665ae6",
-              "reference": "2ea41ab93589a34e492030367369457cca665ae6",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2018-03-13T21:40:02+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*"
-              ],
-              "public-files": [
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.1.0@stable",
-              "silverstripe/config": "1.0.4@stable",
-              "silverstripe/framework": "4.1.0@stable",
-              "silverstripe/recipe-plugin": "^1.1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1988156
-          },
-          "1.1.0-rc1": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.1.0-rc1",
-            "version_normalized": "1.1.0.0-RC1",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "f743e8d66ad4f0bb9e7d76edcaa3a9702e8ebbec"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/f743e8d66ad4f0bb9e7d76edcaa3a9702e8ebbec",
-              "reference": "f743e8d66ad4f0bb9e7d76edcaa3a9702e8ebbec",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2018-02-07T03:15:39+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*"
-              ],
-              "public-files": [
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ],
-              "branch-alias": {
-                "1.x-dev": "1.1.x-dev",
-                "dev-master": "2.x-dev"
-              }
-            },
-            "require": {
-              "silverstripe/assets": "1.1.0-rc1",
-              "silverstripe/config": "1.0.3@stable",
-              "silverstripe/framework": "4.1.0-rc1",
-              "silverstripe/recipe-plugin": "^1.1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1897069
-          },
-          "1.1.0-rc2": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.1.0-rc2",
-            "version_normalized": "1.1.0.0-RC2",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "ed5e6eb56178ecabc56caa4843cd03c9ad601804"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/ed5e6eb56178ecabc56caa4843cd03c9ad601804",
-              "reference": "ed5e6eb56178ecabc56caa4843cd03c9ad601804",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2018-02-14T22:58:39+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*"
-              ],
-              "public-files": [
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.1.0-rc2",
-              "silverstripe/config": "1.0.4-rc2",
-              "silverstripe/framework": "4.1.0-rc2",
-              "silverstripe/recipe-plugin": "^1.1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1916928
-          },
-          "1.1.x-dev": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.1.x-dev",
-            "version_normalized": "1.1.9999999.9999999-dev",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "3275478bfa0c420bb40d719efaf9992aa26642e9"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/3275478bfa0c420bb40d719efaf9992aa26642e9",
-              "reference": "3275478bfa0c420bb40d719efaf9992aa26642e9",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2018-04-19T22:09:18+00:00",
-            "extra": {
-              "project-files": [
-                "mysite/*"
-              ],
-              "public-files": [
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ]
-            },
-            "require": {
-              "silverstripe/assets": "1.1.x-dev",
-              "silverstripe/config": "1.0.x-dev",
-              "silverstripe/framework": "4.1.x-dev",
-              "silverstripe/recipe-plugin": "^1.1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1897168
-          },
-          "1.x-dev": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "1.x-dev",
-            "version_normalized": "1.9999999.9999999.9999999-dev",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "e7b0f14c220967e20ce56e3ef89cd990c4ce937b"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/e7b0f14c220967e20ce56e3ef89cd990c4ce937b",
-              "reference": "e7b0f14c220967e20ce56e3ef89cd990c4ce937b",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2018-04-18T23:28:07+00:00",
-            "extra": {
-              "project-files": [
-                "app/*"
-              ],
-              "public-files": [
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ],
-              "branch-alias": {
-                "1.x-dev": "1.2.x-dev"
-              }
-            },
-            "require": {
-              "silverstripe/assets": "1.2.x-dev",
-              "silverstripe/config": "1.0.x-dev",
-              "silverstripe/framework": "4.2.x-dev",
-              "silverstripe/recipe-plugin": "^1.2"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1492393
-          },
-          "dev-master": {
-            "name": "silverstripe/recipe-core",
-            "description": "SilverStripe framework-only core recipe",
-            "keywords": [],
-            "homepage": "http://silverstripe.org",
-            "version": "dev-master",
-            "version_normalized": "9999999-dev",
-            "license": [
-              "BSD-3-Clause"
-            ],
-            "authors": [],
-            "source": {
-              "type": "git",
-              "url": "https://github.com/silverstripe/recipe-core.git",
-              "reference": "cb5d463295deacb3ab1b6790f8eaaa587bccfe13"
-            },
-            "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/cb5d463295deacb3ab1b6790f8eaaa587bccfe13",
-              "reference": "cb5d463295deacb3ab1b6790f8eaaa587bccfe13",
-              "shasum": ""
-            },
-            "type": "silverstripe-recipe",
-            "time": "2018-04-18T23:29:24+00:00",
-            "extra": {
-              "project-files": [
-                "app/*"
-              ],
-              "public-files": [
-                ".htaccess",
-                "web.config",
-                "index.php",
-                "install.php",
-                "install-frameworkmissing.html"
-              ],
-              "branch-alias": {
-                "dev-master": "2.x-dev"
-              }
-            },
-            "require": {
-              "silverstripe/assets": "2.x-dev",
-              "silverstripe/config": "2.x-dev",
-              "silverstripe/framework": "5.x-dev",
-              "silverstripe/recipe-plugin": "^1"
-            },
-            "require-dev": {
-              "phpunit/phpunit": "^5.7"
-            },
-            "uid": 1492392
-          }
+  "package": {
+    "name": "silverstripe/recipe-core",
+    "description": "SilverStripe framework-only core recipe",
+    "time": "2017-07-11T03:24:02+00:00",
+    "maintainers": [
+      {
+        "name": "chillu",
+        "avatar_url": "https://www.gravatar.com/avatar/b4f4cc99ef2108a7aa3573249800a3c1?d=identicon"
+      },
+      {
+        "name": "sminnee",
+        "avatar_url": "https://www.gravatar.com/avatar/5864f9d2fdda2130fe146e92280e5a3a?d=identicon"
+      },
+      {
+        "name": "tractorcow",
+        "avatar_url": "https://www.gravatar.com/avatar/4a0c9c88053bb439a2203278b2b047e1?d=identicon"
+      },
+      {
+        "name": "kinglozzer",
+        "avatar_url": "https://www.gravatar.com/avatar/4c3d7224238427b77f3c9af356b5834f?d=identicon"
+      },
+      {
+        "name": "dhensby",
+        "avatar_url": "https://www.gravatar.com/avatar/945f27676a0e17eaa2be1b3801be50ea?d=identicon"
+      },
+      {
+        "name": "flamerohr",
+        "avatar_url": "https://www.gravatar.com/avatar/e150be0d16dabf3a0490d7d951cb8fca?d=identicon"
+      }
+    ],
+    "versions": {
+      "1.1.x-dev": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.1.x-dev",
+        "version_normalized": "1.1.9999999.9999999-dev",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "3275478bfa0c420bb40d719efaf9992aa26642e9"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/3275478bfa0c420bb40d719efaf9992aa26642e9",
+          "reference": "3275478bfa0c420bb40d719efaf9992aa26642e9",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2018-04-19T22:09:18+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*"
+          ],
+          "public-files": [
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.1.x-dev",
+          "silverstripe/config": "1.0.x-dev",
+          "silverstripe/framework": "4.1.x-dev",
+          "silverstripe/recipe-plugin": "^1.1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
         }
-    }
+      },
+      "1.0.x-dev": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.x-dev",
+        "version_normalized": "1.0.9999999.9999999-dev",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "425f787409db2d5614bb45ee50a9a2311dee5535"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/425f787409db2d5614bb45ee50a9a2311dee5535",
+          "reference": "425f787409db2d5614bb45ee50a9a2311dee5535",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2018-04-19T22:09:09+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.0.x-dev",
+          "silverstripe/config": "1.0.x-dev",
+          "silverstripe/framework": "4.0.x-dev",
+          "silverstripe/recipe-plugin": "^1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "dev-master": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "cb5d463295deacb3ab1b6790f8eaaa587bccfe13"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/cb5d463295deacb3ab1b6790f8eaaa587bccfe13",
+          "reference": "cb5d463295deacb3ab1b6790f8eaaa587bccfe13",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2018-04-18T23:29:24+00:00",
+        "extra": {
+          "project-files": [
+            "app/*"
+          ],
+          "public-files": [
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ],
+          "branch-alias": {
+            "dev-master": "2.x-dev"
+          }
+        },
+        "require": {
+          "silverstripe/assets": "2.x-dev",
+          "silverstripe/config": "2.x-dev",
+          "silverstripe/framework": "5.x-dev",
+          "silverstripe/recipe-plugin": "^1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.x-dev": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.x-dev",
+        "version_normalized": "1.9999999.9999999.9999999-dev",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "e7b0f14c220967e20ce56e3ef89cd990c4ce937b"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/e7b0f14c220967e20ce56e3ef89cd990c4ce937b",
+          "reference": "e7b0f14c220967e20ce56e3ef89cd990c4ce937b",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2018-04-18T23:28:07+00:00",
+        "extra": {
+          "project-files": [
+            "app/*"
+          ],
+          "public-files": [
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ],
+          "branch-alias": {
+            "1.x-dev": "1.2.x-dev"
+          }
+        },
+        "require": {
+          "silverstripe/assets": "1.2.x-dev",
+          "silverstripe/config": "1.0.x-dev",
+          "silverstripe/framework": "4.2.x-dev",
+          "silverstripe/recipe-plugin": "^1.2"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.1.0": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.1.0",
+        "version_normalized": "1.1.0.0",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "2ea41ab93589a34e492030367369457cca665ae6"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/2ea41ab93589a34e492030367369457cca665ae6",
+          "reference": "2ea41ab93589a34e492030367369457cca665ae6",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2018-03-13T21:40:02+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*"
+          ],
+          "public-files": [
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.1.0@stable",
+          "silverstripe/config": "1.0.4@stable",
+          "silverstripe/framework": "4.1.0@stable",
+          "silverstripe/recipe-plugin": "^1.1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.1.0-rc2": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.1.0-rc2",
+        "version_normalized": "1.1.0.0-RC2",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "ed5e6eb56178ecabc56caa4843cd03c9ad601804"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/ed5e6eb56178ecabc56caa4843cd03c9ad601804",
+          "reference": "ed5e6eb56178ecabc56caa4843cd03c9ad601804",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2018-02-14T22:58:39+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*"
+          ],
+          "public-files": [
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.1.0-rc2",
+          "silverstripe/config": "1.0.4-rc2",
+          "silverstripe/framework": "4.1.0-rc2",
+          "silverstripe/recipe-plugin": "^1.1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.1.0-rc1": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.1.0-rc1",
+        "version_normalized": "1.1.0.0-RC1",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "f743e8d66ad4f0bb9e7d76edcaa3a9702e8ebbec"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/f743e8d66ad4f0bb9e7d76edcaa3a9702e8ebbec",
+          "reference": "f743e8d66ad4f0bb9e7d76edcaa3a9702e8ebbec",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2018-02-07T03:15:39+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*"
+          ],
+          "public-files": [
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ],
+          "branch-alias": {
+            "1.x-dev": "1.1.x-dev",
+            "dev-master": "2.x-dev"
+          }
+        },
+        "require": {
+          "silverstripe/assets": "1.1.0-rc1",
+          "silverstripe/config": "1.0.3@stable",
+          "silverstripe/framework": "4.1.0-rc1",
+          "silverstripe/recipe-plugin": "^1.1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.0.3": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.3",
+        "version_normalized": "1.0.3.0",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "2f4f3173f5314f6da5b2642ff08667f70f66e044"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/2f4f3173f5314f6da5b2642ff08667f70f66e044",
+          "reference": "2f4f3173f5314f6da5b2642ff08667f70f66e044",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2018-02-05T04:14:00+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.0.3@stable",
+          "silverstripe/config": "1.0.3@stable",
+          "silverstripe/framework": "4.0.3@stable",
+          "silverstripe/recipe-plugin": "^1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.0.2": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.2",
+        "version_normalized": "1.0.2.0",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "9ab9afdad0432a883a8796d2d7cb248c2eb3d7ff"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/9ab9afdad0432a883a8796d2d7cb248c2eb3d7ff",
+          "reference": "9ab9afdad0432a883a8796d2d7cb248c2eb3d7ff",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2018-01-24T23:28:42+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.0.2@stable",
+          "silverstripe/config": "1.0.2@stable",
+          "silverstripe/framework": "4.0.2@stable",
+          "silverstripe/recipe-plugin": "^1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.0.1": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "83027f352a78f9bd006987692552f8de216d496c"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/83027f352a78f9bd006987692552f8de216d496c",
+          "reference": "83027f352a78f9bd006987692552f8de216d496c",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2017-12-07T00:49:17+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.0.1@stable",
+          "silverstripe/config": "1.0.1@stable",
+          "silverstripe/framework": "4.0.1@stable",
+          "silverstripe/recipe-plugin": "^1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.0.1-rc1": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.1-rc1",
+        "version_normalized": "1.0.1.0-RC1",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "2797e95842112ebf027936e9ec0f64b44117f227"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/2797e95842112ebf027936e9ec0f64b44117f227",
+          "reference": "2797e95842112ebf027936e9ec0f64b44117f227",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2017-12-07T00:03:54+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.0.1-rc1",
+          "silverstripe/config": "1.0.1-rc1",
+          "silverstripe/framework": "4.0.1-rc1",
+          "silverstripe/recipe-plugin": "^1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.0.0": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "9e573b8e1c1cb540f350209b6ea36eda7bcbc16f"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/9e573b8e1c1cb540f350209b6ea36eda7bcbc16f",
+          "reference": "9e573b8e1c1cb540f350209b6ea36eda7bcbc16f",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2017-11-08T02:18:14+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.0.0@stable",
+          "silverstripe/config": "1.0.0@stable",
+          "silverstripe/framework": "4.0.0@stable",
+          "silverstripe/recipe-plugin": "^1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.0.0-rc3": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.0-rc3",
+        "version_normalized": "1.0.0.0-RC3",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "32b7d489f0e9d629eff497bdd2bf3f6c8f678cb1"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/32b7d489f0e9d629eff497bdd2bf3f6c8f678cb1",
+          "reference": "32b7d489f0e9d629eff497bdd2bf3f6c8f678cb1",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2017-11-03T03:59:37+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.0.0-rc3",
+          "silverstripe/config": "1.0.0-rc3",
+          "silverstripe/framework": "4.0.0-rc3",
+          "silverstripe/recipe-plugin": "^1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.0.0-rc2": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.0-rc2",
+        "version_normalized": "1.0.0.0-RC2",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "d68a332809658e0ee1fcb091a07b0d4eb984d4f9"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/d68a332809658e0ee1fcb091a07b0d4eb984d4f9",
+          "reference": "d68a332809658e0ee1fcb091a07b0d4eb984d4f9",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2017-11-02T03:44:30+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.0.0-rc2",
+          "silverstripe/config": "1.0.0-rc2",
+          "silverstripe/framework": "4.0.0-rc2",
+          "silverstripe/recipe-plugin": "^1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.0.0-rc1": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.0-rc1",
+        "version_normalized": "1.0.0.0-RC1",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "98d235b216601858d6b674af43b379610de4f0c7"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/98d235b216601858d6b674af43b379610de4f0c7",
+          "reference": "98d235b216601858d6b674af43b379610de4f0c7",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2017-10-25T03:48:51+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.0.0-rc1",
+          "silverstripe/config": "1.0.0-rc1",
+          "silverstripe/framework": "4.0.0-rc1",
+          "silverstripe/recipe-plugin": "^1"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.0.0-beta4": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.0-beta4",
+        "version_normalized": "1.0.0.0-beta4",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "633a59005eb20d68b3a93fda15688a6e24170c4f"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/633a59005eb20d68b3a93fda15688a6e24170c4f",
+          "reference": "633a59005eb20d68b3a93fda15688a6e24170c4f",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2017-10-11T04:51:02+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config",
+            "index.php",
+            "install.php",
+            "install-frameworkmissing.html"
+          ]
+        },
+        "require": {
+          "silverstripe/assets": "1.0.0-beta4",
+          "silverstripe/config": "1.0.0-beta4",
+          "silverstripe/framework": "4.0.0-beta4",
+          "silverstripe/recipe-plugin": ">=0.1@dev <1.0"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.0.0-beta3": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.0-beta3",
+        "version_normalized": "1.0.0.0-beta3",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "b34ee8b9bde349ce8985575b1cd0305fa299b0b0"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/b34ee8b9bde349ce8985575b1cd0305fa299b0b0",
+          "reference": "b34ee8b9bde349ce8985575b1cd0305fa299b0b0",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2017-09-08T05:14:56+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config"
+          ],
+          "branch-alias": {
+            "1.x-dev": "1.0.x-dev",
+            "dev-master": "2.x-dev"
+          }
+        },
+        "require": {
+          "silverstripe/assets": "1.0.0-beta3",
+          "silverstripe/config": "1.0.0-beta3",
+          "silverstripe/framework": "4.0.0-beta3",
+          "silverstripe/recipe-plugin": ">=0.1@dev <1.0"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      },
+      "1.0.0-beta2": {
+        "name": "silverstripe/recipe-core",
+        "description": "SilverStripe framework-only core recipe",
+        "keywords": [],
+        "homepage": "http://silverstripe.org",
+        "version": "1.0.0-beta2",
+        "version_normalized": "1.0.0.0-beta2",
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "authors": [],
+        "source": {
+          "type": "git",
+          "url": "https://github.com/silverstripe/recipe-core.git",
+          "reference": "f3402fc4c5bc0f66a91a7a67e69ff7ddb9f94066"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/silverstripe/recipe-core/zipball/f3402fc4c5bc0f66a91a7a67e69ff7ddb9f94066",
+          "reference": "f3402fc4c5bc0f66a91a7a67e69ff7ddb9f94066",
+          "shasum": ""
+        },
+        "type": "silverstripe-recipe",
+        "time": "2017-08-07T04:03:34+00:00",
+        "extra": {
+          "project-files": [
+            "mysite/*",
+            ".htaccess",
+            "web.config"
+          ],
+          "branch-alias": {
+            "1.x-dev": "1.0.x-dev",
+            "dev-master": "2.x-dev"
+          }
+        },
+        "require": {
+          "silverstripe/assets": "1.0.0-beta2",
+          "silverstripe/config": "1.0.0-beta2",
+          "silverstripe/framework": "4.0.0-beta2",
+          "silverstripe/recipe-plugin": ">=0.1@dev <1.0"
+        },
+        "require-dev": {
+          "phpunit/phpunit": "^5.7"
+        }
+      }
+    },
+    "type": "silverstripe-recipe",
+    "repository": "https://github.com/silverstripe/recipe-core",
+    "github_stars": 4,
+    "github_watchers": 11,
+    "github_forks": 6,
+    "github_open_issues": 1,
+    "language": "PHP",
+    "dependents": 14,
+    "suggesters": 0,
+    "downloads": {
+      "total": 54975,
+      "monthly": 8449,
+      "daily": 320
+    },
+    "favers": 4
+  }
 }
