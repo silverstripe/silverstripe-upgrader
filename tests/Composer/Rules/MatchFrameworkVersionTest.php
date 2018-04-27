@@ -18,7 +18,7 @@ class MatchFrameworkVersionTest extends TestCase
 
         $this->assertEquals(
             $rule->upgrade(['silverstripe/cms' => '^3.2']),
-            ['silverstripe/cms' => '^3.6']
+            ['silverstripe/cms' => '^3.6.5']
         );
 
     }

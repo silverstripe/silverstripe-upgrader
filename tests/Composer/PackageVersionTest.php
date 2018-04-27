@@ -83,7 +83,7 @@ class PackageVersionTest extends TestCase
         $data = json_decode(file_get_contents(__DIR__ . '/fixture/recipe-core.json'), TRUE);
 
         return new PackageVersion(
-            $data['package']['versions']['1.1.0']
+            $data['packages']['silverstripe/recipe-core']['1.1.0']
         );
     }
 
