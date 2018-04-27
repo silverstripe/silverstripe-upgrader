@@ -58,12 +58,20 @@ class ComposerExec {
         return $this->execPath;
     }
 
-    protected function run(string $cmd, $arg = [])
+    protected function run(string $cmd, $args = [])
     {
-        $statement = $this->execPath . ' ' .
-            $cmd . ' ' .
-            implode($arg, ' ') .
-            ' --working-dir=' . $this->workingDir;
+        // Specify a working directory if we don't have one already.
+        if (empty($args['--working-dir'])) {
+            $args['--working-dir'] = $this->workingDir;
+        }
+
+        $statement = $this->execPath . ' ' . $cmd;
+
+        foreach ($args as $arg => $val) {
+            $statement .=
+                ' ' . $arg .
+                ($val ? sprintf('="%s"', $val) : '');
+        }
 
         if ($this->suppressErrors) {
             $statement .= ' 2>&1';
@@ -101,9 +109,45 @@ class ComposerExec {
      */
     public function validate(string $path): bool
     {
-        $response = $this->run('validate', [$path]);
+        $response = $this->run('validate ' . $path);
 
         return $response['exitCode'] === 0;
+    }
+
+    /**
+     * @return ComposerFile
+     */
+    public function initTemporaryFile()
+    {
+        $tmpDir = sys_get_temp_dir();
+        $folderName = uniqid('ss-upgrader-');
+        $fullPath = $tmpDir . DIRECTORY_SEPARATOR . $folderName;
+
+        mkdir($fullPath);
+
+        $reponse = $this->run(
+            'init', [
+                '--working-dir' => $fullPath,
+                '--quiet' => '',
+                '--name' => 'silverstripe-upgrader/temp-project',
+                '--description' => 'silverstripe-upgrader-temp-project',
+                '--license' => 'proprietary',
+            ]);
+
+        return new ComposerFile($this, $fullPath);
+    }
+
+    public function require(string $package, string $constraint = '', string $workingDir = '')
+    {
+        if ($constraint) {
+            $package . ':' . $constraint;
+        }
+
+        $this->run(
+            'require ' . $package, [
+                '--working-dir' => $workingDir,
+                // '--no-update' => '',
+            ]);
     }
 
 }
