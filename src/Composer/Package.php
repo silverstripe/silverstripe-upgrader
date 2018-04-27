@@ -2,8 +2,6 @@
 
 namespace SilverStripe\Upgrader\Composer;
 
-use GuzzleHttp\Client;
-use Spatie\Packagist\Packagist;
 use Composer\Semver\Semver;
 use Composer\Semver\VersionParser;
 
@@ -23,11 +21,6 @@ class Package {
     protected $name;
 
     /**
-     * @var Client
-     */
-    protected $http;
-
-    /**
      * @var array
      */
     private $data;
@@ -36,16 +29,13 @@ class Package {
      * Instanciate a new Package object.
      * @param string $packageName   Name of the package to fetch.
      * @param array  $data          Initial data to populate the package with.
-     * @param Client $http          HTTP client use to retrieve the pacakge data from pacakagist.
      */
     public function __construct(
         string $packageName,
-        array $data = [],
-        Client $http=null
+        array $data = []
     ) {
         $this->name = $packageName;
         $this->data = $data;
-        $this->http = $http ?: new Client();
     }
 
     /**
@@ -55,13 +45,18 @@ class Package {
     public function getData(): array
     {
         if (!$this->data) {
-            $packagist = new Packagist($this->http);
+            $packagist = new Packagist();
             $json = $packagist->findPackageByName($this->name);
 
-            $this->data = $json['package'];
+            $this->data = $json['packages'][$this->name];
         }
 
         return $this->data;
+    }
+
+    public function getDevMaster(): array
+    {
+        return $this->getData()['dev-master'];
     }
 
     /**
@@ -84,7 +79,7 @@ class Package {
         $versions = $this->sortVersions($versions);
         $versionID = array_shift($versions);
 
-        return new PackageVersion($this->getData()['versions'][$versionID]);
+        return new PackageVersion($this->getData()[$versionID]);
     }
 
     /**
@@ -95,7 +90,8 @@ class Package {
      */
     public function getVersionNumbers(string $constraint = '*')
     {
-        $versions = array_keys($this->getData()['versions']);
+        $versions = array_keys($this->getData());
+
         $versions = Semver::satisfiedBy($versions, $constraint);
         $versions = $this->sortVersions($versions);
 
@@ -139,7 +135,42 @@ class Package {
      */
     public function isSilverStripeRelated(): bool
     {
-        return (bool)preg_match('/^silverstripe-.*$/', $this->getData()['type']);
+        return (bool)preg_match('/^silverstripe-.*$/', $this->getType());
+    }
+
+    /**
+     * Check if this package is specifically designed to work with SilverStripe, based off its type.
+     * @return bool
+     */
+    public function isSilverStripeModule(): bool
+    {
+        return (bool)preg_match('/^silverstripe-.*module/', $this->getType());
+    }
+
+    public function getType()
+    {
+        return $this->getDevMaster()['type'];
+    }
+
+
+    /**
+     * Get the latest version of the package that is compatible with the provided version of silverstripe.
+     * @param string $ssVersion
+     * @return PackageVersion|null
+     */
+    public function getVersionBySilverStripeCompatibility(string $ssVersion)
+    {
+        $versionNumbers = $this->getVersionNumbers();
+
+        foreach ($versionNumbers as $versionNum) {
+            $packageVersion = new PackageVersion($this->getData()[$versionNum]);
+            $constraint = $packageVersion->getFrameworkConstraint();
+            if ($constraint && Semver::satisfies($ssVersion, $constraint)) {
+                return $packageVersion;
+            }
+        }
+
+        return null;
     }
 
 

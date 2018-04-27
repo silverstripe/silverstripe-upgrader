@@ -4,6 +4,7 @@ namespace SilverStripe\Upgrader\Composer\Rules;
 
 use Composer\Semver\Semver;
 
+
 /**
  * Rule to update the PHP version to use in the composer file.
  */
@@ -37,5 +38,7 @@ class PhpVersion implements DependencyUpgradeRule {
 
         return $dependencies;
     }
+
+
 
 }

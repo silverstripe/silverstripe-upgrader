@@ -9,6 +9,8 @@ use SilverStripe\Upgrader\Composer\PackageVersion;
 class PackageVersionTest extends TestCase
 {
 
+    use InitPackageCacheTrait;
+
     public function testGetId()
     {
         $version = $this->getRecipeCorePackageVersion();
