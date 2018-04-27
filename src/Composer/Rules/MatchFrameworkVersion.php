@@ -3,6 +3,7 @@
 namespace SilverStripe\Upgrader\Composer\Rules;
 
 use SilverStripe\Upgrader\Composer\Package;
+use SilverStripe\Upgrader\Composer\ComposerExec;
 
 /**
  * Rule to go through the require list and update the constraint to work with a specific version of Framework.
@@ -26,7 +27,7 @@ class MatchFrameworkVersion implements DependencyUpgradeRule {
      * @param  array $dependencies Dependencies to upgrade
      * @return array Upgraded dependencies
      */
-    public function upgrade(array $dependencies): array
+    public function upgrade(array $dependencies, ComposerExec $composer): array
     {
         foreach ($dependencies as $packageName => $constrain) {
 
