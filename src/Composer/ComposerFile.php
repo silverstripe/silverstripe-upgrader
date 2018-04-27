@@ -37,9 +37,9 @@ class ComposerFile extends DiskItem {
      * @param [type] $basePath     [description]
      * @param string $relativePath [description]
      */
-    public function __construct(ComposerExec $exec, $basePath, $relativePath='composer.json')
+    public function __construct(ComposerExec $exec, $basePath)
     {
-        parent::__construct($basePath, $relativePath);
+        parent::__construct($basePath, 'composer.json');
         $this->exec = $exec;
         $this->parse();
     }
@@ -49,12 +49,10 @@ class ComposerFile extends DiskItem {
      */
     public function parse()
     {
-        $content = $this->getContents();
-
-        if ($this->validate($content)) {
-            $this->composerJson = json_decode($content, TRUE);
+        if ($this->exec->validate($this->getFullPath())) {
+            $this->composerJson = json_decode($this->getContents(), TRUE);
         } else {
-            throw new InvalidArgumentException('Invalid composer file.');
+            throw new InvalidArgumentException('Invalid composer file at ' . $this->getFullPath());
         }
     }
 
@@ -86,5 +84,9 @@ class ComposerFile extends DiskItem {
         return $this->exec->validate($path);
     }
 
+    public function getRequire()
+    {
+        return $this->composerJson['require'];
+    }
 
 }
