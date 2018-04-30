@@ -131,7 +131,6 @@ class ComposerFile extends DiskItem
         }
 
         if (!is_string($content)) {
-            var_dump($content);
             throw new InvalidArgumentException('$content must be of type string, array or null');
         }
 
