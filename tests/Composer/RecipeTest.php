@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Composer\Package;
 use SilverStripe\Upgrader\Composer\Recipe;
 
-class PackageTest extends TestCase
+class RecipeTest extends TestCase
 {
     use InitPackageCacheTrait;
 
