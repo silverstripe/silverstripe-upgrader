@@ -18,7 +18,8 @@
         "phpstan/phpstan-php-parser": "^0.10",
         "m1/env": "^2.1",
         "ext-json": "*",
-        "composer/semver": "^1.4"
+        "composer/semver": "^1.4",
+        "guzzlehttp/guzzle": "^6.3"
     },
     "bin": [
         "bin/upgrade-code"
