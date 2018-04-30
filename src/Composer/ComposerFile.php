@@ -79,8 +79,11 @@ class ComposerFile extends DiskItem
         if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
             $dirPath .= '/';
         }
-        $files = glob($dirPath . '*', GLOB_MARK);
+        $files = glob($dirPath . '{,.}*', GLOB_MARK);
         foreach ($files as $file) {
+            if ($file == "." || $file == "..") {
+                continue;
+            }
             if (is_dir($file)) {
                 $this->delDir($file);
             } else {
