@@ -244,6 +244,19 @@ class ComposerExec
     }
 
     /**
+     * Run a composer install on the working directory.
+     * @param  string $workingDir Path to the directory containing the `composer.json`. Defaults to this instance's
+     * $workingDir.
+     */
+    public function install(string $workingDir = '')
+    {
+        $this->run(
+            'install',
+            ['--working-dir' => $workingDir]
+        );
+    }
+
+    /**
      * Show installed dependencies and return them as an array. The return array follow the same convention as
      * `composer show`:
      * ```php

@@ -124,6 +124,29 @@ class ComposerExecTest extends TestCase
         );
     }
 
+    public function testInstall()
+    {
+        // Initialise our test objects
+        $path = __DIR__ . DIRECTORY_SEPARATOR .
+            'fixture' . DIRECTORY_SEPARATOR .
+            'collaboration-recipe'. DIRECTORY_SEPARATOR;
+
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+
+        // Copy our schema and lock file to a temp folder.
+        $schema->setContents(file_get_contents($path. 'composer.json'));
+        copy($path. 'composer.lock', $schema->getBasePath() . DIRECTORY_SEPARATOR . 'composer.lock');
+
+        $composer->install($schema->getBasePath());
+
+        $this->assertDirectoryExists(
+            $schema->getBasePath() . DIRECTORY_SEPARATOR . 'vendor',
+            'Composer install shoudl have created a vendor folder'
+        );
+
+    }
+
     public function testRemove()
     {
         // Initialise our test objects
