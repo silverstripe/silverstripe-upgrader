@@ -16,7 +16,7 @@ trait InitPackageCacheTrait
         }
 
         // Create our own fake cache in the tmp folder so we can speed up our package test
-        // Packagist::addCacheFolder('/tmp/silverstripe-upgrader-cache');
+        Packagist::addCacheFolder('/tmp/silverstripe-upgrader-cache');
 
         // Add a fixture folder. This will allow us to have a fix package cache and keep our unit test results
         // consistentish
@@ -31,7 +31,6 @@ trait InitPackageCacheTrait
     protected function tearDown()
     {
         Packagist::disableCacheFolders();
-
 
         parent::tearDown();
     }
