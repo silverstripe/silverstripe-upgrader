@@ -4,6 +4,7 @@ namespace SilverStripe\Upgrader\Tests\Composer;
 
 use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Composer\ComposerExec;
+use SilverStripe\Upgrader\Composer\ComposerFile;
 use InvalidArgumentException;
 
 class ComposerExecTest extends TestCase
@@ -29,6 +30,23 @@ class ComposerExecTest extends TestCase
             $composer->getExecPath(),
             'composer',
             'ComposerExec should default to `composer after being unset`'
+        );
+    }
+
+    public function testWorkingDir()
+    {
+        $composer = new ComposerExec(__DIR__);
+        $this->assertEquals(
+            $composer->getWorkingDir(),
+            __DIR__,
+            'working dir should be initialise with the composer value.'
+        );
+
+        $composer->setWorkingDir(__DIR__ . '/fixture');
+        $this->assertEquals(
+            $composer->getWorkingDir(),
+            __DIR__ . '/fixture',
+            'Setter for working dir should update the value.'
         );
     }
 
@@ -62,4 +80,98 @@ class ComposerExecTest extends TestCase
         );
     }
 
+    public function testInitTemporarySchema()
+    {
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $this->assertInstanceOf(ComposerFile::class, $schema, 'initTemporarySchema should have returned a composer file');
+
+        $this->assertTrue($schema->validate(), "initTemporarySchema should build a valid composer file");
+
+        $this->assertEmpty($schema->getRequire(), "initTemporarySchema should build a composer file without any requirements.");
+    }
+
+    public function testRequire()
+    {
+        // Initialise our test objects
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $composer->setWorkingDir($schema->getBasePath());
+
+        // Add a couple dependencies.
+        $composer->require('ext-json');
+        $composer->require('php', '>=5.0');
+
+        // Reload our composer schema from the updated file.
+        $schema->parse();
+        $require = $schema->getRequire();
+
+        // Let's run some tests.
+        $this->assertNotEmpty($require, 'Require should have some values after calling `composer require` on it.');
+        $this->assertArrayHasKey('ext-json', $require, 'Require should have added a dependency on ext-json');
+        $this->assertArrayHasKey('php', $require, 'Require should have added a dependency on php');
+        $this->assertEquals($require['php'], '>=5.0', 'Require should have constrain php to `>=5.0`');
+
+        // Let's test the working dir param with a brand new file.
+        $altSchema = $composer->initTemporarySchema();
+        $composer->require('php', '*', $altSchema->getBasePath());
+        $altSchema->parse();
+        $require = $altSchema->getRequire();
+        $this->assertArrayHasKey(
+            'php',
+            $require,
+            'Require should have added a dependency on php even when working on a different working dir'
+        );
+    }
+
+    public function testRemove()
+    {
+        // Initialise our test objects
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $composer->setWorkingDir($schema->getBasePath());
+
+        // Add a dependency then remove it staright away
+        $composer->require('ext-json');
+        $composer->remove('ext-json');
+
+        // Reload our composer schema from the updated file.
+        $schema->parse();
+        $require = $schema->getRequire();
+
+        // Let's run some tests.
+        $this->assertArrayNotHasKey('ext-json', $require, 'ext-json should have been remove');
+
+        // Let's test the working dir param with a brand new file.
+        $altSchema = $composer->initTemporarySchema();
+        $composer->require('ext-json', '', $altSchema->getBasePath());
+        $composer->remove('ext-json', $altSchema->getBasePath());
+        $altSchema->parse();
+        $require = $altSchema->getRequire();
+        $this->assertArrayNotHasKey(
+            'ext-json',
+            $require,
+            'ext-json should have been removed when working on a different working dir'
+        );
+    }
+
+    public function testShow()
+    {
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $composer->setWorkingDir($schema->getBasePath());
+
+        $this->assertEmpty($composer->show(), 'show should return an empty array when there is no requriements');
+
+        $composer->require('composer/semver', '1.4.0');
+        $this->assertEquals(
+            $composer->show(),
+            [[
+                "name" => "composer/semver",
+                "version" => "1.4.0",
+                "description" => "Semver library that offers utilities, version constraint parsing and validation."
+            ]],
+            'show should dependencies that have just been required.'
+        );
+    }
 }
