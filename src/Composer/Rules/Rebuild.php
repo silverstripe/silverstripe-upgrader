@@ -17,13 +17,16 @@ class Rebuild implements DependencyUpgradeRule
     const CWP_MODULE_REGEX = '/^cwp\//';
     const SS_RECIPE_REGEX = '/^silverstripe\/recipe-/';
 
+    /**
+     * @var string
+     */
     protected $recipeCoreTarget;
 
     /**
      * Instanciate a new MatchFramworkVersion Upgrade Rule.
      * @param string $constraint
      */
-    public function __construct($recipeCoreTarget)
+    public function __construct(string $recipeCoreTarget)
     {
         $this->recipeCoreTarget = $recipeCoreTarget;
     }
@@ -35,16 +38,10 @@ class Rebuild implements DependencyUpgradeRule
      */
     public function upgrade(array $dependencies, ComposerExec $composer): array
     {
+        $original = $dependencies;
 
         // Update base framework version
-        if (isset($dependencies['silverstripe/framework'])) {
-            unset($dependencies['silverstripe/framework']);
-        }
-        $dependencies['silverstripe/recipe-core'] = $this->recipeCoreTarget;
-        if (isset($dependencies['silverstripe/cms'])) {
-            unset($dependencies['silverstripe/cms']);
-            $dependencies['silverstripe/recipe-cms'] = $this->recipeCoreTarget;
-        }
+        $dependencies = $this->switchToRecipeCore($dependencies);
 
         // Categorise the dependencies
         $groupedDependencies = $this->groupDependenciesByType($dependencies);
@@ -56,6 +53,27 @@ class Rebuild implements DependencyUpgradeRule
         $this->convertToRecipes($dependencies, $composer, $schemaFile);
 
         return $schemaFile->getRequire();
+    }
+
+    /**
+     * Replaces reference to framework or cms with recipe-core and recipe-cms.
+     * @todo Add some conditional logic so framework 4 or cms 4 don't get overriden.
+     * @param  array  $dependencies
+     * @return array
+     */
+    public function switchToRecipeCore(array $dependencies): array
+    {
+        // Update base framework version
+        if (isset($dependencies['silverstripe/framework'])) {
+            unset($dependencies['silverstripe/framework']);
+        }
+        $dependencies['silverstripe/recipe-core'] = $this->recipeCoreTarget;
+        if (isset($dependencies['silverstripe/cms'])) {
+            unset($dependencies['silverstripe/cms']);
+            $dependencies['silverstripe/recipe-cms'] = $this->recipeCoreTarget;
+        }
+
+        return $dependencies;
     }
 
     /**
@@ -75,15 +93,15 @@ class Rebuild implements DependencyUpgradeRule
         ];
 
         foreach ($dependencies as $dep => $version) {
-            if ($this->isRecipe($dep)) {
+            if ($this->isSystem($dep)) {
                 $groups['system'][] = $dep;
-            } elseif (in_array($dep, ['silverstripe/framework', 'silverstripe/recipe-core'])) {
-                $groups['core'][] = $dep;
-            } elseif ($this->isRecipe($dep)) {
+            } else if (in_array($dep, ['silverstripe/framework', 'silverstripe/recipe-core', 'silverstripe/recipe-cms', 'silverstripe/cms'])) {
+                $groups['framework'][] = $dep;
+            } else if ($this->isRecipe($dep)) {
                 $groups['recipe'][] = $dep;
-            } elseif ($this->isCwp($dep)) {
+            } else if ($this->isCwp($dep)) {
                 $groups['cwp'][] = $dep;
-            } elseif ($this->isSupported($dep)) {
+            } else if ($this->isSupported($dep)) {
                 $groups['supported'][] = $dep;
             } else {
                 $groups['other'][] = $dep;
@@ -95,13 +113,13 @@ class Rebuild implements DependencyUpgradeRule
 
     /**
      * Re-require each dependency individually into the provided schema file. This will rebuild the file with updated
-     * constraints. Note that if a constraint fail, the script just carries on and doesn't throw an execption.
+     * constraints. Note that if a constraint fails, the script just carries on and doesn't throw an execption.
      * @param  array        $dependencies        Flat array of dependencies with versions.
      * @param  array        $groupedDependencies Grouped array of dependencies without versions.
      * @param  ComposerExec $composer
      * @param  ComposerFile $schemaFile
      */
-    protected function rebuild(
+    public function rebuild(
         array $dependencies,
         array $groupedDependencies,
         ComposerExec $composer,
@@ -128,7 +146,7 @@ class Rebuild implements DependencyUpgradeRule
     }
 
 
-    protected function convertToRecipes(
+    public function findRecipeEquivalence(
         array $originalDependencies,
         ComposerExec $composer,
         ComposerFile $schemaFile
@@ -172,16 +190,12 @@ class Rebuild implements DependencyUpgradeRule
         $toInstall = array_diff($toInstall, $toRemove);
 
         // Start by remove packages
-        echo 'package to remove' . "\n";
-        var_dump($toRemove);
         foreach ($toRemove as $packageName) {
             if ($packageName != 'silverstripe/recipe-core') {
                 $composer->remove($packageName, $schemaFile->getBasePath());
             }
         }
 
-        echo 'package to install' . "\n";
-        var_dump($toInstall);
         foreach ($toInstall as $packageName) {
             $composer->require($packageName, '', $schemaFile->getBasePath());
         }
@@ -203,7 +217,7 @@ class Rebuild implements DependencyUpgradeRule
     {
         return
             preg_match('/^php$/', $packageName) ||
-            preg_match('/^ext-[a-z0-9]$/', $packageName);
+            preg_match('/^ext-[a-z0-9]+$/', $packageName);
     }
 
     /**
