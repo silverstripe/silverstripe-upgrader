@@ -173,11 +173,6 @@ class Rebuild implements DependencyUpgradeRule
         foreach (Recipe::getKnownRecipes() as $recipe) {
             $recipeName = $recipe->getName();
 
-
-            if ($recipeName == 'silverstripe/recipe-core') {
-                continue;
-            }
-
             $subset = $recipe->subsetOf($installedDependencies);
             if ($subset) {
                 $toInstall[] = $recipeName;
