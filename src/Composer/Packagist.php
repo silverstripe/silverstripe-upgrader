@@ -4,13 +4,13 @@ namespace SilverStripe\Upgrader\Composer;
 
 use GuzzleHttp\Client;
 
-
 /**
  * Provides a simple interface for fetching Packge information from Packagist.
  *
  * Adapted from by https://github.com/spatie/packagist-api/blob/master/src/Packagist.php by Spatie.
  */
-class Packagist {
+class Packagist
+{
 
     /**
      * @var string[]
@@ -66,7 +66,7 @@ class Packagist {
     * @param \GuzzleHttp\Client $client
     * @param string             $baseUrl
     */
-    public function __construct(Client $client=null, $baseUrl = 'https://packagist.org')
+    public function __construct(Client $client = null, $baseUrl = 'https://packagist.org')
     {
         $this->client = $client ?: new Client();
         $this->baseUrl = $baseUrl;
@@ -114,11 +114,10 @@ class Packagist {
             $fullpath = $cacheFolder . DIRECTORY_SEPARATOR . $filename;
 
             if (file_exists($fullpath)) {
-                $json = json_decode(file_get_contents($fullpath), TRUE);
+                $json = json_decode(file_get_contents($fullpath), true);
 
                 return $json;
             }
-
         }
 
         // We haven't found our folder, let's bail.
@@ -167,5 +166,4 @@ class Packagist {
     {
         return 'provider-' . $vendor . '$' . $packageName . '.json';
     }
-
 }

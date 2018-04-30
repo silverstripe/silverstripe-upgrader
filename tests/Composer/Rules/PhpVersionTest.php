@@ -30,7 +30,5 @@ class PhpVersionTest extends TestCase
             ['php' => '~7'],
             'PHP 7 constraint should not be rewritten'
         );
-
     }
-
 }

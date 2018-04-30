@@ -7,7 +7,8 @@ use SilverStripe\Upgrader\Composer\ComposerExec;
 /**
  * Represent a rule to upgrade a Composer file.
  */
-interface DependencyUpgradeRule {
+interface DependencyUpgradeRule
+{
 
     /**
      * Apply this rule to the provided depednecy set.
@@ -16,5 +17,4 @@ interface DependencyUpgradeRule {
      * @return array Updated dependencies
      */
     public function upgrade(array $dependencies, ComposerExec $composer): array;
-
 }

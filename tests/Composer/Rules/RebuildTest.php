@@ -14,8 +14,26 @@ class RebuildTest extends TestCase
 
     public function testUpgrade()
     {
-        $composer = new ComposerExec(__DIR__, '', false);
-        $rule = new Rebuild('1.0');
+        $composer = new ComposerExec(__DIR__, '', true);
+        $rule = new Rebuild('1.1');
+
+        var_dump($rule->upgrade([
+            "php" => ">=5.4.0",
+            "silverstripe/cms" => "^3.6",
+            "silverstripe/framework" => "^3.6",
+            "silverstripe/contentreview" => "~3",
+            "silverstripe/sharedraftcontent" => "~1",
+            "symbiote/silverstripe-advancedworkflow" => "~4"
+        ], $composer));
+        die();
+
+        var_dump($rule->upgrade([
+            "php" => ">=5.4.0",
+            "silverstripe/cms" => "^3.6",
+            "silverstripe/framework" => "^3.6"
+        ], $composer));
+        die();
+
 
         var_dump($rule->upgrade([
             "php" => ">=5.4.0",
@@ -60,7 +78,5 @@ class RebuildTest extends TestCase
             $rule->upgrade(['silverstripe/cms' => '^3.2']),
             ['silverstripe/cms' => '^3.6.5']
         );
-
     }
-
 }

@@ -70,8 +70,6 @@ class PackageVersionTest extends TestCase
             '4.1.0@stable',
             'Recipe-blog 1.0.0-rc2 requires Framwork 4.1.0@stable'
         );
-
-
     }
 
     /**
@@ -80,11 +78,10 @@ class PackageVersionTest extends TestCase
      */
     private function getRecipeCorePackageVersion()
     {
-        $data = json_decode(file_get_contents(__DIR__ . '/fixture/recipe-core.json'), TRUE);
+        $data = json_decode(file_get_contents(__DIR__ . '/fixture/recipe-core.json'), true);
 
         return new PackageVersion(
             $data['packages']['silverstripe/recipe-core']['1.1.0']
         );
     }
-
 }

@@ -88,12 +88,11 @@ class PackageTest extends TestCase
      */
     private function getPackage($name, $file = 'recipe-core.json')
     {
-        $data = json_decode(file_get_contents(__DIR__ . '/fixture/' . $file), TRUE);
+        $data = json_decode(file_get_contents(__DIR__ . '/fixture/' . $file), true);
 
         return new Package(
             $name,
             $data['packages'][$name]
         );
     }
-
 }

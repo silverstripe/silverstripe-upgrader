@@ -2,13 +2,13 @@
 
 namespace SilverStripe\Upgrader\Composer;
 
-
 use Composer\Semver\Semver;
 
 /**
  * Represent a packagist package.
  */
-class PackageVersion {
+class PackageVersion
+{
 
     protected $data;
 
@@ -53,7 +53,6 @@ class PackageVersion {
 
         // Let's bail.
         return false;
-
     }
 
     /**
@@ -81,7 +80,5 @@ class PackageVersion {
 
         // This version doesn't impose any constrain on the `$package`.
         return true;
-
     }
-
 }

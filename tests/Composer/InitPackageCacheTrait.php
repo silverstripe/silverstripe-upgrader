@@ -14,7 +14,15 @@ trait InitPackageCacheTrait
         if (!file_exists('/tmp/silverstripe-upgrader-cache')) {
             mkdir('/tmp/silverstripe-upgrader-cache');
         }
-        Packagist::addCacheFolder('/tmp/silverstripe-upgrader-cache');
+
+        // Create our own fake cache in the tmp folder so we can speed up our package test
+        // Packagist::addCacheFolder('/tmp/silverstripe-upgrader-cache');
+
+        // Add a fixture folder. This will allow us to have a fix package cache and keep our unit test results
+        // consistentish
+        Packagist::addCacheFolder(__DIR__ . '/fixture/composer-cache');
+
+        // Add the real composer cache in here, this should speed up test by allowing us to piggy back off composer.
         Packagist::addCacheFolder(realpath('~/.cache/composer/repo/https---packagist.org'));
 
         parent::setUp();
@@ -24,7 +32,7 @@ trait InitPackageCacheTrait
     {
         Packagist::disableCacheFolders();
 
+
         parent::tearDown();
     }
-
 }

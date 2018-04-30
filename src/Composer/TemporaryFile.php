@@ -5,7 +5,8 @@ namespace SilverStripe\Upgrader\Composer;
 /**
  * Trait for creatinga temporary file that will be deleted once the execution is completed.
  */
-trait TemporaryFile {
+trait TemporaryFile
+{
 
     /**
      * Handler to access our temporary file
@@ -41,5 +42,4 @@ trait TemporaryFile {
         $handle = $this->getHandle();
         fclose($handle);
     }
-
 }

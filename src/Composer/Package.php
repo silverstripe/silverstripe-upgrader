@@ -6,10 +6,15 @@ use Composer\Semver\Semver;
 use Composer\Semver\VersionParser;
 
 /**
- * Represent a packagist package
+ * Represent a packagist package.
  */
-class Package {
+class Package
+{
 
+    /**
+     * List of supported Silverstripe Module.
+     * @var array
+     */
     const SUPPORTED_MODULES = [
         "assertchris/hash-compat",
         "colymba/gridfield-bulk-editing-tools",
@@ -58,6 +63,8 @@ class Package {
         "symbiote/silverstripe-multivaluefield",
         "symbiote/silverstripe-queuedjobs",
         "silverstripe/recipe-authoring-tools",
+        "silverstripe/recipe-core",
+        "silverstripe/recipe-cms",
         "silverstripe/recipe-blog",
         "silverstripe/recipe-collaboration",
         "silverstripe/recipe-form-building",
@@ -116,21 +123,39 @@ class Package {
     }
 
     /**
+     * Getter for the package name.
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
      * Get the raw data associated to this package.
+     * @internal Will fetch the data from packagist on the fly if need be.
      * @return array
      */
     public function getData(): array
     {
+        // Check if we already fetch that data previously.
         if (!$this->data) {
             $packagist = new Packagist();
-            $json = $packagist->findPackageByName($this->name);
+            $json = $packagist->findPackageByName($this->getName());
 
-            $this->data = $json['packages'][$this->name];
+            $this->data = $json['packages'][$this->getName()];
         }
 
         return $this->data;
     }
 
+    /**
+     * Get the data associated with the Dev-master branch.
+     *
+     * This is useful for retrieving generic package info that could in theory vary from version to version, but
+     * should stay consistent over time. e.g.: package type.
+     * @return array
+     */
     public function getDevMaster(): array
     {
         return $this->getData()['dev-master'];
@@ -147,7 +172,7 @@ class Package {
         // Find all version that meet our constraint
         $versions = Semver::satisfiedBy($this->getVersionNumbers(), $constraint);
 
-        // If we can't fin any version that meet our constaint, return null
+        // If we can't find any version that meet our constaint, return null
         if (empty($versions)) {
             return null;
         }
@@ -160,7 +185,7 @@ class Package {
     }
 
     /**
-     * Return an array of versions for this packages meeting the provided constraing sorted by stability first and most
+     * Return an array of versions for this packages meeting the provided constraint sorted by stability first and most
      * recent second.
      * @param  string $constraint
      * @return string[]
@@ -176,8 +201,7 @@ class Package {
     }
 
     /**
-     * Take a list of versions and sort first by stability and by version. (Most recent stable first, Second most r
-     * ecent stable sec, etc.)
+     * Take a list of versions and sort first by stability and then by version.
      * @param  string[]  $versions
      * @return string[] Sorted version
      */
@@ -192,11 +216,13 @@ class Package {
             'dev' => []
         ];
 
+        // Categorise Version by Stability
         foreach ($versions as $ver) {
             $stability = VersionParser::parseStability($ver);
             $sortedVersions[$stability][] = $ver;
         }
 
+        // Flatten our array of versions.
         return array_merge(
             $sortedVersions['stable'],
             $sortedVersions['RC'],
@@ -224,14 +250,29 @@ class Package {
         return (bool)preg_match('/^silverstripe-.*module/', $this->getType());
     }
 
-    public function getType()
+    /**
+     * Get this package type.
+     * @return string [description]
+     */
+    public function getType(): string
     {
         return $this->getDevMaster()['type'];
+    }
+
+    /**
+     * Get the list of package required by this packages without any constraint.
+     * @return string[]
+     */
+    public function getRequiredPackages(): array
+    {
+        $require = $this->getDevMaster()['require'];
+        return array_keys($require);
     }
 
 
     /**
      * Get the latest version of the package that is compatible with the provided version of silverstripe.
+     * @deprecated That's not actually needed.
      * @param string $ssVersion
      * @return PackageVersion|null
      */
@@ -249,6 +290,4 @@ class Package {
 
         return null;
     }
-
-
 }
