@@ -76,18 +76,19 @@ class ComposerFile extends DiskItem
         if (! is_dir($dirPath)) {
             throw new InvalidArgumentException("$dirPath must be a directory");
         }
-        if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
-            $dirPath .= '/';
+        if (substr($dirPath, strlen($dirPath) - 1, 1) != DIRECTORY_SEPARATOR) {
+            $dirPath .= DIRECTORY_SEPARATOR;
         }
-        $files = glob($dirPath . '{,.}*', GLOB_MARK);
+        $files = scandir($dirPath);
         foreach ($files as $file) {
             if ($file == "." || $file == "..") {
                 continue;
             }
-            if (is_dir($file)) {
-                $this->delDir($file);
+            $filePath = $dirPath . $file;
+            if (is_dir($filePath) && !is_link($filePath)) {
+                $this->delDir($filePath);
             } else {
-                unlink($file);
+                unlink($filePath);
             }
         }
         rmdir($dirPath);
