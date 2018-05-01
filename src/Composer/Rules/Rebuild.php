@@ -50,9 +50,22 @@ class Rebuild implements DependencyUpgradeRule
         $schemaFile = $composer->initTemporarySchema();
 
         $this->rebuild($dependencies, $groupedDependencies, $composer, $schemaFile);
-        $this->convertToRecipes($dependencies, $composer, $schemaFile);
 
-        return $schemaFile->getRequire();
+        // find dependencies that could not be rebuilt into the file.
+        $oldKeys = array_keys($dependencies);
+        $installedKeys = array_keys($schemaFile->getRequire());
+        $failedKeys = array_diff($oldKeys, $installedKeys);
+
+        // Try to swicth to recipes where possible.
+        $this->findRecipeEquivalence($dependencies, $composer, $schemaFile);
+
+        // Merge dependencies from our work file with the failed ones.
+        $dependencies = $schemaFile->getRequire();
+        foreach ($failedKeys as $failedKey) {
+            $dependencies[$failedKey] = $original[$failedKey];
+        }
+
+        return $dependencies;
     }
 
     /**
