@@ -133,7 +133,6 @@ class RecomposeCommand extends AbstractCommand
                 "Could not find a version of silverstripe/recipe-core matching $constraint"
             );
         }
-
     }
 
     protected function initPackageCache(ComposerExec $composer): void

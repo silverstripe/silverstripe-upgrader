@@ -22,7 +22,7 @@ class StrictVersion implements DependencyUpgradeRule
 
         foreach ($dependencies as &$constraint) {
             // Loop through each cosntraint and try to find the one that start with a carret.
-            $constraint = preg_replace_callback($regex, function($matches) {
+            $constraint = preg_replace_callback($regex, function ($matches) {
 
                 // Find out if we have missing digit at the end
                 $finalDigit = $matches[2] ?? '.0';
@@ -34,7 +34,6 @@ class StrictVersion implements DependencyUpgradeRule
                     // Handle weird edge case where the last digit is not a digit. e.g.: ^1.2.x-dev
                     return $matches[0];
                 }
-
             }, $constraint);
         }
 

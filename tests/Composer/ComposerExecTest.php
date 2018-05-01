@@ -84,11 +84,18 @@ class ComposerExecTest extends TestCase
     {
         $composer = new ComposerExec(__DIR__);
         $schema = $composer->initTemporarySchema();
-        $this->assertInstanceOf(ComposerFile::class, $schema, 'initTemporarySchema should have returned a composer file');
+        $this->assertInstanceOf(
+            ComposerFile::class,
+            $schema,
+            'initTemporarySchema should have returned a composer file'
+        );
 
         $this->assertTrue($schema->validate(), "initTemporarySchema should build a valid composer file");
 
-        $this->assertEmpty($schema->getRequire(), "initTemporarySchema should build a composer file without any requirements.");
+        $this->assertEmpty(
+            $schema->getRequire(),
+            "initTemporarySchema should build a composer file without any requirements."
+        );
     }
 
     public function testRequire()
@@ -144,7 +151,6 @@ class ComposerExecTest extends TestCase
             $schema->getBasePath() . DIRECTORY_SEPARATOR . 'vendor',
             'Composer install shoudl have created a vendor folder'
         );
-
     }
 
     public function testRemove()

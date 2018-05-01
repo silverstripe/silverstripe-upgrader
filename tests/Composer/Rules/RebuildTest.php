@@ -125,7 +125,7 @@ class RebuildTest extends TestCase
             DIRECTORY_SEPARATOR . 'fixture' .
             DIRECTORY_SEPARATOR . 'collaboration-recipe' .
             DIRECTORY_SEPARATOR ;
-        $content = file_get_contents( $pathToCollaboration . 'composer.json' );
+        $content = file_get_contents($pathToCollaboration . 'composer.json');
         $schema->setContents($content);
         copy(
             $pathToCollaboration . 'composer.lock',
@@ -145,5 +145,4 @@ class RebuildTest extends TestCase
         $this->assertArrayNotHasKey('silverstripe/cms', $require);
         $this->assertArrayNotHasKey('silverstripe/contentreview', $require);
     }
-
 }

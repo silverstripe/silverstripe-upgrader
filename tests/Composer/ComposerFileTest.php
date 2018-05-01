@@ -111,7 +111,7 @@ EOF
     "minimum-stability": "dev"
 }
 EOF
-    ;
+        ;
 
         $composer = new ComposerExec(__DIR__);
         $schema = $composer->initTemporarySchema();
@@ -123,6 +123,5 @@ EOF
 
         $this->assertEquals($diff->newContents($schema->getFullPath()), $expectedContent);
         $this->assertEquals($diff->oldContents($schema->getFullPath()), $initialContent);
-
     }
 }

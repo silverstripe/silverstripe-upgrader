@@ -90,7 +90,10 @@ class Rebuild implements DependencyUpgradeRule
     }
 
     /**
-     * Categorise dependencies by types
+     * Categorise dependencies by types.
+     * @internal This allows us to sort the dependencies from the most important to the least important for our
+     * constraints. e.g.: We care about our Framework constraint a lot more than we care about an unrelated 3rd party
+     * package.
      * @param  array  $dependencies Flat array of dependencies
      * @return array Array of categorise dependencies.
      */
@@ -108,13 +111,13 @@ class Rebuild implements DependencyUpgradeRule
         foreach ($dependencies as $dep => $version) {
             if ($this->isSystem($dep)) {
                 $groups['system'][] = $dep;
-            } else if (in_array($dep, ['silverstripe/framework', 'silverstripe/recipe-core', 'silverstripe/recipe-cms', 'silverstripe/cms'])) {
+            } elseif ($this->isFramework($dep)) {
                 $groups['framework'][] = $dep;
-            } else if ($this->isRecipe($dep)) {
+            } elseif ($this->isRecipe($dep)) {
                 $groups['recipe'][] = $dep;
-            } else if ($this->isCwp($dep)) {
+            } elseif ($this->isCwp($dep)) {
                 $groups['cwp'][] = $dep;
-            } else if ($this->isSupported($dep)) {
+            } elseif ($this->isSupported($dep)) {
                 $groups['supported'][] = $dep;
             } else {
                 $groups['other'][] = $dep;
@@ -226,6 +229,21 @@ class Rebuild implements DependencyUpgradeRule
         return
             preg_match('/^php$/', $packageName) ||
             preg_match('/^ext-[a-z0-9]+$/', $packageName);
+    }
+
+    /**
+     * Determine if this dependency is for a framework level dependency (CMS or Framwork basically.)
+     * @param  string  $packageName
+     * @return bool
+     */
+    protected function isFramework(string $packageName): bool
+    {
+        return in_array($dep, [
+            'silverstripe/framework',
+            'silverstripe/recipe-core',
+            'silverstripe/recipe-cms',
+            'silverstripe/cms'
+        ]);
     }
 
     /**

@@ -181,7 +181,7 @@ class ComposerFile extends DiskItem
         $upgradedContent = json_encode($jsonData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         // Finally get our diff
-        $change = new CodeChangeSet( );
+        $change = new CodeChangeSet();
         $oldContent = $this->getContents();
         if ($oldContent != $upgradedContent) {
             $change->addFileChange($this->getFullPath(), $upgradedContent, $oldContent);
