@@ -23,9 +23,9 @@ class CodeGrep
 
     /**
      * @param string $pattern Regex pattern to search.
-     * @param string $collection Codebase to search the pattern for.
+     * @param CollectionInterface $collection Codebase to search the pattern for.
      */
-    public function __construct($pattern, CollectionInterface $collection)
+    public function __construct(string $pattern, CollectionInterface $collection)
     {
         $this->pattern = $pattern;
         $this->collection = $collection;
@@ -35,7 +35,7 @@ class CodeGrep
      * Find all occurences of the pattern and return it has a code change set filled with warnings.
      * @return CodeChangeSet
      */
-    public function findAsWarning()
+    public function findAsWarning(): CodeChangeSet
     {
         $changeset = new CodeChangeSet();
 
@@ -43,7 +43,9 @@ class CodeGrep
         foreach ($this->collection->iterateItems() as $item) {
             $contents = $item->getContents();
 
-            if ($occurences = $this->findIn($contents)) {
+            $occurences = $this->findIn($contents);
+
+            if (!empty($occurences)) {
                 $changeset->addWarnings($item->getPath(), $occurences);
             }
         }
