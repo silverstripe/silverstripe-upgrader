@@ -238,7 +238,7 @@ class Rebuild implements DependencyUpgradeRule
      */
     protected function isFramework(string $packageName): bool
     {
-        return in_array($dep, [
+        return in_array($packageName, [
             'silverstripe/framework',
             'silverstripe/recipe-core',
             'silverstripe/recipe-cms',
