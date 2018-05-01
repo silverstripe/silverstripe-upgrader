@@ -5,16 +5,16 @@ namespace SilverStripe\Upgrader\Console;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 use SilverStripe\Upgrader\ChangeDisplayer;
-use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\Composer\Package;
 use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
 use SilverStripe\Upgrader\Composer\Rules;
 use SilverStripe\Upgrader\Composer\Packagist;
+
+use InvalidArgumentException;
 
 /**
  * Command to try to update a composer file to use SS4.
@@ -92,7 +92,7 @@ class RecomposeCommand extends AbstractCommand
         // Check if we got new content
         if (!$change->hasNewContents($schema->getFullPath())) {
             $output->writeln("Nothing to upgrade.");
-            return;
+            return null;
         }
         $display = new ChangeDisplayer();
         $display->displayChanges($output, $change);
