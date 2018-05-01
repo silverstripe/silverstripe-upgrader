@@ -146,7 +146,7 @@ class ProjectReorganiser
 
     /**
      * Try to rename legacy project folder.
-     * @param bool $dryrun Pretent to do the operation
+     * @param bool $dryrun Pretend to do the operation
      * @throws LogicException
      * @return array Files that are moved, the key being the original filename and the value being the destination
      */
@@ -165,6 +165,7 @@ class ProjectReorganiser
 
             case self::ALREADY_UPGRADED:
             case self::NOTHING:
+            default:
                 return [];
         }
     }
