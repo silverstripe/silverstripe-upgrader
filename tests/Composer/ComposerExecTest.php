@@ -208,10 +208,13 @@ class ComposerExecTest extends TestCase
     {
         $composer = new ComposerExec(__DIR__);
 
-        $this->assertEquals(
+        $this->assertContains(
             $composer->getCacheDir(),
-            $_SERVER['HOME'] . '/.cache/composer',
-            'On unix system the composer cache is in ~/.cache/composer'
+            [
+                $_SERVER['HOME'] . '/.composer/cache',
+                $_SERVER['HOME'] . '/.cache/composer',
+            ],
+            'COmposer CacheDir is not in one of the expected location'
         );
     }
 }
