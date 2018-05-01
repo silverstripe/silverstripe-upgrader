@@ -20,7 +20,7 @@ class PhpVersionTest extends TestCase
         $this->assertEquals(
             $rule->upgrade([], $composer),
             ['php' => '>=5.6'],
-            'A PHP constraint should be added if none is present to being with.'
+            'A PHP constraint should be added if none is present to begin with.'
         );
 
         $this->assertEquals(
