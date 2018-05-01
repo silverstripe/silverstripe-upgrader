@@ -30,3 +30,4 @@ The following commands are available:
 * [`environment`](docs/en/environment.md)
 * [`doctor`](docs/en/doctor.md)
 * [`add-namespace`](docs/en/add-namespace.md)
+* [`recompose`](docs/en/recompose.md)
