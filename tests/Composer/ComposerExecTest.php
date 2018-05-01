@@ -197,4 +197,15 @@ class ComposerExecTest extends TestCase
             'show should dependencies that have just been required.'
         );
     }
+
+    public function testCacheDir()
+    {
+        $composer = new ComposerExec(__DIR__);
+
+        $this->assertEquals(
+            $composer->getCacheDir(),
+            $_SERVER['HOME'] . '/.cache/composer',
+            'On unix system the composer cache is in ~/.cache/composer'
+        );
+    }
 }

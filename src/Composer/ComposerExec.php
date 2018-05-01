@@ -285,4 +285,17 @@ EOF
         $data = json_decode($output, true);
         return isset($data['installed']) ? $data['installed'] : [];
     }
+
+    /**
+     * Get the current cache directory for composer.
+     * @return string
+     */
+    public function getCacheDir(): string
+    {
+        $response = $this->run('config cache-dir', ['--global' => '']);
+        $cacheDir = $response['return'];
+        return (file_exists($cacheDir) && is_dir($cacheDir)) ?
+            $cacheDir :
+            '';
+    }
 }
