@@ -89,7 +89,7 @@ class ReorganiseCommand extends AbstractCommand
         // @TODO It would be cool to exclude anything in `.gitignore`
         $grep = new CodeGrep(
             '/mysite/',
-            new DiskCollection($rootPath.'/mysite/code', true, ['*/framework/*', '*/vendor/*', '*/assets/*', '*/cms/*'])
+            new DiskCollection($rootPath, true, ['*/framework/*', '*/vendor/*', '*/assets/*', '*/cms/*'])
         );
 
         $changeSet = $grep->findAsWarning();
