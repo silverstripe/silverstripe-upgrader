@@ -5,6 +5,7 @@ namespace SilverStripe\Upgrader\Tests\Composer;
 use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
+use SilverStripe\Upgrader\Composer\Rules\PhpVersion;
 use InvalidArgumentException;
 
 class ComposerFileTest extends TestCase
@@ -78,5 +79,50 @@ class ComposerFileTest extends TestCase
 
         // Parsing hte file now should throw an exception.
         $schema->parse();
+    }
+
+    public function testUpgrade()
+    {
+        $initialContent = <<<EOF
+{
+    "name": "silverstripe/dummy",
+    "type": "project",
+    "description": "Add extra functionality to enhance CMS user collaboration",
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": "^5.2"
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev"
+}
+EOF
+        ;
+
+        $expectedContent =  <<<EOF
+{
+    "name": "silverstripe/dummy",
+    "type": "project",
+    "description": "Add extra functionality to enhance CMS user collaboration",
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": ">=5.6"
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev"
+}
+EOF
+    ;
+
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $schema->setContents($initialContent);
+        $schema->parse();
+
+        // Run the most simple command on our simple schema and see if the results matches what we expect.
+        $diff = $schema->upgrade([new PhpVersion()]);
+
+        $this->assertEquals($diff->newContents($schema->getFullPath()), $expectedContent);
+        $this->assertEquals($diff->oldContents($schema->getFullPath()), $initialContent);
+
     }
 }

@@ -3,7 +3,9 @@
 namespace SilverStripe\Upgrader\Composer;
 
 use SilverStripe\Upgrader\CodeCollection\DiskItem;
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use InvalidArgumentException;
+use Seld\JsonLint\JsonParser;
 
 /**
  * Represent a `composer.json` file and provide methods to interact with it. Note that this object doesn't
@@ -147,5 +149,43 @@ class ComposerFile extends DiskItem
     public function getRequire(): array
     {
         return $this->composerJson['require'];
+    }
+
+
+    /**
+     * Apply the following upgrade rules to the composer file and get the difference
+     * @param  DependencyUpgradeRule[] $rules
+     * @return CodeChangeSet
+     */
+    public function upgrade(array $rules): CodeChangeSet
+    {
+        // Apply the change
+        $original = $this->getRequire();
+        foreach ($rules as $rule) {
+            $dependencies = $rule->upgrade($this->getRequire(), $this->exec);
+        }
+
+        // Try to use the same order as the original file, so the diff looks more relevant.
+        $sortedDeps = [];
+        foreach ($original as $key => $constraint) {
+            if (isset($dependencies[$key])) {
+                $sortedDeps[$key] = $dependencies[$key];
+                unset($dependencies[$key]);
+            }
+        }
+        $dependencies = array_merge($sortedDeps, $dependencies);
+
+        // Build our propose new output
+        $jsonData = $this->composerJson;
+        $jsonData['require'] = $dependencies;
+        $upgradedContent = json_encode($jsonData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+        // Finally get our diff
+        $change = new CodeChangeSet( );
+        $oldContent = $this->getContents();
+        if ($oldContent != $upgradedContent) {
+            $change->addFileChange($this->getFullPath(), $upgradedContent, $oldContent);
+        }
+        return $change;
     }
 }
