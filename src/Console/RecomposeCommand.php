@@ -80,7 +80,7 @@ class RecomposeCommand extends AbstractCommand
         // Set up our rules
         $rules = [
             new Rules\PhpVersion(),
-            // new Rules\Rebuild($coreTarget),
+             new Rules\Rebuild($coreTarget),
         ];
         if ($strict) {
             $rules[] = new Rules\StrictVersion();
@@ -118,10 +118,11 @@ class RecomposeCommand extends AbstractCommand
 
     /**
      * Get the latest version of recipe core meeting the provided constraint.
+     * @param  $constraint
      * @return string
      * @throws InvalidArgumentException
      */
-    protected function findTargetRecipeCore($constraint)
+    protected function findTargetRecipeCore(string $constraint)
     {
         $package = new Package('silverstripe/recipe-core');
         $version = $package->getVersion($constraint);
@@ -135,7 +136,11 @@ class RecomposeCommand extends AbstractCommand
         }
     }
 
-    protected function initPackageCache(ComposerExec $composer): void
+    /**
+     * Initialise the Packagist cache.
+     * @param ComposerExec $composer
+     */
+    protected function initPackageCache(ComposerExec $composer)
     {
         $mainCache = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'silverstripe-upgrader-cache';
         if (!file_exists($mainCache)) {
