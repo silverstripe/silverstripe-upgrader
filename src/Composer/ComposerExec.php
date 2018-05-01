@@ -9,6 +9,18 @@ use InvalidArgumentException;
 class ComposerExec
 {
 
+    const TEMP_SCHEMA_CONTENT = <<<EOF
+{
+    "name": "silverstripe-upgrader/temp-project",
+    "description": "silverstripe-upgrader-temp-project",
+    "license": "proprietary",
+    "minimum-stability": "dev",
+    "require": {},
+    "prefer-stable": true
+}
+EOF
+    ;
+
     /**
      * @var string
      */
@@ -189,16 +201,11 @@ class ComposerExec
         $fullPath = $tmpDir . DIRECTORY_SEPARATOR . $folderName;
         mkdir($fullPath);
 
-        $reponse = $this->run(
-            'init',
-            [
-                '--working-dir' => $fullPath,
-                '--quiet' => '',
-                '--name' => 'silverstripe-upgrader/temp-project',
-                '--description' => 'silverstripe-upgrader-temp-project',
-                '--license' => 'proprietary',
-                '--stability' => 'dev',
-            ]
+        // Write our dummy content to our new temp file
+        // composer init doesn't five us an option to add the prefer stable flag.
+        file_put_contents(
+            $fullPath . DIRECTORY_SEPARATOR . 'composer.json',
+            self::TEMP_SCHEMA_CONTENT
         );
 
         return new ComposerFile($this, $fullPath, true);
