@@ -8,14 +8,54 @@ use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 
 class DiskCollectionTest extends TestCase
 {
+    private $pathToSampleFolder = __DIR__ . '/fixtures/SampleCode';
+
     public function testIterateItems()
     {
+        // Most simple scenario, without recursive flag and without exclusion list.
+        $d = new DiskCollection($this->pathToSampleFolder, false);
+
+        $names = [];
+        foreach ($d->iterateItems() as $item) {
+            $this->assertInstanceOf(ItemInterface::class, $item);
+            $names[] = $item->getPath();
+        }
+
+        sort($names); // Order of item doesn't matter
+        $this->assertEquals([
+            'ExcludedBySuffix.php',
+            'ExcludedRegardlessOfFirstLetter.php',
+            'FoundByItemPath.php',
+            'ShouldBeReturnedInSearch.php',
+            'SubSampleFolder'
+        ], $names);
+
+        // Recursive without exclusion list
+        $d = new DiskCollection($this->pathToSampleFolder, true);
+
+        $names = [];
+        foreach ($d->iterateItems() as $item) {
+            $this->assertInstanceOf(ItemInterface::class, $item);
+            $names[] = $item->getPath();
+        }
+
+        sort($names); // Order of item doesn't matter
+        $this->assertEquals([
+            'ExcludedBySuffix.php',
+            'ExcludedRegardlessOfFirstLetter.php',
+            'FoundByItemPath.php',
+            'ShouldBeReturnedInSearch.php',
+            'SubSampleFolder/ExcludedBySuffixEvenWhenRecursive.php',
+            'SubSampleFolder/FoundOnlyWithRecursiveFlag.php',
+        ], $names);
+
+        // Recursive with exclusion list
         $d = new DiskCollection(
-            __DIR__ . '/../../src/CodeCollection',
+            $this->pathToSampleFolder,
             true,
             [
-                '*/Disk*.php',
-                '*/?temInterface.php'
+                '*/ExcludedBy*.php',
+                '*/?xcludedRegardlessOfFirstLetter.php'
             ]
         );
 
@@ -25,22 +65,20 @@ class DiskCollectionTest extends TestCase
             $names[] = $item->getPath();
         }
 
-        // Note: iterator order isn't predictable, so sort
-        sort($names);
-
+        sort($names); // Order of item doesn't matter
         $this->assertEquals([
-            'ChangeApplier.php',
-            'CodeChangeSet.php',
-            'CollectionInterface.php',
+            'FoundByItemPath.php',
+            'ShouldBeReturnedInSearch.php',
+            'SubSampleFolder/FoundOnlyWithRecursiveFlag.php'
         ], $names);
     }
 
     public function testItemByPath()
     {
-        $d = new DiskCollection(__DIR__ . '/../../src/CodeCollection');
+        $d = new DiskCollection($this->pathToSampleFolder);
 
-        $item = $d->itemByPath('CollectionInterface.php');
+        $item = $d->itemByPath('FoundByItemPath.php');
 
-        $this->assertEquals(__DIR__ . '/../../src/CodeCollection/CollectionInterface.php', $item->getFullPath());
+        $this->assertEquals($this->pathToSampleFolder . '/FoundByItemPath.php', $item->getFullPath());
     }
 }
