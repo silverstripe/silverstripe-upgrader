@@ -36,26 +36,24 @@ class WebRootMover
      */
     public function checkPrerequesites()
     {
-
     }
 
     /**
      * Make sure we have a valid public folder to begin with.
-     * @internal Depends on `checkPrerequesites` having been wrong.
+     * @internal Depends on `checkPrerequesites` having been run.
      * @param CodeChangeSet $diff
      */
     public function initialisePublicFolder(CodeChangeSet &$diff)
     {
-
     }
 
     /**
      * Move server configuration file (.htaccess, web.config) around.
+     * @internal Depends on `initialisePublicFolder` having been run.
      * @param CodeChangeSet $diff
      */
     public function moveServerConfigFile(CodeChangeSet &$diff)
     {
-
     }
 
     /**
@@ -65,23 +63,23 @@ class WebRootMover
      */
     public function moveAssets(CodeChangeSet &$diff)
     {
-
     }
 
     /**
      * Move files that would normally have been provided by the installer.
+     * @internal Depends on `initialisePublicFolder` having been run.
+     * @param CodeChangeSet $diff
      */
-    public function moveInstallerFiles()
+    public function moveInstallerFiles(CodeChangeSet &$diff)
     {
-
     }
 
     /**
      * Expose vendor folder.
+     * @internal Depends on the CodeChangeSet having been applied.
      */
     public function exposeVendor()
     {
-
     }
 
     /**
@@ -99,7 +97,5 @@ class WebRootMover
         $replaceWith,
         $compareTo = []
     ) {
-
     }
-
 }
