@@ -10,7 +10,34 @@ class CodeChangeSet
 {
     /**
      * List of changes for files.
-     * Each change is an array with keys 'old' and 'new' for prior and after content.
+     * Each change can represent content update or a file operation. The array is structure as such:
+     * ```php
+     * [
+     *   'updatedFile.txt' => [
+     *     'new' => 'framework',
+     *     'old' => 'sapphire',
+     *     'path' => false
+     *   ],
+     *   'brandNewFile.txt' => [
+     *     'new' => 'framework',
+     *     'old' => false,
+     *     'path' => false
+     *   ],
+     *   'moveFileWithUpdatedContent.txt' => [
+     *     'new' => 'framework',
+     *     'old' => 'sapphire',
+     *     'path' => 'newPath.txt
+     *   ],
+     *   'deletedFile.txt' => [
+     *     'new' => false,
+     *     'old' => 'sapphire'
+     *   ],
+     *   'moveFolder' => [
+     *      'path' => 'newFolderPath'
+     *   ],
+     *
+     * ]
+     * ```
      *
      * @var array
      */
@@ -26,8 +53,9 @@ class CodeChangeSet
      * @param string $path
      * @param string $contents New contents
      * @param string $original Original contents
+     * @param false|string $newPath New location of the file.
      */
-    public function addFileChange($path, $contents, $original)
+    public function addFileChange($path, $contents, $original, $newPath = false)
     {
         if (isset($this->fileChanges[$path])) {
             user_error("Already added changes for $path, shouldn't add a 2nd time");
@@ -41,6 +69,26 @@ class CodeChangeSet
         if (!in_array($path, $this->affectedFiles)) {
             $this->affectedFiles[] = $path;
         }
+    }
+
+    /**
+     * Move a file/folder to a different location within the project.
+     * @todo Implement this
+     * @param string $path
+     */
+    public function move(string $currentPath, string $newPath)
+    {
+
+    }
+
+    /**
+     * Remove a file from the project.
+     * @todo Implement this
+     * @param string $currentPath
+     */
+    public function remove(string $currentPath)
+    {
+
     }
 
     /**
