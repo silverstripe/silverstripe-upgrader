@@ -3,7 +3,7 @@
 namespace SilverStripe\Upgrader\Composer;
 
 /**
- * Trait for creatinga temporary file that will be deleted once the execution is completed.
+ * Trait for creating a temporary file that will be deleted once the execution is completed.
  */
 trait TemporaryFile
 {

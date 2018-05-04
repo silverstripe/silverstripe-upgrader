@@ -12,7 +12,7 @@ class Package
 {
 
     /**
-     * List of supported Silverstripe Module.
+     * List of supported SilverStripe modules.
      * @var array
      */
     const SUPPORTED_MODULES = [
@@ -110,7 +110,7 @@ class Package
     private $data;
 
     /**
-     * Instanciate a new Package object.
+     * Instantiate a new Package object.
      * @param string $packageName   Name of the package to fetch.
      * @param array  $data          Initial data to populate the package with.
      */
@@ -172,7 +172,7 @@ class Package
         // Find all version that meet our constraint
         $versions = Semver::satisfiedBy($this->getVersionNumbers(), $constraint);
 
-        // If we can't find any version that meet our constaint, return null
+        // If we can't find any version that meets our constraint, return null
         if (empty($versions)) {
             return null;
         }

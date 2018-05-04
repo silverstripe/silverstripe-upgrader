@@ -56,7 +56,7 @@ class Rebuild implements DependencyUpgradeRule
         $installedKeys = array_keys($schemaFile->getRequire());
         $failedKeys = array_diff($oldKeys, $installedKeys);
 
-        // Try to swicth to recipes where possible.
+        // Try to switch to recipes where possible.
         $this->findRecipeEquivalence($dependencies, $composer, $schemaFile);
 
         // Merge dependencies from our work file with the failed ones.
@@ -70,7 +70,7 @@ class Rebuild implements DependencyUpgradeRule
 
     /**
      * Replaces reference to framework or cms with recipe-core and recipe-cms.
-     * @todo Add some conditional logic so framework 4 or cms 4 don't get overriden.
+     * @todo Add some conditional logic so framework 4 or cms 4 don't get overridden.
      * @param  array  $dependencies
      * @return array
      */
@@ -129,7 +129,7 @@ class Rebuild implements DependencyUpgradeRule
 
     /**
      * Re-require each dependency individually into the provided schema file. This will rebuild the file with updated
-     * constraints. Note that if a constraint fails, the script just carries on and doesn't throw an execption.
+     * constraints. Note that if a constraint fails, the script just carries on and doesn't throw an exception.
      * @param  array        $dependencies        Flat array of dependencies with versions.
      * @param  array        $groupedDependencies Grouped array of dependencies without versions.
      * @param  ComposerExec $composer
@@ -232,7 +232,7 @@ class Rebuild implements DependencyUpgradeRule
     }
 
     /**
-     * Determine if this dependency is for a framework level dependency (CMS or Framwork basically.)
+     * Determine if this dependency is for a framework level dependency (CMS or Framework basically.)
      * @param  string  $packageName
      * @return bool
      */

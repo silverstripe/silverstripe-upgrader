@@ -44,10 +44,10 @@ class ComposerFile extends DiskItem
     protected $temporary;
 
     /**
-     * Instanciate a new ComposerFile
+     * Instantiate a new ComposerFile
      * @param ComposerExec $exec Composer executable to use when running operation on this file.
      * @param string $basePath Directory containing this composer file.
-     * @param bool $temporaryProject Whatever this schema should be retain after execution.
+     * @param bool $temporaryProject Whatever this schema should retain after execution.
      */
     public function __construct(ComposerExec $exec, string $basePath, bool $temporary = false)
     {
@@ -69,7 +69,7 @@ class ComposerFile extends DiskItem
 
     /**
      * Delete a directory and all of its content.
-     * @internal PHP's `rmdir` thrown an error if you try to target constains other file. Copied from
+     * @internal PHP's `rmdir` throws an error if you try to target contains other file. Copied from
      * https://stackoverflow.com/a/3349792/1427439
      * @param string $dirPath
      */

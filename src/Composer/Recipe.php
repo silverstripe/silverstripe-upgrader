@@ -71,7 +71,7 @@ class Recipe
 
             if (in_array($require, $branch)) {
                 // IF this package is already on our branch we'll just ignore it
-                // to make sure we don't have an infinit loop
+                // to make sure we don't have an infinite loop
                 continue;
             } elseif (self::isRecipe($require)) {
                 $subRecipe = new self(new Package($require));
@@ -87,7 +87,7 @@ class Recipe
     /**
      * Retrieve a subset of dependencies that could be remove from the provided list if this recipe was installed.
      *
-     * Will return an empty array if the provided dependencies do not contain all the dependencies requried by this
+     * Will return an empty array if the provided dependencies do not contain all the dependencies required by this
      * recipe.
      * @param  array  $dependencies List of dependencies are package currently has installed.
      * @return array  $tree Tree of dependencies to loop through. If left blank we'll use the tree of this recipe.

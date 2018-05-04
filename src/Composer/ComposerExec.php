@@ -38,9 +38,9 @@ EOF
 
     /**
      * Instanciate a new ComposerExec.
-     * @param string  $workingDir Main Path where the composer project reside.
+     * @param string  $workingDir Main path where the composer project resides.
      * @param string  $execPath Path to the composer executable.
-     * @param bool $suppressErrors Whatever errors should be supress. If false, composer errors will be printed on the
+     * @param bool $suppressErrors Whatever errors should be supressed. If false, composer errors will be printed on the
      * CLI. Defaults to `true`. (This is meant for testing only.)
      */
     public function __construct(
@@ -76,7 +76,7 @@ EOF
             return;
         }
 
-        // We could not find a functional coposer executable. Panick Time!
+        // We could not find a functional composer executable. Panic time!
         throw new InvalidArgumentException('Could not find the composer executable.');
     }
 
@@ -99,7 +99,7 @@ EOF
     }
 
     /**
-     * Getter for the Working Directory. This is where composer will look for the `composer.json` file by
+     * Getter for the working directory. This is where composer will look for the `composer.json` file by
      * default.
      * @return string
      */
@@ -116,7 +116,7 @@ EOF
      * (including any dashes). The value needs to be whatever value needs to specified for the option. For valueless
      * options, just leave the value blank.
      *
-     * Once the commad has been run an array will be returned with the following structure:
+     * Once the command has been run an array will be returned with the following structure:
      * * `return` containing the last line of output from the composer command ;
      * * `output` containing an array of all the lines of output ;
      * * `exitCode` containing the
@@ -163,14 +163,14 @@ EOF
     /**
      * Test if the given exec path is a valid composer executable.
      *
-     * @internal Technically this only test this is an excutable, not that it's composer.
+     * @internal Technically this only tests this is an executable, not that it's composer.
      * @param  string $execPath
      * @return bool
      */
     protected function testExecPath(string $execPath): bool
     {
         exec(
-            $execPath. " about" . ($this->suppressErrors ? " 2>&1" : ""),
+            $execPath . " about" . ($this->suppressErrors ? " 2>&1" : ""),
             $output,
             $exitCode
         );
@@ -220,7 +220,7 @@ EOF
      */
     public function require(string $package, string $constraint = '', string $workingDir = ''): void
     {
-        // Constrain our pacakge to some version.
+        // Constrain our package to some version.
         if ($constraint) {
             $package .= ':"' . $constraint . '"';
         }
@@ -235,7 +235,7 @@ EOF
     }
 
     /**
-     * Remove a pacakge from the dependencies.
+     * Remove a package from the dependencies.
      * @param  string $package Name of package to remove.
      * @param  string $workingDir Path to the directory containing the `composer.json`. Defaults to this instance's
      * $workingDir.

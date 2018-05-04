@@ -11,7 +11,7 @@ interface DependencyUpgradeRule
 {
 
     /**
-     * Apply this rule to the provided depednecy set.
+     * Apply this rule to the provided dependency set.
      * @param  array $dependencies
      * @param  ComposerExec $composer
      * @return array Updated dependencies

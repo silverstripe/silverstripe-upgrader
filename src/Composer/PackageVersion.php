@@ -25,7 +25,7 @@ class PackageVersion
     }
 
     /**
-     * Retrieve the silverstripe framewor cosntraint for the provide package version if present. Return false otehrwise.
+     * Retrieve the silverstripe framework constraints for the provide package version if present. Return false otherwise.
      * @return string|false
      */
     public function getFrameworkConstraint()
@@ -37,7 +37,7 @@ class PackageVersion
             return $require['silverstripe/framework'];
         }
 
-        // Loop through a list of know recipe package and try to get their dependency.
+        // Loop through a list of known recipe packages and try to get their dependency.
         $knownRecipes = [
             'silverstripe/recipe-core',
             'silverstripe/recipe-cms',

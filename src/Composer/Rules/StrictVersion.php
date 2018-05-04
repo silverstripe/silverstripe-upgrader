@@ -6,7 +6,7 @@ use Composer\Semver\Semver;
 use SilverStripe\Upgrader\Composer\ComposerExec;
 
 /**
- * Rule to update carrets constraints to the stricter tidle constraint.
+ * Rule to update caret constraints to the stricter tilde constraint.
  */
 class StrictVersion implements DependencyUpgradeRule
 {
@@ -21,7 +21,7 @@ class StrictVersion implements DependencyUpgradeRule
         $regex = '/^\^(\d+\.\d+)(\.[0-9a-z]+)?/';
 
         foreach ($dependencies as &$constraint) {
-            // Loop through each cosntraint and try to find the one that start with a carret.
+            // Loop through each constraint and try to find the one that start with a caret.
             $constraint = preg_replace_callback($regex, function ($matches) {
 
                 // Find out if we have missing digit at the end
