@@ -2,6 +2,10 @@
 namespace SilverStripe\Upgrader\Composer;
 
 use InvalidArgumentException;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Exception\RuntimeException;
 
 /**
  * Utility for interacting with the `composer` executable.
@@ -37,28 +41,37 @@ EOF
     protected $suppressErrors;
 
     /**
-     * Instanciate a new ComposerExec.
-     * @param string  $workingDir Main Path where the composer project reside.
-     * @param string  $execPath Path to the composer executable.
-     * @param bool $suppressErrors Whatever errors should be supress. If false, composer errors will be printed on the
-     * CLI. Defaults to `true`. (This is meant for testing only.)
+     * @var OutputInterface
+     */
+    protected $out;
+
+    /**
+     * Instantiate a new ComposerExec.
+     * @param string          $workingDir     Main Path where the composer project reside.
+     * @param string          $execPath       Path to the composer executable.
+     * @param OutputInterface $out            Output that can be used to push message to the cli.
+     * @param boolean         $suppressErrors Whatever errors should be suppress. If false, composer errors will be
+     *                                        printed on the CLI. Defaults to `true`. This is meant for testing only.
      */
     public function __construct(
         string $workingDir,
         string $execPath = "",
+        OutputInterface $out = null,
         bool $suppressErrors = true
     ) {
         $this->suppressErrors = $suppressErrors;
         $this->setExecPath($execPath);
         $this->workingDir = realpath($workingDir);
+        $this->out = $out;
     }
 
     /**
      * Setter for the Composer executable path. Set to "" if you want to try to look for composer in your path.
      * @param string $execPath
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException If the composer executable can not be found.
+     * @return void
      */
-    public function setExecPath(string $execPath): void
+    public function setExecPath(string $execPath)
     {
         if ($execPath) {
             // User wants to explicitly define the path to composer
@@ -76,7 +89,7 @@ EOF
             return;
         }
 
-        // We could not find a functional coposer executable. Panick Time!
+        // We could not find a functional composer executable. Panic Time!
         throw new InvalidArgumentException('Could not find the composer executable.');
     }
 
@@ -92,8 +105,9 @@ EOF
     /**
      * Setter for the Working Directory.
      * @param string $workingDir
+     * @return void
      */
-    public function setWorkingDir(string $workingDir): void
+    public function setWorkingDir(string $workingDir)
     {
         $this->workingDir = $workingDir;
     }
@@ -109,7 +123,7 @@ EOF
     }
 
     /**
-     * Run an arbritary composer command.
+     * Run an arbitrary composer command.
      *
      * `$cmd` must specify the command to run including any arguments.
      * `$opts` can be use to specify options to append to the command. They key needs to be the name of the option
@@ -124,11 +138,12 @@ EOF
      *
      *
      * @see http://php.net/manual/en/function.exec.php
-     * @param  string $cmd Command to run including arguments. (e.g. `require silverstripe/framework`)
-     * @param  array  $opts Arguments to append to the command (e.g.: ['--prefer-stable' => ''])
-     * @return array
+     * @param  string  $cmd          Command to run including arguments (e.g. `require silverstripe/framework`).
+     * @param  array   $opts         Arguments to append to the command (e.g.: ['--prefer-stable' => '']).
+     * @param  boolean $showProgress Display a simple animation while the progress is running.
+     * @return Process
      */
-    protected function run(string $cmd, $opts = []): array
+    protected function run(string $cmd, array $opts = [], bool $showProgress = false): Process
     {
         // Specify a working directory if we don't have one already.
         if (empty($opts['--working-dir'])) {
@@ -142,50 +157,69 @@ EOF
         foreach ($opts as $opt => $val) {
             $statement .=
                 ' ' . $opt .
-                ($val ? sprintf('="%s"', $val) : '');
+                ($val ? sprintf('=%s', escapeshellarg($val)) : '');
         }
 
-        // Redirect STDERR to suppress errors.
-        if ($this->suppressErrors) {
-            $statement .= ' 2>&1';
+        $process = new Process($statement);
+
+        // Choose whatever to display a progress indicator or not.
+        if ($showProgress && $this->out) {
+            $process->start();
+            $i = 0;
+            while ($process->isRunning()) {
+                // Add a dot to the output every 3 sec
+                if ($i % 10 == 0) {
+                    $this->out->write('.');
+                }
+                $i++;
+                // Sleep for 1/10th of a second.
+                usleep(100000);
+            }
+        } else {
+            $process->run();
         }
 
-        // Execute our command.
-        $return = exec($statement, $output, $exitCode);
+        // Output errors.
+        if ($process->isSuccessful() && !$this->suppressErrors && $this->out) {
+            $out = $this->out instanceof ConsoleOutputInterface ?
+                $this->out->getErrorOutput() :
+                $this->out;
+            $out->writeln(sprintf('<error>%s</error>', $process->getErrorOutput()));
+        }
 
-        return [
-            'return' => $return,
-            'output' => $output,
-            'exitCode' => $exitCode
-        ];
+        return $process;
     }
 
     /**
      * Test if the given exec path is a valid composer executable.
      *
-     * @internal Technically this only test this is an excutable, not that it's composer.
+     * @internal Technically this only test this is an executable, not that it's composer.
      * @param  string $execPath
-     * @return bool
+     * @return boolean
      */
     protected function testExecPath(string $execPath): bool
     {
-        exec(
-            $execPath. " about" . ($this->suppressErrors ? " 2>&1" : ""),
-            $output,
-            $exitCode
-        );
-        return $exitCode === 0;
+        $process = new Process($execPath. " about");
+        $process->run();
+        return $process->isSuccessful();
     }
 
     /**
      * Validate a specific composer file.
-     * @param  string $path Path to our composer file.
-     * @return bool
+     * @param  string  $path           Path to our composer file.
+     * @param  boolean $throwException Whatever to throw an exception on invalid file. Default: false.
+     * @throws RuntimeException If validation fails and $throwException is true.
+     * @return boolean
      */
-    public function validate(string $path): bool
+    public function validate(string $path, bool $throwException = false): bool
     {
-        $response = $this->run('validate ' . $path);
-        return $response['exitCode'] === 0;
+        $process = $this->run('validate ' . $path);
+
+        if ($throwException && !$process->isSuccessful()) {
+            throw new RuntimeException($process->getErrorOutput());
+        }
+
+        return $process->isSuccessful();
     }
 
     /**
@@ -202,7 +236,7 @@ EOF
         mkdir($fullPath);
 
         // Write our dummy content to our new temp file
-        // composer init doesn't five us an option to add the prefer stable flag.
+        // composer init doesn't give us an option to add the `prefer-stable` flag.
         file_put_contents(
             $fullPath . DIRECTORY_SEPARATOR . 'composer.json',
             self::TEMP_SCHEMA_CONTENT
@@ -213,32 +247,95 @@ EOF
 
     /**
      * Run a `composer require` command to install a new dependency.
-     * @param  string $package Name of package to require e.g.: `silverstripe/recipe-core`
-     * @param  string $constraint Constraint to apply on the package. e.g: `^1.0.0`.
-     * @param  string $workingDir Path to the directory containing the `composer.json`. Defaults to this instance's
-     * $workingDir.
+     * @param  string  $package      Name of package to require (e.g.: `silverstripe/recipe-core`).
+     * @param  string  $constraint   Constraint to apply on the package (e.g: `^1.0.0`).
+     * @param  string  $workingDir   Path to the directory containing the `composer.json`. Defaults to this instance's
+     *    $workingDir.
+     * @param  boolean $showFeedback Write out some information about what is going on.
+     * @return void
      */
-    public function require(string $package, string $constraint = '', string $workingDir = ''): void
-    {
-        // Constrain our pacakge to some version.
+    public function require(
+        string $package,
+        string $constraint = '',
+        string $workingDir = '',
+        bool   $showFeedback = false
+    ) {
+        // Constrain our package to some version.
         if ($constraint) {
             $package .= ':"' . $constraint . '"';
         }
 
-        $this->run(
+        $showFeedback = $showFeedback && $this->out;
+
+        if ($showFeedback) {
+            $this->out->write(sprintf(' * Requiring %s ', $package));
+        }
+
+        $process = $this->run(
             "require $package",
             [
                 '--working-dir' => $workingDir,
                 '--prefer-stable' => '',
-            ]
+            ],
+            $showFeedback
         );
+
+        if ($process->isSuccessful()) {
+            if ($showFeedback) {
+                $this->out->write(" <fg=green>\u{2714}</>\n");
+            }
+        } else {
+            if ($showFeedback) {
+                $this->out->write(" <fg=red>\u{2717}</>\n");
+            }
+        }
+    }
+
+    /**
+     * Run a `composer update` command to install a new dependency.
+     * @param  string  $workingDir   Path to the directory containing the `composer.json`. Defaults to this instance's
+     *    $workingDir.
+     * @param  boolean $showFeedback Write out some information about what is going on.
+     * @throws RuntimeException If update fails.
+     * @return void
+     */
+    public function update(
+        string $workingDir = '',
+        bool   $showFeedback = false
+    ) {
+        $showFeedback = $showFeedback && $this->out;
+
+        if ($showFeedback) {
+            $this->out->write(' Trying to install dependencies ');
+        }
+
+        $process = $this->run(
+            "update",
+            [
+                '--working-dir' => $workingDir,
+                '--prefer-stable' => '',
+            ],
+            $showFeedback
+        );
+
+        if ($process->isSuccessful()) {
+            if ($showFeedback) {
+                $this->out->write(" <fg=green>\u{2714}</>\n");
+            }
+        } else {
+            if ($showFeedback) {
+                $this->out->write(" <fg=red>\u{2717}</>\n");
+            }
+            throw new RuntimeException($process->getErrorOutput());
+        }
     }
 
     /**
      * Remove a pacakge from the dependencies.
-     * @param  string $package Name of package to remove.
+     * @param  string $package    Name of package to remove.
      * @param  string $workingDir Path to the directory containing the `composer.json`. Defaults to this instance's
      * $workingDir.
+     * @return void
      */
     public function remove(string $package, string $workingDir = '')
     {
@@ -254,6 +351,7 @@ EOF
      * Run a composer install on the working directory.
      * @param  string $workingDir Path to the directory containing the `composer.json`. Defaults to this instance's
      * $workingDir.
+     * @return void
      */
     public function install(string $workingDir = '')
     {
@@ -280,9 +378,8 @@ EOF
      */
     public function show(string $workingDir = ''): array
     {
-        $response = $this->run('show', ['--working-dir' => $workingDir, '--format' => 'json']);
-        $output = implode($response['output'], "\n");
-        $data = json_decode($output, true);
+        $process = $this->run('show', ['--working-dir' => $workingDir, '--format' => 'json']);
+        $data = json_decode($process->getOutput(), true);
         return isset($data['installed']) ? $data['installed'] : [];
     }
 
@@ -292,8 +389,8 @@ EOF
      */
     public function getCacheDir(): string
     {
-        $response = $this->run('config cache-dir', ['--global' => '']);
-        $cacheDir = $response['return'];
+        $process = $this->run('config cache-dir', ['--global' => '']);
+        $cacheDir = trim($process->getOutput());
         return (file_exists($cacheDir) && is_dir($cacheDir)) ?
             $cacheDir :
             '';

@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
 use InvalidArgumentException;
+use Symfony\Component\Console\Exception\RuntimeException;
 
 class ComposerExecTest extends TestCase
 {
@@ -78,6 +79,13 @@ class ComposerExecTest extends TestCase
             $composer->validate(__DIR__ . '/fixture/non-existent-composer.json'),
             'Validating an non-existent composer file should return false'
         );
+    }
+
+    public function testValidateException()
+    {
+        $this->expectException(RuntimeException::class);
+        $composer = new ComposerExec(__DIR__);
+        $composer->validate(__DIR__ . '/fixture/invalid-composer.json', true);
     }
 
     public function testInitTemporarySchema()
@@ -214,7 +222,68 @@ class ComposerExecTest extends TestCase
                 $_SERVER['HOME'] . '/.composer/cache',
                 $_SERVER['HOME'] . '/.cache/composer',
             ],
-            'COmposer CacheDir is not in one of the expected location'
+            'Composer CacheDir is not in one of the expected location'
         );
+    }
+
+
+    public function testUpdate()
+    {
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $composer->setWorkingDir($schema->getBasePath());
+
+        $schema->setContents(<<<EOF
+{
+    "name": "silverstripe-upgrader/temp-project",
+    "description": "silverstripe-upgrader-temp-project",
+    "license": "proprietary",
+    "minimum-stability": "dev",
+    "require": {"league/flysystem": "*"},
+    "prefer-stable": true
+}
+EOF
+        );
+
+        // Try to run a composer update
+        $composer->update();
+
+
+        $installedDependencies = $composer->show();
+        $filtered = array_filter($installedDependencies, function ($dep) {
+            return $dep['name'] == "league/flysystem";
+        });
+
+
+        $this->assertNotEmpty(
+            $filtered,
+            'Composer update should have installed `league/flysystem` given our test composer.json file.'
+        );
+    }
+
+    public function testUpdateFailure()
+    {
+        $this->expectException(
+            RuntimeException::class,
+            'Calling composer update on a file with a broken dependencies should throw an exception.'
+        );
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $composer->setWorkingDir($schema->getBasePath());
+
+        $schema->setContents(<<<EOF
+{
+    "name": "silverstripe-upgrader/temp-project",
+    "description": "silverstripe-upgrader-temp-project",
+    "license": "proprietary",
+    "minimum-stability": "dev",
+    "require": {"silverstripe/package-that-does-not-exist": "*"},
+    "prefer-stable": true
+}
+EOF
+        );
+
+        // Try to run a composer update
+        $composer->update();
     }
 }
