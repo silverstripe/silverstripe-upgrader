@@ -111,8 +111,8 @@ class Package
 
     /**
      * Instanciate a new Package object.
-     * @param string $packageName   Name of the package to fetch.
-     * @param array  $data          Initial data to populate the package with.
+     * @param string $packageName Name of the package to fetch.
+     * @param array  $data        Initial data to populate the package with.
      */
     public function __construct(
         string $packageName,
@@ -202,7 +202,7 @@ class Package
 
     /**
      * Take a list of versions and sort first by stability and then by version.
-     * @param  string[]  $versions
+     * @param  string[] $versions
      * @return string[] Sorted version
      */
     protected function sortVersions(array $versions): array
@@ -234,7 +234,7 @@ class Package
 
     /**
      * Check if this package is specifically designed to work with SilverStripe, based off its type.
-     * @return bool
+     * @return boolean
      */
     public function isSilverStripeRelated(): bool
     {
@@ -243,7 +243,7 @@ class Package
 
     /**
      * Check if this package is specifically designed to work with SilverStripe, based off its type.
-     * @return bool
+     * @return boolean
      */
     public function isSilverStripeModule(): bool
     {

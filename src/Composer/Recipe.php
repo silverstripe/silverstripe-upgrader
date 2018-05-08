@@ -2,18 +2,16 @@
 
 namespace SilverStripe\Upgrader\Composer;
 
-use Composer\Semver\Semver;
-use Composer\Semver\VersionParser;
-
 /**
- * Represent a packagist package
+ * Represent a Packagist package
  */
 class Recipe
 {
 
     /**
-     * [getKnownRecipes description]
-     * @return [type] [description]
+     * Get a list of known recipes.
+     * @yields Recipe
+     * @return \Generator
      */
     public static function getKnownRecipes()
     {
@@ -27,7 +25,7 @@ class Recipe
     /**
      * Check if the provided package name looks like a recipe name.
      * @param  string $packageName
-     * @return bool
+     * @return boolean
      */
     public static function isRecipe(string $packageName): bool
     {
@@ -41,24 +39,32 @@ class Recipe
      */
     private $package;
 
+    /**
+     * Recipe constructor.
+     * @param Package $package Base package info for this recipe.
+     */
     public function __construct(Package $package)
     {
         $this->package = $package;
     }
 
+    /**
+     * Get the name of the recipe as defined in the package.
+     * @return string
+     */
     public function getName()
     {
         return $this->package->getName();
     }
 
     /**
-     * Generate an array of dependencies where recipe package can contains sub dependencies. A dependency can only
+     * Generate an array of dependencies where recipe packages can contains sub dependencies. A dependency can only
      * appear in branch once.
-     * @param array $branch A flat array of dependency already in the branch that should not be added again. This is
+     * @param string[] $branch A flat array of dependency already in the branch that should not be added again. This is
      * just there in case we end up with recursive dependencies.
      * @return array
      */
-    public function buildDependencyTree($branch = []): array
+    public function buildDependencyTree(array $branch = []): array
     {
         $requires = $this->package->getRequiredPackages();
         $branch[] = $this->package->getName();
@@ -71,7 +77,7 @@ class Recipe
 
             if (in_array($require, $branch)) {
                 // IF this package is already on our branch we'll just ignore it
-                // to make sure we don't have an infinit loop
+                // to make sure we don't have an infinite loop
                 continue;
             } elseif (self::isRecipe($require)) {
                 $subRecipe = new self(new Package($require));
@@ -87,10 +93,11 @@ class Recipe
     /**
      * Retrieve a subset of dependencies that could be remove from the provided list if this recipe was installed.
      *
-     * Will return an empty array if the provided dependencies do not contain all the dependencies requried by this
-     * recipe.
-     * @param  array  $dependencies List of dependencies are package currently has installed.
-     * @return array  $tree Tree of dependencies to loop through. If left blank we'll use the tree of this recipe.
+     * Will return an empty array if the provided dependencies that do not contain all the dependencies required by
+     * this recipe.
+     * @param  string[] $dependencies List of dependencies are package currently has installed.
+     * @param  array $tree Tree of dependencies to loop through. If left blank we'll use the tree of this recipe.
+     * @return array List of dependencies this recipe can replace.
      */
     public function subsetOf(array $dependencies, array $tree = []): array
     {
@@ -108,7 +115,7 @@ class Recipe
                 }
             } elseif (!empty($subTree)) {
                 // We are dealing with a recipe. If all the dependencies of our recipe are in the list.
-                // We'll implictly include it.
+                // We'll implicetly include it.
                 $subSetIntersection = $this->subsetOf($dependencies, $subtree);
                 if ($subSetIntersection) {
                     $intersection[] = $branch;

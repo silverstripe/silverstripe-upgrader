@@ -29,6 +29,7 @@ class Packagist
     /**
      * Add a folder to our caching list.
      * @param string $folder
+     * @return void
      */
     public static function addCacheFolder(string $folder)
     {
@@ -38,6 +39,7 @@ class Packagist
     /**
      * Explicitly specify the cache folder to check when trying to retrieve information about a package.
      * @param string[] $cacheFolders
+     * @return void
      */
     public static function setCacheFolders(array $cacheFolders)
     {
@@ -46,6 +48,7 @@ class Packagist
 
     /**
      * Disallow the use of the cache.
+     * @return void
      */
     public static function disableCacheFolders()
     {
@@ -66,7 +69,7 @@ class Packagist
     * @param \GuzzleHttp\Client $client
     * @param string             $baseUrl
     */
-    public function __construct(Client $client = null, $baseUrl = 'https://packagist.org')
+    public function __construct(Client $client = null, string $baseUrl = 'https://packagist.org')
     {
         $this->client = $client ?: new Client();
         $this->baseUrl = $baseUrl;
@@ -126,6 +129,10 @@ class Packagist
 
     /**
      * Try to write the content of a request to a cache folder.
+     * @param string $vendor
+     * @param string $packageName
+     * @param array $data
+     * @return void
      */
     protected function writeToCache(string $vendor, string $packageName, array $data)
     {
@@ -143,10 +150,9 @@ class Packagist
      *
      * @param string $resource
      * @param array  $query
-     *
      * @return array
      */
-    public function makeRequest($resource, array $query = [])
+    public function makeRequest(string $resource, array $query = [])
     {
         $packages = $this->client
             ->get("{$this->baseUrl}{$resource}", compact('query'))

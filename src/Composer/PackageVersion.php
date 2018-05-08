@@ -12,20 +12,28 @@ class PackageVersion
 
     protected $data;
 
+    /**
+     * PackageVersion constructor.
+     * @param array $data
+     */
     public function __construct(
         array $data
     ) {
-        $this->id = $data;
         $this->data = $data;
     }
 
-    public function getId()
+    /**
+     * Get the exact version ID.
+     * @return string
+     */
+    public function getId(): string
     {
         return $this->data['version'];
     }
 
     /**
-     * Retrieve the silverstripe framewor cosntraint for the provide package version if present. Return false otehrwise.
+     * Retrieve the silverstripe framework constraint for the provide package version if present. Return false
+     * otherwise.
      * @return string|false
      */
     public function getFrameworkConstraint()
@@ -68,9 +76,9 @@ class PackageVersion
      * Determine if this specific package version will work with the provided package at the provided version.
      * @param  string $package
      * @param  string $version
-     * @return bool
+     * @return boolean
      */
-    public function isCompatibleWith($package, $version): bool
+    public function isCompatibleWith(string $package, string$version): bool
     {
         $require = $this->getRequire();
 
