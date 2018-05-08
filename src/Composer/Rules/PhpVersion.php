@@ -11,13 +11,27 @@ use SilverStripe\Upgrader\Composer\ComposerExec;
 class PhpVersion implements DependencyUpgradeRule
 {
 
+    private $warnings = ['`upgrade` was not called.'];
+
+    /**
+     * @inheritdoc
+     * @return string
+     */
+    public function getActionTitle(): string
+    {
+        return 'Upgrading PHP constraint';
+    }
+
     /**
      * @inheritDoc
-     * @param  array $dependencies Dependencies to upgrade
-     * @return array Upgraded dependencies
+     * @param  array $dependencies Dependencies to upgrade.
+     * @param  ComposerExec $composer Composer executable.
+     * @return array Upgraded dependencies.
      */
     public function upgrade(array $dependencies, ComposerExec $composer): array
     {
+        $this->warnings = [];
+
         // If we don't have a php constraint already, set it to php 5.6 and move on.
         if (!isset($dependencies['php'])) {
             $dependencies['php'] = '>=5.6';
@@ -36,7 +50,15 @@ class PhpVersion implements DependencyUpgradeRule
 
         // Otherwise the PHP constraint is probably set to some version of PHP7 or some weird thing that defies our
         // comprehension. Either way, we don't do anything with it.
-
         return $dependencies;
+    }
+
+    /**
+     * @inheritdoc
+     * @return string[]
+     */
+    public function getWarnings(): array
+    {
+        return $this->warnings;
     }
 }
