@@ -35,7 +35,7 @@ class ApiChangeWarningsRuleTest extends TestCase
         $input = <<<PHP
 <?php
 
-class MyClass extends Object
+class MyClass extends FooBar
 {
 }
 PHP;
@@ -43,8 +43,8 @@ PHP;
         $parameters = [
             'warnings' => [
                 'classes' => [
-                    'Object' => [
-                        'message' => 'Classes extending Object need to use traits',
+                    'FooBar' => [
+                        'message' => 'FooBar has been deprecated.',
                         'url' => 'https://some-url'
                     ]
                 ]
@@ -56,7 +56,7 @@ PHP;
         // Build mock collection
         $code = new MockCodeCollection([
             'MyClass.php' => $input,
-            'object.php' => '<?php class object {} ',
+            'FooBar.php' => '<?php class FooBar {} ',
         ]);
         $this->autoloader->addCollection($code);
         $file = $code->itemByPath('MyClass.php');
@@ -68,8 +68,8 @@ PHP;
         $warnings = $changeset->warningsForPath('MyClass.php');
         $this->assertEquals(count($warnings), 1);
         $this->assertContains('MyClass.php:3', $warnings[0]);
-        $this->assertContains('Classes extending Object need to use traits', $warnings[0]);
-        $this->assertContains('class MyClass extends Object', $this->getLineForWarning($input, $warnings[0]));
+        $this->assertContains('FooBar has been deprecated.', $warnings[0]);
+        $this->assertContains('class MyClass extends FooBar', $this->getLineForWarning($input, $warnings[0]));
     }
 
     /**
