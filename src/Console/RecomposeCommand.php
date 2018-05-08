@@ -2,10 +2,11 @@
 
 namespace SilverStripe\Upgrader\Console;
 
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 use SilverStripe\Upgrader\ChangeDisplayer;
 use SilverStripe\Upgrader\Composer\Package;
@@ -13,6 +14,7 @@ use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
 use SilverStripe\Upgrader\Composer\Rules;
 use SilverStripe\Upgrader\Composer\Packagist;
+
 
 use InvalidArgumentException;
 
@@ -70,9 +72,12 @@ class RecomposeCommand extends AbstractCommand
         $coreTarget = $this->findTargetRecipeCore($recipeCoreConstraint);
         $strict = $input->getOption('strict');
 
+        $console = new SymfonyStyle($input, $output);
+
         // Initialise our composer file.
-        $composer = new ComposerExec($rootPath, $composerPath);
+        $composer = new ComposerExec($rootPath, $composerPath, $output);
         $schema = new ComposerFile($composer, $rootPath);
+
 
         // Set up some caching
         $this->initPackageCache($composer);
@@ -80,18 +85,19 @@ class RecomposeCommand extends AbstractCommand
         // Set up our rules
         $rules = [
             new Rules\PhpVersion(),
-             new Rules\Rebuild($coreTarget),
+            new Rules\Rebuild($coreTarget, $console),
         ];
         if ($strict) {
             $rules[] = new Rules\StrictVersion();
         }
 
         // Try to upgrade the project
-        $change = $schema->upgrade($rules);
+        $change = $schema->upgrade($rules, $console);
 
         // Check if we got new content
+        $console->title('Showing difference');
         if (!$change->hasNewContents($schema->getFullPath())) {
-            $output->writeln("Nothing to upgrade.");
+            $console->note("Nothing to upgrade.");
             return null;
         }
         $display = new ChangeDisplayer();
@@ -100,16 +106,25 @@ class RecomposeCommand extends AbstractCommand
         // Ask the use if they want to save their changes.
         // This is not the standard behavior, but this command can take quite a bit of time to run.
         if (!$write) {
-            $helper = $this->getHelper('question');
-            $question = new ConfirmationQuestion('Save changes to composer file? (y/N)', false);
-            $write = $helper->ask($input, $output, $question);
+            $write = $console->confirm('Save changes to composer file?', false);
         }
 
         if ($write) {
             $schema->setContents($change->newContents($schema->getFullPath()));
-            $output->writeln("Changes have been saved.");
+            $console->note("Changes have been saved.");
+
+            $console->title('Trying to install new dependencies');
+            try {
+                $composer->update('', true);
+                $console->success('Dependencies installed successfully.');
+            } catch (RuntimeException $ex) {
+                $console->warning(
+                    'Composer could not resolved your updated dependencies. '.
+                    'You\'ll need to manually resolve conflicts.'
+                );
+            }
         } else {
-            $output->writeln("Changes not saved; Run with --write to commit to disk");
+            $console->note("Changes not saved; Run with --write to commit to disk");
         }
 
 
