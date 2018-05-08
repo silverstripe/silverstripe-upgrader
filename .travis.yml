@@ -9,7 +9,6 @@ cache:
 matrix:
   fast_finish: true
   include:
-    - php: 7.0
     - php: 7.1
       env: LINT_TEST=1
     - php: 7.2
