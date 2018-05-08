@@ -97,11 +97,10 @@ class ComposerFile extends DiskItem
 
         // If we have an array, JSON code it
         if (is_array($content)) {
-            // This is a bit of silly hack. If require is empty it will be outputted. as an array. `composer validate`
-            // expect it to be an object, so we just had a dummy key pair in there to make sure it always generated as
-            // an object.
-            if (isset($content['require']) && empty($content['require'])) {
-                $content['require']['php'] = '*';
+            // If require is empty it will be outputted. as an array. `composer validate` expect it to be an object, so
+            // we recast it as an object to be on the safe side.
+            if (isset($content['require'])) {
+                $content['require'] = (object)$content['require'];
             }
             $content = json_encode($content);
         }
@@ -162,7 +161,7 @@ class ComposerFile extends DiskItem
 
         // Build our propose new output
         $jsonData = $this->composerJson;
-        $jsonData['require'] = $dependencies;
+        $jsonData['require'] = (object)$dependencies;
         $upgradedContent = json_encode($jsonData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
         // Finally get our diff
