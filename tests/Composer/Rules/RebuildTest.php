@@ -80,7 +80,7 @@ class RebuildTest extends TestCase
 
     public function testRebuild()
     {
-        $composer = new ComposerExec(__DIR__, '', true);
+        $composer = new ComposerExec(__DIR__);
         $rule = new Rebuild('1.1.0');
         $schema = $composer->initTemporarySchema();
 
@@ -101,7 +101,7 @@ class RebuildTest extends TestCase
 
     public function testFindRecipeEquivalence()
     {
-        $composer = new ComposerExec(__DIR__, '', true);
+        $composer = new ComposerExec(__DIR__);
         $rule = new Rebuild('1.1.0');
         $schema = $composer->initTemporarySchema();
         $dependencies = $rule->switchToRecipeCore($this->dependencies);
