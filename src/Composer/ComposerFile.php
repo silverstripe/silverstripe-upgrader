@@ -5,11 +5,13 @@ namespace SilverStripe\Upgrader\Composer;
 use SilverStripe\Upgrader\CodeCollection\DiskItem;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use InvalidArgumentException;
-use Seld\JsonLint\JsonParser;
+use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Represent a `composer.json` file and provide methods to interact with it. Note that this object doesn't
- * autoamtically detect changes to the composer file. So you may need to call the `parse` method after performing an
+ * automatically detect changes to the composer file. So you may need to call the `parse` method after performing an
  * operation on this file to get the latest values.
  */
 class ComposerFile extends DiskItem
@@ -44,10 +46,10 @@ class ComposerFile extends DiskItem
     protected $temporary;
 
     /**
-     * Instanciate a new ComposerFile
-     * @param ComposerExec $exec Composer executable to use when running operation on this file.
-     * @param string $basePath Directory containing this composer file.
-     * @param bool $temporaryProject Whatever this schema should be retain after execution.
+     * Instantiate a new ComposerFile
+     * @param ComposerExec $exec      Composer executable to use when running operation on this file.
+     * @param string       $basePath  Directory containing this composer file.
+     * @param boolean      $temporary Whatever this schema should be retain after execution.
      */
     public function __construct(ComposerExec $exec, string $basePath, bool $temporary = false)
     {
@@ -63,55 +65,27 @@ class ComposerFile extends DiskItem
     public function __destruct()
     {
         if ($this->temporary) {
-            $this->delDir($this->getBasePath());
+            $fs = new Filesystem();
+            $fs->remove($this->getBasePath());
         }
-    }
-
-    /**
-     * Delete a directory and all of its content.
-     * @internal PHP's `rmdir` thrown an error if you try to target constains other file. Copied from
-     * https://stackoverflow.com/a/3349792/1427439
-     * @param string $dirPath
-     */
-    private function delDir(string $dirPath)
-    {
-        if (! is_dir($dirPath)) {
-            throw new InvalidArgumentException("$dirPath must be a directory");
-        }
-        if (substr($dirPath, strlen($dirPath) - 1, 1) != DIRECTORY_SEPARATOR) {
-            $dirPath .= DIRECTORY_SEPARATOR;
-        }
-        $files = scandir($dirPath);
-        foreach ($files as $file) {
-            if ($file == "." || $file == "..") {
-                continue;
-            }
-            $filePath = $dirPath . $file;
-            if (is_dir($filePath) && !is_link($filePath)) {
-                $this->delDir($filePath);
-            } else {
-                unlink($filePath);
-            }
-        }
-        rmdir($dirPath);
     }
 
     /**
      * Try to parse the composer file content.
-     * @throws InvalidArgumentException
+     * @throws RuntimeException If the file is invalid.
+     * @return void
      */
     public function parse()
     {
-        if ($this->exec->validate($this->getFullPath())) {
+        if ($this->exec->validate($this->getFullPath(), true)) {
             $this->composerJson = json_decode($this->getContents(), true);
-        } else {
-            throw new InvalidArgumentException('Invalid composer file at ' . $this->getFullPath());
         }
     }
 
     /**
      * Validate a composer file.
-     * @param  array|string|null $content
+     * @param  array|string|null $content Schema content either.
+     * @throws InvalidArgumentException If `$content` is of an invalid type.
      * @return boolean
      */
     public function validate($content = null)
@@ -154,26 +128,37 @@ class ComposerFile extends DiskItem
 
     /**
      * Apply the following upgrade rules to the composer file and get the difference
-     * @param  DependencyUpgradeRule[] $rules
+     * @param  Rules\DependencyUpgradeRule[] $rules List of rules to apply to the the dependencies.
+     * @param  SymfonyStyle $console Optional. Can be use to log additional info as the upgrade progress.
      * @return CodeChangeSet
      */
-    public function upgrade(array $rules): CodeChangeSet
+    public function upgrade(array $rules, SymfonyStyle $console = null): CodeChangeSet
     {
         // Apply the change
         $original = $this->getRequire();
+        $dependencies = $this->getRequire();
         foreach ($rules as $rule) {
-            $dependencies = $rule->upgrade($this->getRequire(), $this->exec);
+            $console && $console->title($rule->getActionTitle());
+            $dependencies = $rule->upgrade($dependencies, $this->exec);
+
+            $warnings = $rule->getWarnings();
+            if (empty($warnings)) {
+                $console && $console->text("Done.");
+            } else {
+                $console && $console->caution("Done with warnings.");
+                $console && $console->listing($warnings);
+            }
         }
 
         // Try to use the same order as the original file, so the diff looks more relevant.
-        $sortedDeps = [];
+        $sortedDependencies = [];
         foreach ($original as $key => $constraint) {
             if (isset($dependencies[$key])) {
-                $sortedDeps[$key] = $dependencies[$key];
+                $sortedDependencies[$key] = $dependencies[$key];
                 unset($dependencies[$key]);
             }
         }
-        $dependencies = array_merge($sortedDeps, $dependencies);
+        $dependencies = array_merge($sortedDependencies, $dependencies);
 
         // Build our propose new output
         $jsonData = $this->composerJson;

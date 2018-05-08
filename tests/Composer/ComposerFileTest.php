@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
 use SilverStripe\Upgrader\Composer\Rules\PhpVersion;
-use InvalidArgumentException;
+use Symfony\Component\Console\Exception\RuntimeException;
 
 class ComposerFileTest extends TestCase
 {
@@ -65,7 +65,7 @@ class ComposerFileTest extends TestCase
 
     public function testInvalidParse()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(RuntimeException::class);
 
         // Let's create a brand new composer file and then break it on purpose.
         $composer = new ComposerExec(__DIR__);
