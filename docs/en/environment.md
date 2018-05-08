@@ -4,7 +4,7 @@ You can use this command to migrate an SilverStripe 3 `_ss_environment.php` file
 SilverStripe 4.
 
 ```bash
-upgrade-code environment [--root-dir=<dir>] [--write] [--recursive] [-vvv]
+upgrade-code environment [--root-dir=<dir>] [--write] [-vvv]
 ```
 
 E.g.

@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ruleset name="SilverStripe">
 	<rule ref="PSR2" />
+	<rule ref="Squiz.Commenting.FunctionComment">
+	     <include-pattern>*/src/Composer/*</include-pattern>
+	     <exclude name="Squiz.Commenting.FunctionComment.MissingParamComment"/>
+	     <exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamName"/>
+	     <exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamType"/>
+	</rule>
+    <rule ref="Squiz.Commenting.FunctionCommentThrowTag">
+         <include-pattern>*/src/Composer/*</include-pattern>
+    </rule>
+    <rule ref="Squiz.Commenting.ClassComment">
+        <include-pattern>*/src/Composer/*</include-pattern>
+    </rule>
 </ruleset>

@@ -1,0 +1,57 @@
+{
+    "name": "silverstripe/recipe-collaboration",
+    "type": "silverstripe-recipe",
+    "description": "Add extra functionality to enhance CMS user collaboration",
+    "homepage": "https://www.silverstripe.org",
+    "license": "BSD-3-Clause",
+    "require": {
+
+        "silverstripe/assets": "1.2.x-dev",
+        "silverstripe/config": "1.0.x-dev",
+        "silverstripe/framework": "4.2.x-dev",
+
+        "silverstripe/admin": "1.1.x-dev",
+        "silverstripe/asset-admin": "1.1.x-dev",
+        "silverstripe/campaign-admin": "1.1.x-dev",
+        "silverstripe/cms": "4.1.x-dev",
+        "silverstripe/errorpage": "1.1.x-dev",
+        "silverstripe/graphql": "1.1.x-dev",
+        "silverstripe/reports": "4.1.x-dev",
+        "silverstripe/siteconfig": "4.1.x-dev",
+        "silverstripe/versioned": "1.1.x-dev",
+
+        "silverstripe/contentreview": "4.0.x-dev",
+        "silverstripe/sharedraftcontent": "2.x-dev",
+        "symbiote/silverstripe-advancedworkflow": "5.0.x-dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7"
+    },
+    "suggest": {
+        "silverstripe/versionfeed": "Provides an RSS feed for global site changes"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        },
+        "project-files-installed": [
+            "mysite/.htaccess",
+            "mysite/_config.php",
+            "mysite/_config/mysite.yml",
+            "mysite/code/Page.php",
+            "mysite/code/PageController.php"
+        ],
+        "public-files-installed": [
+            ".htaccess",
+            "index.php",
+            "install-frameworkmissing.html",
+            "install.php",
+            "web.config"
+        ]
+    },
+    "config": {
+        "process-timeout": 600
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev"
+}

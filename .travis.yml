@@ -1,12 +1,17 @@
 language: php
 
-php: 7.1
-
 dist: trusty
 
 cache:
   directories:
     - $HOME/.composer/cache/files
+
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.1
+      env: LINT_TEST=1
+    - php: 7.2
 
 sudo: false
 
@@ -23,4 +28,4 @@ before_script:
 
 script:
   - vendor/bin/phpunit --color tests
-  - composer run-script lint
+  - if [[ $LINT_TEST ]]; then composer run-script lint; fi
