@@ -113,7 +113,7 @@ EOF
     }
 
     /**
-     * Getter for the Working Directory. This is where composer will look for the `composer.json` file by
+     * Getter for the working directory. This is where composer will look for the `composer.json` file by
      * default.
      * @return string
      */
@@ -130,7 +130,7 @@ EOF
      * (including any dashes). The value needs to be whatever value needs to specified for the option. For valueless
      * options, just leave the value blank.
      *
-     * Once the commad has been run an array will be returned with the following structure:
+     * Once the command has been run an array will be returned with the following structure:
      * * `return` containing the last line of output from the composer command ;
      * * `output` containing an array of all the lines of output ;
      * * `exitCode` containing the

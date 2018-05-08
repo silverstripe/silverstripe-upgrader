@@ -98,6 +98,7 @@ class Rebuild implements DependencyUpgradeRule
             $this->console->newLine();
             $this->console->note('Trying to curate dependencies by switching to recipes.');
         }
+
         $this->findRecipeEquivalence($dependencies, $composer, $schemaFile);
 
         // Merge dependencies from our work file with the failed ones.
@@ -175,7 +176,7 @@ class Rebuild implements DependencyUpgradeRule
 
     /**
      * Re-require each dependency individually into the provided schema file. This will rebuild the file with updated
-     * constraints. Note that if a constraint fails, the script just carries on and doesn't throw an execption.
+     * constraints. Note that if a constraint fails, the script just carries on and doesn't throw an exception.
      * @param  array        $dependencies        Flat array of dependencies with versions.
      * @param  array        $groupedDependencies Grouped array of dependencies without versions.
      * @param  ComposerExec $composer
@@ -296,7 +297,7 @@ class Rebuild implements DependencyUpgradeRule
      * Determine if this dependency is for a framework level dependency (CMS or Framwork basically.)
      * @param  string $packageName
      * @return boolean
-     */
+    */
     protected function isFramework(string $packageName): bool
     {
         return in_array($packageName, [

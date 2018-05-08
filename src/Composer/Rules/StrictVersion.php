@@ -5,7 +5,7 @@ namespace SilverStripe\Upgrader\Composer\Rules;
 use SilverStripe\Upgrader\Composer\ComposerExec;
 
 /**
- * Rule to update carrets constraints to the stricter tilde constraint.
+ * Rule to update caret constraints to the stricter tilde constraint.
  */
 class StrictVersion implements DependencyUpgradeRule
 {

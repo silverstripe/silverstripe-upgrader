@@ -5,7 +5,7 @@ namespace SilverStripe\Upgrader\Composer;
 use GuzzleHttp\Client;
 
 /**
- * Provides a simple interface for fetching Packge information from Packagist.
+ * Provides a simple interface for fetching Package information from Packagist.
  *
  * Adapted from by https://github.com/spatie/packagist-api/blob/master/src/Packagist.php by Spatie.
  */
@@ -162,7 +162,7 @@ class Packagist
     }
 
     /**
-     * Build the expected cache file name following the composer naming convention. This allows us to biggy pack off
+     * Build the expected cache file name following the composer naming convention. This allows us to piggy back off
      * the composer cache.
      * @param  string $vendor
      * @param  string $packageName

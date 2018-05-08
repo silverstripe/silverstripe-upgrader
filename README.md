@@ -24,10 +24,10 @@ use --root-dir=/path.
 ## Available commands
 
 The following commands are available:
-
-* [`upgrade`](docs/en/upgrade.md)
-* [`inspect`](docs/en/inspect.md)
-* [`environment`](docs/en/environment.md)
-* [`doctor`](docs/en/doctor.md)
 * [`add-namespace`](docs/en/add-namespace.md)
 * [`recompose`](docs/en/recompose.md)
+* [`doctor`](docs/en/doctor.md)
+* [`environment`](docs/en/environment.md)
+* [`inspect`](docs/en/inspect.md)
+* [`reorganise`](docs/en/reorganise.md)
+* [`upgrade`](docs/en/upgrade.md)

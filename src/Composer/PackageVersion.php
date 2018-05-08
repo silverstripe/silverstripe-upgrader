@@ -45,7 +45,7 @@ class PackageVersion
             return $require['silverstripe/framework'];
         }
 
-        // Loop through a list of know recipe package and try to get their dependency.
+        // Loop through a list of known recipe packages and try to get their dependency.
         $knownRecipes = [
             'silverstripe/recipe-core',
             'silverstripe/recipe-cms',
