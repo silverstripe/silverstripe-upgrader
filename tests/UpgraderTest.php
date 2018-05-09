@@ -36,10 +36,12 @@ class UpgraderTest extends TestCase
             'test.php' => [
                 'new' => "bar\nfoo\nthis is my test\n",
                 'old' => "this is my test\n",
+                'path' => 'test.php',
             ],
             'bla\other.php' => [
                 'new' => "bar\nfoo\nthis is another test\n",
                 'old' => "this is another test\n",
+                'path' => 'bla\other.php',
             ],
         ], $changes->allChanges());
 

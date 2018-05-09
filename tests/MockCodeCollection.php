@@ -5,6 +5,7 @@ namespace SilverStripe\Upgrader\Tests;
 use SilverStripe\Upgrader\CodeCollection\CollectionInterface;
 use SilverStripe\Upgrader\CodeCollection\ChangeApplier;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
+use Iterator;
 
 /**
  * Simple mock upgrade rule to be used in test of other system components
@@ -26,7 +27,7 @@ class MockCodeCollection implements CollectionInterface
         $this->items = $items;
     }
 
-    public function iterateItems()
+    public function iterateItems(): Iterator
     {
         foreach ($this->items as $path => $contents) {
             yield new MockCodeItem($this, $path);
@@ -59,7 +60,7 @@ class MockCodeCollection implements CollectionInterface
      * @param string $path
      * @return ItemInterface
      */
-    public function itemByPath($path)
+    public function itemByPath(string $path): ItemInterface
     {
         return new MockCodeItem($this, $path);
     }

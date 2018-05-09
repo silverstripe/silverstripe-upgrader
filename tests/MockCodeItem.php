@@ -47,7 +47,7 @@ class MockCodeItem implements ItemInterface
      * Update the contents of this file
      * @param string $contents
      */
-    public function setContents($contents)
+    public function setContents(string $contents): void
     {
         $this->parent->setItemContent($this->path, $contents);
     }
