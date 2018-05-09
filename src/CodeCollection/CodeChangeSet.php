@@ -59,7 +59,7 @@ class CodeChangeSet
      */
     public function addFileChange($path, $contents, $original, $newPath = false)
     {
-        if (isset($this->fileChanges[$path])) {
+        if ($this->hasNewContents($path)) {
             user_error("Already added changes for $path, shouldn't add a 2nd time");
         }
 
@@ -74,9 +74,7 @@ class CodeChangeSet
 
         $this->fileChanges[$path] = $change;
 
-        if (!in_array($path, $this->affectedFiles)) {
-            $this->affectedFiles[] = $path;
-        }
+        $this->addToAffectedFiles($path);
     }
 
     /**
@@ -84,8 +82,9 @@ class CodeChangeSet
      * @todo Implement this
      * @param string $path
      */
-    public function move(string $currentPath, string $newPath)
+    public function move(string $path, string $newPath)
     {
+        $this->addFileChange($path, false, false, $newPath);
     }
 
     /**
@@ -93,8 +92,14 @@ class CodeChangeSet
      * @todo Implement this
      * @param string $currentPath
      */
-    public function remove(string $currentPath)
+    public function remove(string $path)
     {
+        if ($this->hasNewContents($path)) {
+            user_error("Already added changes for $path, shouldn't add a 2nd time");
+        }
+        $this->fileChanges[$path] = ['path' => false];
+
+        $this->addToAffectedFiles($path);
     }
 
     /**
@@ -113,9 +118,7 @@ class CodeChangeSet
 
         $this->warnings[$path][] = "<info>$path:$line</info> <comment>$warning</comment>";
 
-        if (!in_array($path, $this->affectedFiles)) {
-            $this->affectedFiles[] = $path;
-        }
+        $this->addToAffectedFiles($path);
     }
 
     public function addWarnings($path, $warnings)
@@ -228,6 +231,18 @@ class CodeChangeSet
             return $this->fileChanges[$path];
         } else {
             throw new InvalidArgumentException("No file changes found for $path");
+        }
+    }
+
+    /**
+     * Add a file path to the list of affected files in the code change set.
+     * @param string $path
+     * @return void
+     */
+    private function addToAffectedFiles(string $path)
+    {
+        if (!in_array($path, $this->affectedFiles)) {
+            $this->affectedFiles[] = $path;
         }
     }
 }
