@@ -13,9 +13,14 @@ trait ChangeApplier
      * @param string $path
      * @return ItemInterface
      */
-    abstract public function itemByPath($path);
+    abstract public function itemByPath(string $path): ItemInterface;
 
-    public function applyChanges(CodeChangeSet $changes)
+    /**
+     * Apply the changes contained in the CodeChangeSet.
+     * @param CodeChangeSet $changes
+     * @return void
+     */
+    public function applyChanges(CodeChangeSet $changes): void
     {
         foreach ($changes->allChanges() as $path => $change) {
             $item = $this->itemByPath($path);

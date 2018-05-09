@@ -53,11 +53,12 @@ class CodeChangeSet
      * Add a file change.
      *
      * @param string $path
-     * @param string $contents New contents
-     * @param string $original Original contents
+     * @param string $contents New contents.
+     * @param string $original Original contents.
      * @param false|string $newPath New location of the file.
+     * @return void
      */
-    public function addFileChange($path, $contents, $original, $newPath = false)
+    public function addFileChange(string $path, string $contents, string $original, $newPath = false): void
     {
         if ($this->hasNewContents($path)) {
             user_error("Already added changes for $path, shouldn't add a 2nd time");
@@ -81,8 +82,9 @@ class CodeChangeSet
      * Move a file/folder to a different location within the project.
      * @param string $path
      * @param string $newPath
+     * @return void
      */
-    public function move(string $path, string $newPath)
+    public function move(string $path, string $newPath): void
     {
         $this->addFileChange($path, false, false, $newPath);
     }
@@ -90,8 +92,9 @@ class CodeChangeSet
     /**
      * Remove a file from the project.
      * @param string $path
+     * @return void
      */
-    public function remove(string $path)
+    public function remove(string $path): void
     {
         if ($this->hasNewContents($path)) {
             user_error("Already added changes for $path, shouldn't add a 2nd time");
@@ -108,8 +111,9 @@ class CodeChangeSet
      * @param string $path
      * @param integer $line
      * @param string $warning
+     * @return void
      */
-    public function addWarning($path, $line, $warning)
+    public function addWarning(string $path, int $line, string $warning): void
     {
         if (!isset($this->warnings[$path])) {
             $this->warnings[$path] = [];
@@ -120,7 +124,13 @@ class CodeChangeSet
         $this->addToAffectedFiles($path);
     }
 
-    public function addWarnings($path, $warnings)
+    /**
+     * Add multiple warnings a to the given file.
+     * @param string $path
+     * @param string[] $warnings
+     * @return void
+     */
+    public function addWarnings(string $path, array $warnings): void
     {
         foreach ($warnings as $warning) {
             list($line, $message) = $warning;
@@ -152,7 +162,7 @@ class CodeChangeSet
      * @param string $path
      * @return boolean
      */
-    public function hasNewContents($path)
+    public function hasNewContents(string $path): bool
     {
         return isset($this->fileChanges[$path]);
     }
@@ -162,7 +172,7 @@ class CodeChangeSet
      * @param string $path
      * @return boolean
      */
-    public function hasWarnings($path)
+    public function hasWarnings(string $path): bool
     {
         return isset($this->warnings[$path]);
     }
@@ -171,10 +181,10 @@ class CodeChangeSet
      * Return the file contents for a given path
      *
      * @param string $path
-     * @return string
-     * @throws InvalidArgumentException
+     * @return string|false
+     * @throws InvalidArgumentException If `$path` has not been recorded as changed.
      */
-    public function newContents($path)
+    public function newContents(string $path)
     {
         $change = $this->changeByPath($path);
         return isset($change['new']) ? $change['new'] : false;
@@ -185,9 +195,9 @@ class CodeChangeSet
      *
      * @param string $path
      * @return string|false
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException If `$path` has not been recorded as changed.
      */
-    public function oldContents($path)
+    public function oldContents(string $path)
     {
         $change = $this->changeByPath($path);
         return isset($change['old']) ? $change['old'] : false;
@@ -196,8 +206,8 @@ class CodeChangeSet
     /**
      * Return the new Path for a file.
      * @param string $path
-     * @return string
-     * @throws InvalidArgumentException
+     * @return string|false
+     * @throws InvalidArgumentException If `$path` has not been recorded as changed.
      */
     public function newPath(string $path)
     {
@@ -207,11 +217,12 @@ class CodeChangeSet
     /**
      * Return the warnings for a given path
      * @param string $path
-     * @return array
+     * @throws InvalidArgumentException If `$path` does not have any warnings.
+     * @return string[]
      */
-    public function warningsForPath($path)
+    public function warningsForPath(string $path): array
     {
-        if (isset($this->warnings[$path])) {
+        if ($this->hasWarnings($path)) {
             return $this->warnings[$path];
         } else {
             throw new InvalidArgumentException("No warnings found for $path");
@@ -221,12 +232,12 @@ class CodeChangeSet
     /**
      * Return a change set for the given path.
      * @param string $path
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException If no change have been recorded against `$path`.
      * @return array
      */
     private function changeByPath(string $path): array
     {
-        if (isset($this->fileChanges[$path])) {
+        if ($this->hasNewContents($path)) {
             return $this->fileChanges[$path];
         } else {
             throw new InvalidArgumentException("No file changes found for $path");
@@ -238,7 +249,7 @@ class CodeChangeSet
      * @param string $path
      * @return void
      */
-    private function addToAffectedFiles(string $path)
+    private function addToAffectedFiles(string $path): void
     {
         if (!in_array($path, $this->affectedFiles)) {
             $this->affectedFiles[] = $path;

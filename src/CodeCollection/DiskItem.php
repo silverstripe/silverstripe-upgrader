@@ -2,6 +2,8 @@
 
 namespace SilverStripe\Upgrader\CodeCollection;
 
+use InvalidArgumentException;
+
 /**
  * Represents a simple file on disk.
  * Produced by DiskCollection
@@ -21,14 +23,16 @@ class DiskItem implements ItemInterface
     /**
      * Create a new DiskItem
      *
-     * @param string $basePath Base directory name (not including trailing slash)
-     * @param string $relativePath Path relative to base path
+     * @param string $basePath Base directory name (not including trailing slash).
+     * @param string $relativePath Path relative to base path.
+     * @throws InvalidArgumentException If base path is invalid.
+     * @throws InvalidArgumentException If relative path is invalid.
      */
-    public function __construct($basePath, $relativePath)
+    public function __construct(string $basePath, string $relativePath)
     {
         // Validate an normalise inputs
         if (!$this->isWindows() && $basePath[0] !== '/') {
-            throw new \InvalidArgumentException("basePath must start with /");
+            throw new InvalidArgumentException("basePath must start with /");
         }
         if (substr($basePath, -1) === '/') {
             $basePath = substr($basePath, 0, -1);
@@ -37,18 +41,26 @@ class DiskItem implements ItemInterface
             $relativePath = substr($relativePath, 1);
         }
         if (substr($relativePath, -1) === '/') {
-            throw new \InvalidArgumentException("relativePath cannot end with / - it must point to a file");
+            throw new InvalidArgumentException("relativePath cannot end with / - it must point to a file");
         }
 
         $this->basePath = $basePath;
         $this->relativePath = $relativePath;
     }
 
+    /**
+     * @inheritdoc
+     * @return string
+     */
     public function getFullPath()
     {
         return $this->basePath . '/' . $this->relativePath;
     }
 
+    /**
+     * @inheritdoc
+     * @return string
+     */
     public function getExtension()
     {
         return strtolower(pathinfo($this->relativePath, PATHINFO_EXTENSION));
@@ -65,7 +77,7 @@ class DiskItem implements ItemInterface
     }
 
     /**
-     * Return the relative path of this item
+     * Return the relative path of this item.
      *
      * @return string
      */
@@ -75,7 +87,7 @@ class DiskItem implements ItemInterface
     }
 
     /**
-     * Get filename
+     * Get filename.
      *
      * @return string
      */
@@ -85,7 +97,7 @@ class DiskItem implements ItemInterface
     }
 
     /**
-     * Read the contents of this file
+     * Read the contents of this file.
      *
      * @return string
      */
@@ -95,16 +107,18 @@ class DiskItem implements ItemInterface
     }
 
     /**
-     * Update the contents of this file
+     * Update the contents of this file.
      *
      * @param string $contents
+     * @return void
      */
-    public function setContents($contents)
+    public function setContents(string $contents): void
     {
         file_put_contents($this->getFullPath(), $contents);
     }
 
     /**
+     * Determine if the upgrader is running in a Windows environment.
      * @return boolean
      */
     private function isWindows()

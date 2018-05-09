@@ -46,6 +46,7 @@ interface ItemInterface
      * Update the contents of this file
      *
      * @param string $contents
+     * @return void
      */
-    public function setContents($contents);
+    public function setContents(string $contents): void;
 }

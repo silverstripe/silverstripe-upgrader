@@ -3,7 +3,11 @@
 namespace SilverStripe\Upgrader\CodeCollection;
 
 use Iterator;
+use InvalidArgumentException;
 
+/**
+ * Represent a collection of files on disk that can be iterated through to perform changes.
+ */
 class DiskCollection implements CollectionInterface
 {
 
@@ -32,13 +36,14 @@ class DiskCollection implements CollectionInterface
      * If given a directory, the collection will include all files in this directory.
      *
      * @param string $path
-     * @param bool $recursive
+     * @param boolean $recursive
      * @param array $exclusions
+     * @throws InvalidArgumentException If the path does not exists.
      */
-    public function __construct($path, $recursive = true, $exclusions = [])
+    public function __construct(string $path, bool $recursive = true, array $exclusions = [])
     {
         if (!file_exists($path)) {
-            throw new \InvalidArgumentException("Path '$path' does not exist");
+            throw new InvalidArgumentException("Path '$path' does not exist");
         }
         $this->path = $path;
         $this->recursive = $recursive;
@@ -82,9 +87,9 @@ class DiskCollection implements CollectionInterface
      * Check if this path is a valid DiskItem
      *
      * @param string $path
-     * @return bool
+     * @return boolean
      */
-    protected function isDiskItem($path)
+    protected function isDiskItem(string $path): bool
     {
         // Dir isn't a diskitem
         if (is_dir($path)) {
@@ -111,9 +116,9 @@ class DiskCollection implements CollectionInterface
      *
      * @param string $path
      * @param string $pattern
-     * @return bool
+     * @return boolean
      */
-    protected function pathMatches($path, $pattern)
+    protected function pathMatches(string $path, string $pattern): bool
     {
         if (function_exists('fnmatch')) {
             return fnmatch($pattern, $path);
@@ -132,8 +137,9 @@ class DiskCollection implements CollectionInterface
      *
      * @param string $path
      * @return ItemInterface
+     * @throws InvalidArgumentException If path is not in the collection.
      */
-    public function itemByPath($path)
+    public function itemByPath(string $path): ItemInterface
     {
         $base = $this->path;
 
@@ -141,7 +147,7 @@ class DiskCollection implements CollectionInterface
         if (is_file($base)) {
             $base = dirname($base);
             if ($path !== basename($this->path)) {
-                throw new \InvalidArgumentException("{$path} is not in this collection");
+                throw new InvalidArgumentException("{$path} is not in this collection");
             }
         }
 
