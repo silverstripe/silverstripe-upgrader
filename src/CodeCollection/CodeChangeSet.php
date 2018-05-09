@@ -79,8 +79,8 @@ class CodeChangeSet
 
     /**
      * Move a file/folder to a different location within the project.
-     * @todo Implement this
      * @param string $path
+     * @param string $newPath
      */
     public function move(string $path, string $newPath)
     {
@@ -89,8 +89,7 @@ class CodeChangeSet
 
     /**
      * Remove a file from the project.
-     * @todo Implement this
-     * @param string $currentPath
+     * @param string $path
      */
     public function remove(string $path)
     {
@@ -107,7 +106,7 @@ class CodeChangeSet
      * Usually these warnings highlight upgrade activity that a developer will need to check for themselves
      *
      * @param string $path
-     * @param int $line
+     * @param integer $line
      * @param string $warning
      */
     public function addWarning($path, $line, $warning)

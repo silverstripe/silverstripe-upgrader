@@ -145,7 +145,6 @@ class CodeChangeSetTest extends TestCase
             'withoutChange.txt',
             'Path for move file should have been updated for a moved file'
         );
-
     }
 
     public function testDelete()
@@ -188,7 +187,6 @@ class CodeChangeSetTest extends TestCase
             $diff->newPath('oldFile.txt'),
             'Path for deleted file should be false'
         );
-
     }
 
     protected function fixture()
