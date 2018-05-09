@@ -55,7 +55,7 @@ class DiskCollection implements CollectionInterface
      *
      * @return Iterator
      */
-    public function iterateItems()
+    public function iterateItems(): Iterator
     {
         // Iterate once over this file only
         if (is_file($this->path)) {

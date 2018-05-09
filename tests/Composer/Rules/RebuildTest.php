@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Composer\Rules\Rebuild;
 use SilverStripe\Upgrader\Tests\Composer\InitPackageCacheTrait;
 use SilverStripe\Upgrader\Composer\ComposerExec;
+use SilverStripe\Upgrader\Composer\SilverstripePackageInfo;
 
 class RebuildTest extends TestCase
 {
@@ -14,8 +15,8 @@ class RebuildTest extends TestCase
 
     private $dependencies = [
         "php" => "^5.6|^7",
-        "silverstripe/cms" => "^3.6",
-        "silverstripe/framework" => "^3.6",
+        SilverstripePackageInfo::CMS => "^3.6",
+        SilverstripePackageInfo::FRAMEWORK => "^3.6",
         "silverstripe/contentreview" => "~3",
         "silverstripe/sharedraftcontent" => "~1",
         "symbiote/silverstripe-advancedworkflow" => "~4",
@@ -26,7 +27,7 @@ class RebuildTest extends TestCase
 
     private $groupedDependencies = [
         'system' => ['php', 'ext-json'],
-        'framework' => ['silverstripe/recipe-core', 'silverstripe/recipe-cms'],
+        'framework' => [SilverstripePackageInfo::RECIPE_CORE, SilverstripePackageInfo::RECIPE_CMS],
         'recipe' => [],
         'cwp' => ['cwp/cwp-core'],
         'supported' => [
@@ -44,24 +45,24 @@ class RebuildTest extends TestCase
 
         // Upgrading a 3.6 framwork only project
         $result = $rule->switchToRecipeCore([
-            'silverstripe/framework' => '^3.6'
+            SilverstripePackageInfo::FRAMEWORK => '^3.6'
         ]);
-        $this->assertEquals($result, ['silverstripe/recipe-core' => '1.1']);
+        $this->assertEquals($result, [SilverstripePackageInfo::RECIPE_CORE => '1.1']);
 
         // Upgrading a 4.1 framework only project.
         $result = $rule->switchToRecipeCore([
-            'silverstripe/recipe-core' => '1.0'
+            SilverstripePackageInfo::RECIPE_CORE => '1.0'
         ]);
-        $this->assertEquals($result, ['silverstripe/recipe-core' => '1.1']);
+        $this->assertEquals($result, [SilverstripePackageInfo::RECIPE_CORE => '1.1']);
 
         // Upgrading a 3.6 CMS project
         $result = $rule->switchToRecipeCore([
-            'silverstripe/framework' => '^3.6',
-            'silverstripe/cms' => '^3.6',
+            SilverstripePackageInfo::FRAMEWORK => '^3.6',
+            SilverstripePackageInfo::CMS => '^3.6',
         ]);
         $this->assertEquals($result, [
-            'silverstripe/recipe-core' => '1.1',
-            'silverstripe/recipe-cms' => '1.1'
+            SilverstripePackageInfo::RECIPE_CORE => '1.1',
+            SilverstripePackageInfo::RECIPE_CMS => '1.1'
         ]);
     }
 
@@ -95,8 +96,8 @@ class RebuildTest extends TestCase
 
         // Unfortunately, our ability to unit test here is limited because the exact dependencies we'll
         // get back will vary base on what the latest version on packagist is.
-        $this->assertEquals($require['silverstripe/recipe-core'], '1.1.0');
-        $this->assertEquals($require['silverstripe/recipe-cms'], '1.1.0');
+        $this->assertEquals($require[SilverstripePackageInfo::RECIPE_CORE], '1.1.0');
+        $this->assertEquals($require[SilverstripePackageInfo::RECIPE_CMS], '1.1.0');
     }
 
     public function testFindRecipeEquivalence()
@@ -107,8 +108,8 @@ class RebuildTest extends TestCase
         $dependencies = $rule->switchToRecipeCore($this->dependencies);
 
         // Test a package that has recipe-core and recipe-cms explicitly define
-        $composer->require('silverstripe/recipe-core', '^1.1', $schema->getBasePath());
-        $composer->require('silverstripe/recipe-cms', '^1.1', $schema->getBasePath());
+        $composer->require(SilverstripePackageInfo::RECIPE_CORE, '^1.1', $schema->getBasePath());
+        $composer->require(SilverstripePackageInfo::RECIPE_CMS, '^1.1', $schema->getBasePath());
 
         $rule->findRecipeEquivalence($dependencies, $composer, $schema);
 
@@ -116,8 +117,8 @@ class RebuildTest extends TestCase
 
         // recipe-cms and recipe-core and all should have been substituted with recipe-collaboration
         $this->assertArrayHasKey('silverstripe/recipe-collaboration', $require);
-        $this->assertArrayNotHasKey('silverstripe/recipe-core', $require);
-        $this->assertArrayNotHasKey('silverstripe/recipe-cms', $require);
+        $this->assertArrayNotHasKey(SilverstripePackageInfo::RECIPE_CORE, $require);
+        $this->assertArrayNotHasKey(SilverstripePackageInfo::RECIPE_CMS, $require);
 
         // Test a composer file that doesn't define any recipe but has all undelying package install.
         $schema = $composer->initTemporarySchema();
@@ -139,10 +140,10 @@ class RebuildTest extends TestCase
 
         // recipe-cms and recipe-core and all should have been substituted with recipe-collaboration
         $this->assertArrayHasKey('silverstripe/recipe-collaboration', $require);
-        $this->assertArrayNotHasKey('silverstripe/recipe-core', $require);
-        $this->assertArrayNotHasKey('silverstripe/recipe-cms', $require);
-        $this->assertArrayNotHasKey('silverstripe/framework', $require);
-        $this->assertArrayNotHasKey('silverstripe/cms', $require);
+        $this->assertArrayNotHasKey(SilverstripePackageInfo::RECIPE_CORE, $require);
+        $this->assertArrayNotHasKey(SilverstripePackageInfo::RECIPE_CMS, $require);
+        $this->assertArrayNotHasKey(SilverstripePackageInfo::FRAMEWORK, $require);
+        $this->assertArrayNotHasKey(SilverstripePackageInfo::CMS, $require);
         $this->assertArrayNotHasKey('silverstripe/contentreview', $require);
     }
 }

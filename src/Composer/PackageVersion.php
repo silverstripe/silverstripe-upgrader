@@ -41,15 +41,15 @@ class PackageVersion
         $require = $this->getRequire();
 
         // If the framework dependency is explicitly define.
-        if (isset($require['silverstripe/framework'])) {
-            return $require['silverstripe/framework'];
+        if (isset($require[SilverstripePackageInfo::FRAMEWORK])) {
+            return $require[SilverstripePackageInfo::FRAMEWORK];
         }
 
         // Loop through a list of known recipe packages and try to get their dependency.
         $knownRecipes = [
-            'silverstripe/recipe-core',
-            'silverstripe/recipe-cms',
-            'silverstripe/cms',
+            SilverstripePackageInfo::RECIPE_CORE,
+            SilverstripePackageInfo::RECIPE_CMS,
+            SilverstripePackageInfo::CMS,
         ];
 
         foreach ($knownRecipes as $recipe) {

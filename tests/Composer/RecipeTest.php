@@ -5,6 +5,7 @@ namespace SilverStripe\Upgrader\Tests\Composer;
 use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Composer\Package;
 use SilverStripe\Upgrader\Composer\Recipe;
+use SilverStripe\Upgrader\Composer\SilverstripePackageInfo;
 
 class RecipeTest extends TestCase
 {
@@ -12,19 +13,19 @@ class RecipeTest extends TestCase
 
     public function testBuildDependencyTree()
     {
-        $recipe = new Recipe(new Package('silverstripe/recipe-cms'));
+        $recipe = new Recipe(new Package(SilverstripePackageInfo::RECIPE_CMS));
 
         $expected = [
             "silverstripe/admin" => [],
             "silverstripe/asset-admin" => [],
             "silverstripe/campaign-admin" => [],
             "silverstripe/errorpage" => [],
-            "silverstripe/cms" => [],
+            SilverstripePackageInfo::CMS => [],
             "silverstripe/graphql" => [],
-            "silverstripe/recipe-core" => [
+            SilverstripePackageInfo::RECIPE_CORE => [
                 "silverstripe/assets" => [],
                 "silverstripe/config" => [],
-                "silverstripe/framework" => []
+                SilverstripePackageInfo::FRAMEWORK => []
             ],
             "silverstripe/reports" => [],
             "silverstripe/siteconfig" => [],
@@ -36,7 +37,7 @@ class RecipeTest extends TestCase
 
     public function testSubsetOf()
     {
-        $recipe = new Recipe(new Package('silverstripe/recipe-cms'));
+        $recipe = new Recipe(new Package(SilverstripePackageInfo::RECIPE_CMS));
 
         $this->assertEmpty(
             $recipe->subsetOf([]),
@@ -44,7 +45,7 @@ class RecipeTest extends TestCase
         );
 
         $this->assertEmpty(
-            $recipe->subsetOf(['silverstripe/admin', 'silverstripe/cms']),
+            $recipe->subsetOf(['silverstripe/admin', SilverstripePackageInfo::CMS]),
             'Calling subset an an partial list of dependencies should return nothing.'
         );
 
@@ -53,7 +54,7 @@ class RecipeTest extends TestCase
             "silverstripe/asset-admin",
             "silverstripe/campaign-admin",
             "silverstripe/errorpage",
-            "silverstripe/cms",
+            SilverstripePackageInfo::CMS,
             "silverstripe/graphql",
             "silverstripe/reports",
             "silverstripe/siteconfig",
@@ -63,11 +64,11 @@ class RecipeTest extends TestCase
         $coreDependencies = [
             "silverstripe/assets",
             "silverstripe/config",
-            "silverstripe/framework",
+            SilverstripePackageInfo::FRAMEWORK,
         ];
 
 
-        $expected = array_merge($dependencies, $coreDependencies, ["silverstripe/recipe-core"]);
+        $expected = array_merge($dependencies, $coreDependencies, [SilverstripePackageInfo::RECIPE_CORE]);
 
 
         $results = $recipe->subsetOf(array_merge(
@@ -83,7 +84,7 @@ class RecipeTest extends TestCase
 
         $results = $recipe->subsetOf(array_merge(
             $dependencies,
-            ["silverstripe/recipe-core", "silverstripe/monkey"]
+            [SilverstripePackageInfo::RECIPE_CORE, "silverstripe/monkey"]
         ));
         $this->assertEquals(
             sort($results),

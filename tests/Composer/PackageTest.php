@@ -5,6 +5,7 @@ namespace SilverStripe\Upgrader\Tests\Composer;
 use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Composer\Package;
 use SilverStripe\Upgrader\Composer\Packagist;
+use SilverStripe\Upgrader\Composer\SilverstripePackageInfo;
 
 class PackageTest extends TestCase
 {
@@ -12,7 +13,7 @@ class PackageTest extends TestCase
 
     public function testGetVersionNumbers()
     {
-        $package = $this->getPackage('silverstripe/recipe-core');
+        $package = $this->getPackage(SilverstripePackageInfo::RECIPE_CORE);
 
         $expectedVersions = [
             "1.1.0",
@@ -55,7 +56,7 @@ class PackageTest extends TestCase
 
     public function testGetVersion()
     {
-        $package = $this->getPackage('silverstripe/recipe-core');
+        $package = $this->getPackage(SilverstripePackageInfo::RECIPE_CORE);
         $version = $package->getVersion('~1.0.0');
         $this->assertEquals(
             $version->getId(),
@@ -69,7 +70,7 @@ class PackageTest extends TestCase
 
     public function testIsSilverStripeRelated()
     {
-        $coreRecipe = $this->getPackage('silverstripe/recipe-core');
+        $coreRecipe = $this->getPackage(SilverstripePackageInfo::RECIPE_CORE);
         $this->assertTrue(
             $coreRecipe->isSilverstripeRelated(),
             '`silverstripe/recipe-core` is related to silverstripe'

@@ -139,7 +139,7 @@ class RecomposeCommand extends AbstractCommand
      */
     protected function findTargetRecipeCore(string $constraint)
     {
-        $package = new Package('silverstripe/recipe-core');
+        $package = new Package(SilverstripePackageInfo::RECIPE_CORE);
         $version = $package->getVersion($constraint);
 
         if ($version) {
