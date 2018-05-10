@@ -49,4 +49,14 @@ interface ItemInterface
      * @return void
      */
     public function setContents(string $contents): void;
+
+    /**
+     * Get the MD5 hash of this file. Accepts a parameter to convert the EOL character to Unix formats before
+     * calculating in case some files have been converted to use the Windows format.
+     * @param boolean $normalizeEOL Convert the content of the file to use line feed to as end-of-line character.
+     * @return string
+     */
+    public function getMd5Hash(bool $normalizeEOL=false): string;
+
 }
+

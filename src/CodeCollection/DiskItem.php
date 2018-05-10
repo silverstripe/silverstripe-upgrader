@@ -31,7 +31,7 @@ class DiskItem implements ItemInterface
     public function __construct(string $basePath, string $relativePath)
     {
         // Validate an normalise inputs
-        if (!$this->isWindows() && $basePath[0] !== '/') {
+        if (!$this->isWindows() && $basePath[0] !== '/' && !preg_match('/^vfs\:\/\//', $basePath)) {
             throw new InvalidArgumentException("basePath must start with /");
         }
         if (substr($basePath, -1) === '/') {
@@ -124,5 +124,19 @@ class DiskItem implements ItemInterface
     private function isWindows()
     {
         return (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+    }
+
+    /**
+     *
+     * @param bool $normalizeEOL
+     * @return string
+     */
+    public function getMd5Hash(bool $normalizeEOL=false): string
+    {
+        $content = $this->getContents();
+        if ($normalizeEOL) {
+            $content = preg_replace('/\r\n?/', "\n", $content);
+        }
+        return md5($content);
     }
 }
