@@ -71,7 +71,7 @@ class DiskCollection implements CollectionInterface
         }
         foreach ($iterator as $path) {
             // Fix iterator being passed in as path
-            $path = (string)$path;
+            $path = (string)$path->getPathname();
             if (!$this->isDiskItem($path)) {
                 continue;
             }
@@ -79,6 +79,7 @@ class DiskCollection implements CollectionInterface
             if (substr($path, 0, strlen($this->path)) == $this->path) {
                 $path = substr($path, strlen($this->path));
             }
+
             yield new DiskItem($this->path, $path);
         }
     }
@@ -91,8 +92,32 @@ class DiskCollection implements CollectionInterface
      */
     protected function isDiskItem(string $path): bool
     {
-        // Dir isn't a diskitem
+        // Dir isn't a disk item
         if (is_dir($path)) {
+            return false;
+        }
+
+        return $this->realPathExists($path);
+    }
+
+    /**
+     * Checks if the provided path exist in the DiskCollection.
+     * @param string $path
+     * @return boolean
+     */
+    public function exists(string $path): bool
+    {
+        return $this->realPathExists($this->path . DIRECTORY_SEPARATOR .$path);
+    }
+
+    /**
+     * Check if the provided path exists on the FileSystem.
+     * @param string $path
+     * @return boolean
+     */
+    protected function realPathExists(string $path): bool
+    {
+        if (!file_exists($path)) {
             return false;
         }
 
@@ -110,6 +135,7 @@ class DiskCollection implements CollectionInterface
 
         return true;
     }
+
 
     /**
      * Check if this path matches a pattern
