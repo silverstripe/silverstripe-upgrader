@@ -30,4 +30,11 @@ interface CollectionInterface
      * @return void
      */
     public function applyChanges(CodeChangeSet $changes): void;
+
+    /**
+     * Checks if the provided path exist in the DiskCollection.
+     * @param string $path
+     * @return boolean
+     */
+    public function exists(string $path): bool;
 }
