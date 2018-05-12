@@ -128,10 +128,10 @@ class DiskItem implements ItemInterface
 
     /**
      *
-     * @param bool $normalizeEOL
+     * @param boolean $normalizeEOL
      * @return string
      */
-    public function getMd5Hash(bool $normalizeEOL=false): string
+    public function getMd5Hash(bool $normalizeEOL = false): string
     {
         $content = $this->getContents();
         if ($normalizeEOL) {

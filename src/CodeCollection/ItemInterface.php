@@ -56,7 +56,5 @@ interface ItemInterface
      * @param boolean $normalizeEOL Convert the content of the file to use line feed to as end-of-line character.
      * @return string
      */
-    public function getMd5Hash(bool $normalizeEOL=false): string;
-
+    public function getMd5Hash(bool $normalizeEOL = false): string;
 }
-
