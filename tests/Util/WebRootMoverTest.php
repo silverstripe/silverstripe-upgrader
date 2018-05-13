@@ -20,7 +20,9 @@ class WebRootMoverTest extends TestCase
                     '.htaccess' => '# root htaccess file',
                     'public' => [
                         '.htaccess' => '# public .htaccess',
-                        'web.config' => '<!-- public web.config -->'
+                        'web.config' => '<!-- public web.config -->',
+                        '.gitignore' => '# some files should be ignored',
+                        'index.php' => '<?php echo "Do Stuff"'
                     ]
                 ]
             ]
@@ -304,6 +306,55 @@ EOF
             ],
             $diff->allChanges(),
             'moveAssets on a project with an assets folder should have move it to public.'
+        );
+    }
+
+    public function testMoveInstallerFiles()
+    {
+        $composer = new MockComposer();
+        $composer->showOutput = [[
+            'name' => 'silverstripe/recipe-core',
+            'version' => '1.1.0',
+            'description' => 'bla bla bla'
+        ]];
+
+
+        // Testing with an empty project folder
+        $root = vfsStream::setup(
+            'ss_project_root',
+            null,
+            array_merge(
+                [
+                    'favicon.ico' => '16x16 pixels of adorable kitten',
+                    'index.php' => '<?php echo "do some old stuff";'
+                ],
+                $this->vendorFolder
+            )
+        );
+        $diff = new CodeChangeSet();
+        $mover = new WebRootMover($root->url(), $composer);
+        $mover->moveInstallerFiles($diff);
+        $this->assertEquals(
+            [
+                'public/index.php' => [
+                    'new' => '<?php echo "Do Stuff"',
+                    'old' => '',
+                    'path' => 'public/index.php'
+                ],
+                'public/.gitignore' => [
+                    'new' => '# some files should be ignored',
+                    'old' => '',
+                    'path' => 'public/.gitignore'
+                ],
+                'favicon.ico' => [
+                    'path' => 'public/favicon.ico'
+                ],
+                'index.php' => [
+                    'path' => false
+                ]
+            ],
+            $diff->allChanges(),
+            'moveInstallerFiles should have move the index.php, .gitignore and favicon.ico files.'
         );
     }
 }

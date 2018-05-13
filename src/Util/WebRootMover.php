@@ -246,7 +246,7 @@ EOF
      * @internal Depends on `initialisePublicFolder` having been run.
      * @param CodeChangeSet $diff
      */
-    public function moveAssets(CodeChangeSet &$diff)
+    public function moveAssets(CodeChangeSet &$diff): void
     {
         if ($this->disk->exists('assets')) {
             $diff->move('assets', 'public/assets');
@@ -260,6 +260,28 @@ EOF
      */
     public function moveInstallerFiles(CodeChangeSet &$diff)
     {
+        // Move some common non-essnetial file from recipe-core to public.
+        foreach (['index.php', '.gitignore'] as $filename) {
+            $targetPath = self::PUBLIC . DIRECTORY_SEPARATOR . $filename;
+            $recipeCoreFile = $this->getRecipeCoreFileContent($targetPath);
+            if ($recipeCoreFile) {
+                $diff->addFileChange($targetPath, $recipeCoreFile->getContents(), false);
+            }
+        }
+
+        // Move some common non-essential file from root to public.
+        foreach (['favicon.ico'] as $filename) {
+            if ($this->disk->exists($filename)) {
+                $diff->move($filename, self::PUBLIC . DIRECTORY_SEPARATOR . $filename);
+            }
+        }
+
+        // Delete some unneeded file from the root.
+        foreach (['index.php'] as $filename) {
+            if ($this->disk->exists($filename)) {
+                $diff->remove($filename);
+            }
+        }
     }
 
     /**
@@ -268,23 +290,6 @@ EOF
      */
     public function exposeVendor()
     {
-    }
-
-    /**
-     * Look at a legacy file and see if it can be moved/upgraded to a newer version.
-     * @param CodeChange $diff
-     * @param $original
-     * @param $destination
-     * @param $replaceWith
-     * @param array $compareTo
-     */
-    private function replaceLegacyFile(
-        CodeChange &$diff,
-        $original,
-        $destination,
-        $replaceWith,
-        $compareTo = []
-    ) {
     }
 
     /**
