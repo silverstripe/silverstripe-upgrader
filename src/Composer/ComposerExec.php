@@ -395,4 +395,18 @@ EOF
             $cacheDir :
             '';
     }
+
+    /**
+     * @inheritdoc
+     * @param string $workingDir
+     * @throws RuntimeException If there's an error occurs while running the command.
+     * @return void
+     */
+    public function expose(string $workingDir = ''): void
+    {
+        $process = $this->run('vendor-expose', ['--working-dir' => $workingDir]);
+        if (!$process->isSuccessful()) {
+            throw new RuntimeException($process->getErrorOutput());
+        }
+    }
 }

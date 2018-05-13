@@ -95,4 +95,12 @@ interface ComposerInterface
      * @return string
      */
     public function getCacheDir(): string;
+
+    /**
+     * Call the custom silverstripe `vendor-expose` composer command.
+     * @param string $workingDir
+     * @throws RuntimeException If there's an error occurs while running the command.
+     * @return void
+     */
+    public function expose(string $workingDir = ''): void;
 }

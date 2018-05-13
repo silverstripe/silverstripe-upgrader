@@ -59,4 +59,9 @@ class MockComposer implements ComposerInterface
     {
         return $this->cacheDir;
     }
+
+    public function expose(string $workingDir = ''): void
+    {
+        // TODO: Implement expose() method.
+    }
 }
