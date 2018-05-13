@@ -74,10 +74,10 @@ EOF
     }
 
     /**
-     * @internal checkPrerequesites doesn't have an output. The main thing we care about is that it should throw
+     * @internal checkPrerequisites doesn't have an output. The main thing we care about is that it should throw
      * exceptions.
      */
-    public function testCheckPrerequesites()
+    public function testCheckPrerequisites()
     {
         $composer = new MockComposer();
         $composer->showOutput = [[
@@ -88,22 +88,22 @@ EOF
 
         // Basic test
         $mover = new WebRootMover($this->root->url(), $composer);
-        $this->assertNull($mover->checkPrerequesites());
+        $this->assertNull($mover->checkPrerequisites());
 
         // Test with another version of 1.x
         $composer->showOutput[0]['version'] = '1.2.3';
-        $this->assertNull($mover->checkPrerequesites());
+        $this->assertNull($mover->checkPrerequisites());
 
         // Test with a major upgrade version ... we're future proofing here.
         $composer->showOutput[0]['version'] = '2.0.0';
-        $this->assertNull($mover->checkPrerequesites());
+        $this->assertNull($mover->checkPrerequisites());
 
         // Test with an empty public folder
         vfsStream::newDirectory('public')->at($this->root);
-        $this->assertNull($mover->checkPrerequesites());
+        $this->assertNull($mover->checkPrerequisites());
     }
 
-    public function testCheckPrerequesitesFailedNoRecipeCore()
+    public function testCheckPrerequisitesFailedNoRecipeCore()
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -111,10 +111,10 @@ EOF
 
         // Basic test
         $mover = new WebRootMover($this->root->url(), $composer);
-        $mover->checkPrerequesites();
+        $mover->checkPrerequisites();
     }
 
-    public function testCheckPrerequesitesFailedRecipeCoreVersion()
+    public function testCheckPrerequisitesFailedRecipeCoreVersion()
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -127,14 +127,14 @@ EOF
 
         // Basic test
         $mover = new WebRootMover($this->root->url(), $composer);
-        $mover->checkPrerequesites();
+        $mover->checkPrerequisites();
     }
 
     /**
-     * @internal checkPrerequesites doesn't have an output. The main thing we care about is that it should throw
+     * @internal checkPrerequisites doesn't have an output. The main thing we care about is that it should throw
      * exceptions.
      */
-    public function testCheckPrerequesitesFailedPublicNotEmpty()
+    public function testCheckPrerequisitesFailedPublicNotEmpty()
     {
         $this->expectException(InvalidArgumentException::class);
         $composer = new MockComposer();
@@ -149,7 +149,7 @@ EOF
         $dir = vfsStream::newDirectory('public')->at($this->root);
         $dir->addChild(vfsStream::newFile('.htaccess')->setContent(''));
 
-        $mover->checkPrerequesites();
+        $mover->checkPrerequisites();
     }
 
     public function testMoveServerConfigFile()

@@ -99,7 +99,7 @@ class WebRootMover
      *
      * @throws InvalidArgumentException
      */
-    public function checkPrerequesites(): void
+    public function checkPrerequisites(): void
     {
         // Make sure we have recipe-core install
         $packageInfo = $this->composer->show();
@@ -131,7 +131,7 @@ class WebRootMover
 
     /**
      * Move server configuration file (.htaccess, web.config) around.
-     * @internal Depends on `checkPrerequesites` having been run.
+     * @internal Depends on `checkPrerequisites` having been run.
      * @param CodeChangeSet $diff
      */
     public function moveServerConfigFile(CodeChangeSet &$diff)
@@ -284,13 +284,6 @@ EOF
         }
     }
 
-    /**
-     * Expose vendor folder.
-     * @internal Depends on the CodeChangeSet having been applied.
-     */
-    public function exposeVendor()
-    {
-    }
 
     /**
      * Get absolute path to public folder.
