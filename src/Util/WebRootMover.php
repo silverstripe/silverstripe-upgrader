@@ -248,6 +248,9 @@ EOF
      */
     public function moveAssets(CodeChangeSet &$diff)
     {
+        if ($this->disk->exists('assets')) {
+            $diff->move('assets', 'public/assets');
+        }
     }
 
     /**

@@ -258,4 +258,52 @@ EOF
             'web.config should have a warning'
         );
     }
+
+    public function testMoveAssets()
+    {
+        $composer = new MockComposer();
+        $composer->showOutput = [[
+            'name' => 'silverstripe/recipe-core',
+            'version' => '1.1.0',
+            'description' => 'bla bla bla'
+        ]];
+
+        // Testing with an empty project folder
+        $root = vfsStream::setup('ss_project_root', null, $this->vendorFolder);
+        $diff = new CodeChangeSet();
+        $mover = new WebRootMover($root->url(), $composer);
+        $mover->moveAssets($diff);
+        $this->assertEmpty(
+            $diff->allChanges(),
+            'moveAssets on an empty project should do nothing.'
+        );
+
+        // Testing with an empty project folder
+        $root = vfsStream::setup(
+            'ss_project_root',
+            null,
+            array_merge(
+                [
+                    'assets' => [
+                        '.htaccess' => '#boom',
+                        'web.config' => '<config></config>',
+                        'Uploads' => [
+                            'cat.jpg' => 'picture of a cat.'
+                        ]
+                    ]
+                ],
+                $this->vendorFolder
+            )
+        );
+        $diff = new CodeChangeSet();
+        $mover = new WebRootMover($root->url(), $composer);
+        $mover->moveAssets($diff);
+        $this->assertEquals(
+            [
+                'assets' => ['path' => 'public/assets']
+            ],
+            $diff->allChanges(),
+            'moveAssets on a project with an assets folder should have move it to public.'
+        );
+    }
 }
