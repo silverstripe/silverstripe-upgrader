@@ -91,6 +91,23 @@ class WebRootMover
         $this->composer = $composer;
     }
 
+    /**
+     * Execute all the steps to set up the public folder.
+     * @throws InvalidArgumentException
+     * @return CodeChangeSet
+     */
+    public function move(): CodeChangeSet
+    {
+        $this->checkPrerequisites();
+        $diff = new CodeChangeSet();
+
+        $this->moveServerConfigFile($diff);
+        $this->moveAssets($diff);
+        $this->moveInstallerFiles($diff);
+
+        return $diff;
+    }
+
 
     /**
      * Make sure the current project meet the prerequisites to be migrated to the public webroot:
@@ -115,7 +132,7 @@ class WebRootMover
             ));
         }
 
-        // Make sure we don't alrady have a recipe core folder.
+        // Make sure we don't already have a recipe core folder.
         $publicPath = $this->publicPath();
         if (file_exists($publicPath) &&
             (

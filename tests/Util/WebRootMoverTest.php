@@ -4,7 +4,6 @@ namespace SilverStripe\Upgrader\Tests\Util;
 
 use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\Tests\Composer\MockComposer;
 use SilverStripe\Upgrader\Util\WebRootMover;
@@ -12,7 +11,7 @@ use InvalidArgumentException;
 
 class WebRootMoverTest extends TestCase
 {
-
+    // Structure of a vendor folder containing recipe-core
     private $vendorFolder = [
         'vendor' => [
             'silverstripe' => [
@@ -29,6 +28,24 @@ class WebRootMoverTest extends TestCase
         ]
     ];
 
+    // Structure of an assets folder
+    private $assetsFolder = [
+        'assets' => [
+            '.htaccess' => '#boom',
+            'web.config' => '<config></config>',
+            'Uploads' => [
+                'cat.jpg' => 'picture of a cat.'
+            ]
+        ]
+    ];
+
+    // Common files that the root of a project  might contain.
+    private $rootFiles = [
+        'favicon.ico' => '16x16 pixels of adorable kitten',
+        'index.php' => '<?php echo "do some old stuff";'
+    ];
+
+    // Server config files that are copied over from silverstripe-installer.
     private $unchangedServerConfig = [
         '.htaccess' => "RewriteEngine On\nRewriteRule ^(.*)$ public/\$1\n",
         'web.config' => <<<EOF
@@ -54,6 +71,8 @@ class WebRootMoverTest extends TestCase
 
 EOF
     ];
+
+    // Server config files that are different from the ones you could get from silverstripe-installer.
     private $changedServerConfig = [
         '.htaccess' => "RewriteEngine On\nRewriteRule ^(.*)$ framework/main.php\$1\n",
         'web.config' => <<<EOF
@@ -63,15 +82,6 @@ EOF
 EOF
     ];
 
-    /**
-     * @var  vfsStreamDirectory
-     */
-    private $root;
-
-    public function setUp()
-    {
-        $this->root = vfsStream::setup('ss_project_root');
-    }
 
     /**
      * @internal checkPrerequisites doesn't have an output. The main thing we care about is that it should throw
@@ -87,7 +97,8 @@ EOF
         ]];
 
         // Basic test
-        $mover = new WebRootMover($this->root->url(), $composer);
+        $root = vfsStream::setup('ss_project_root');
+        $mover = new WebRootMover($root->url(), $composer);
         $this->assertNull($mover->checkPrerequisites());
 
         // Test with another version of 1.x
@@ -99,18 +110,23 @@ EOF
         $this->assertNull($mover->checkPrerequisites());
 
         // Test with an empty public folder
-        vfsStream::newDirectory('public')->at($this->root);
+        vfsStream::newDirectory('public')->at($root);
+
         $this->assertNull($mover->checkPrerequisites());
     }
 
     public function testCheckPrerequisitesFailedNoRecipeCore()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(
+            InvalidArgumentException::class,
+            'Recipe-core needs to be installed. An exception should be thrown if it isn\'t'
+        );
 
         $composer = new MockComposer();
 
         // Basic test
-        $mover = new WebRootMover($this->root->url(), $composer);
+        $root = vfsStream::setup('ss_project_root');
+        $mover = new WebRootMover($root->url(), $composer);
         $mover->checkPrerequisites();
     }
 
@@ -126,7 +142,8 @@ EOF
         ]];
 
         // Basic test
-        $mover = new WebRootMover($this->root->url(), $composer);
+        $root = vfsStream::setup('ss_project_root');
+        $mover = new WebRootMover($root->url(), $composer);
         $mover->checkPrerequisites();
     }
 
@@ -145,8 +162,9 @@ EOF
         ]];
 
         // Test with a npn-empty public folder
-        $mover = new WebRootMover($this->root->url(), $composer);
-        $dir = vfsStream::newDirectory('public')->at($this->root);
+        $root = vfsStream::setup('ss_project_root');
+        $mover = new WebRootMover($root->url(), $composer);
+        $dir = vfsStream::newDirectory('public')->at($root);
         $dir->addChild(vfsStream::newFile('.htaccess')->setContent(''));
 
         $mover->checkPrerequisites();
@@ -285,15 +303,7 @@ EOF
             'ss_project_root',
             null,
             array_merge(
-                [
-                    'assets' => [
-                        '.htaccess' => '#boom',
-                        'web.config' => '<config></config>',
-                        'Uploads' => [
-                            'cat.jpg' => 'picture of a cat.'
-                        ]
-                    ]
-                ],
+                $this->assetsFolder,
                 $this->vendorFolder
             )
         );
@@ -318,16 +328,12 @@ EOF
             'description' => 'bla bla bla'
         ]];
 
-
         // Testing with an empty project folder
         $root = vfsStream::setup(
             'ss_project_root',
             null,
             array_merge(
-                [
-                    'favicon.ico' => '16x16 pixels of adorable kitten',
-                    'index.php' => '<?php echo "do some old stuff";'
-                ],
+                $this->rootFiles,
                 $this->vendorFolder
             )
         );
@@ -355,6 +361,75 @@ EOF
             ],
             $diff->allChanges(),
             'moveInstallerFiles should have move the index.php, .gitignore and favicon.ico files.'
+        );
+    }
+
+    public function testMove()
+    {
+        // Set up composer
+        $composer = new MockComposer();
+        $composer->showOutput = [[
+            'name' => 'silverstripe/recipe-core',
+            'version' => '1.1.0',
+            'description' => 'bla bla bla'
+        ]];
+
+        // Set up fake project
+        $root = vfsStream::setup(
+            'ss_project_root',
+            null,
+            array_merge(
+                $this->unchangedServerConfig,
+                $this->vendorFolder,
+                $this->rootFiles,
+                $this->assetsFolder
+            )
+        );
+
+        // We running a test on our typical set up. We're not going to run all possible combinations. The point is to
+        // test that `move()` successively call our other methods.
+        $mover = new WebRootMover($root->url(), $composer);
+        $diff = $mover->move();
+
+        $this->assertEquals(
+            [
+                'public/index.php' => [
+                    'new' => '<?php echo "Do Stuff"',
+                    'old' => '',
+                    'path' => 'public/index.php'
+                ],
+                'public/.gitignore' => [
+                    'new' => '# some files should be ignored',
+                    'old' => '',
+                    'path' => 'public/.gitignore'
+                ],
+                'favicon.ico' => [
+                    'path' => 'public/favicon.ico'
+                ],
+                'index.php' => [
+                    'path' => false
+                ],
+                'assets' => ['path' => 'public/assets'],
+                '.htaccess' => [
+                    'new' => '# root htaccess file',
+                    'old' => $this->unchangedServerConfig['.htaccess'],
+                    'path' => '.htaccess'
+                ],
+                'public/.htaccess' => [
+                    'new' => '# public .htaccess',
+                    'old' => false,
+                    'path' => 'public/.htaccess'
+                ],
+                'web.config' => [
+                    'new' => '<!-- public web.config -->',
+                    'old' => $this->unchangedServerConfig['web.config'],
+                    'path' => 'public/web.config'
+                ],
+
+
+            ],
+            $diff->allChanges(),
+            'Calling move on a typical project should permform all the mover\'s operations.'
         );
     }
 }
