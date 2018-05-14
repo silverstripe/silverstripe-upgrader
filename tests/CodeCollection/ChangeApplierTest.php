@@ -8,7 +8,7 @@ use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use org\bovigo\vfs\vfsStream;
 
-class CodeChangeSetTest extends TestCase
+class ChangeApplierTest extends TestCase
 {
 
     private $fsStructure = [
@@ -34,8 +34,11 @@ class CodeChangeSetTest extends TestCase
         'fileMoved.txt' => 'This content will not change',
         'fileMovedAndModified.txt' => 'new content',
         'NewFolder' => [
-            'fileMovedToDir.txt' => 'This content will not change'
-        ]
+            'fileMovedToDir.txt' => 'This content will not change',
+        ],
+        'AnotherNewFolder' => [
+            '.htaccess' => 'new content'
+        ],
     ];
 
     protected function fixture()
@@ -54,6 +57,7 @@ class CodeChangeSetTest extends TestCase
         );
         $diff->move('fileToMoveToDir.txt', 'NewFolder/fileMovedToDir.txt');
         $diff->addFileChange('FolderMoved/brandNewFile.txt', 'new content', false);
+        $diff->addFileChange('AnotherNewFolder/.htaccess', 'new content', false);
 
         return $diff;
     }

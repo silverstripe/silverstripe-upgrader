@@ -38,6 +38,9 @@ trait ChangeApplier
                     $fs->rename($fullPath, $item->getBasePath() . DIRECTORY_SEPARATOR . $change['path']);
                     $item = $this->itemByPath($change['path']);
                     break;
+                case 'new file':
+                    $this->createDirForPath($fs, $item->getBasePath(), $change['path']);
+                    break;
             }
 
             if ($changes->hasNewContents($path)) {
