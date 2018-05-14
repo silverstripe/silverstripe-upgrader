@@ -53,12 +53,12 @@ class CodeChangeSet
      * Add a file change.
      *
      * @param string $path
-     * @param string $contents New contents.
-     * @param string $original Original contents.
+     * @param string|false $contents New contents.
+     * @param string|false $original Original contents.
      * @param false|string $newPath New location of the file.
      * @return void
      */
-    public function addFileChange(string $path, string $contents, string $original, $newPath = false): void
+    public function addFileChange(string $path, $contents, $original, $newPath = false): void
     {
         if ($this->hasNewContents($path)) {
             user_error("Already added changes for $path, shouldn't add a 2nd time");
@@ -158,17 +158,24 @@ class CodeChangeSet
     }
 
     /**
-     * Returns true if the given path has been altered in this change set
+     * Returns true if the given path has new content.
      * @param string $path
      * @return boolean
      */
     public function hasNewContents(string $path): bool
     {
-        return isset($this->fileChanges[$path]);
+        if (isset($this->fileChanges[$path])) {
+            $change = $this->fileChanges[$path];
+            return
+                isset($change['new']) &&
+                $change['new'] !== false &&
+                !(isset($change['old']) && $change['old'] == $change['new']);
+        }
+        return false;
     }
 
     /**
-     * Returns true if the given path has warnings in this change set
+     * Returns true if the given path has warnings in this change set.
      * @param string $path
      * @return boolean
      */
@@ -215,6 +222,39 @@ class CodeChangeSet
     }
 
     /**
+     * Return the operation that should be applied for the provided path. Will be one of:
+     * * `modified` for file with updated content,
+     * * `renamed` for files or folder that should be moved to a different location, with or without modifications,
+     * * `deleted` for files or folder that should be deleted,
+     * * `` for files that don't appear to have any outstanding operation against them.
+     * @param string $path
+     * @return string
+     */
+    public function opsByPath(string $path): string
+    {
+        if (isset($this->fileChanges[$path])) {
+            $change = $this->fileChanges[$path];
+
+            if ($change['path'] === false) {
+                // If the path attribute is false, we are deleting the file
+                return 'deleted';
+            } elseif ($change['path'] != $path) {
+                // If the change path is different than the key path we are moving the file.
+                return 'renamed';
+            }
+
+            if ($this->hasNewContents($path)) {
+                // If we have new contents with old content, we are modifying a file. Otherwise, it's a new file.
+                return (isset($change['old']) && $change['old'] !== false) ?
+                    'modified':
+                    'new file';
+            }
+        }
+
+        return '';
+    }
+
+    /**
      * Return the warnings for a given path
      * @param string $path
      * @throws InvalidArgumentException If `$path` does not have any warnings.
@@ -237,7 +277,7 @@ class CodeChangeSet
      */
     private function changeByPath(string $path): array
     {
-        if ($this->hasNewContents($path)) {
+        if (isset($this->fileChanges[$path])) {
             return $this->fileChanges[$path];
         } else {
             throw new InvalidArgumentException("No file changes found for $path");

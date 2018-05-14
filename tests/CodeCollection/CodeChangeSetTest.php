@@ -197,6 +197,12 @@ class CodeChangeSetTest extends TestCase
         $c->addWarning('test2.php', 20, 'something to do');
         $c->addFileChange('test3.php', 'bar', 'ba');
         $c->addFileChange('subdir/test3.php', 'baz', 'ba');
+
+        $c->move('moveTo.txt', 'differentLocation.txt');
+        $c->addFileChange('brandNewFile.txt', 'new content', false);
+        $c->remove('removed-file.txt');
+        $c->addFileChange('file-with-same-content.txt', 'no-change', 'no-change');
+
         return $c;
     }
 
@@ -209,6 +215,10 @@ class CodeChangeSetTest extends TestCase
             'test2.php',
             'test3.php',
             'subdir/test3.php',
+            'moveTo.txt',
+            'brandNewFile.txt',
+            'removed-file.txt',
+            'file-with-same-content.txt',
         ], $c->affectedFiles());
     }
 
@@ -220,6 +230,10 @@ class CodeChangeSetTest extends TestCase
             'test1.php' => ['old' => 'fo', 'new' => 'foo', 'path' => 'test1.php'],
             'test3.php' => ['old' => 'ba', 'new' => 'bar', 'path' => 'test3.php'],
             'subdir/test3.php' => ['old' => 'ba', 'new' => 'baz', 'path' => 'subdir/test3.php'],
+            'moveTo.txt' => ['path' => 'differentLocation.txt'],
+            'brandNewFile.txt' => ['new' => 'new content', 'old' => false, 'path' => 'brandNewFile.txt'],
+            'removed-file.txt' => ['path' => false],
+            'file-with-same-content.txt' => ['path' => 'file-with-same-content.txt'],
         ], $c->allChanges());
     }
 
@@ -228,7 +242,12 @@ class CodeChangeSetTest extends TestCase
         $c = $this->fixture();
 
         $this->assertTrue($c->hasNewContents('test1.php'));
+        $this->assertTrue($c->hasNewContents('brandNewFile.txt'));
         $this->assertFalse($c->hasNewContents('test2.php'));
+        $this->assertFalse($c->hasNewContents('moveTo.txt'));
+        $this->assertFalse($c->hasNewContents('removed-file.txt'));
+        $this->assertFalse($c->hasNewContents('file-with-same-content.txt'));
+        $this->assertFalse($c->hasNewContents('unaffectedfile.txt'));
 
 
         $this->assertTrue($c->hasWarnings('test2.php'));
@@ -267,5 +286,45 @@ class CodeChangeSetTest extends TestCase
     {
         $c = $this->fixture();
         $c->warningsForPath('test3.php');
+    }
+
+    public function testOpsByPath()
+    {
+        $c = $this->fixture();
+        $this->assertEquals(
+            'modified',
+            $c->opsByPath('test1.php'),
+            'test1.php has been modified'
+        );
+
+        $this->assertEquals(
+            'new file',
+            $c->opsByPath('brandNewFile.txt'),
+            'brandNewFile is a new file'
+        );
+
+        $this->assertEquals(
+            'renamed',
+            $c->opsByPath('moveTo.txt'),
+            'moveTo has been renamed'
+        );
+
+        $this->assertEquals(
+            'deleted',
+            $c->opsByPath('removed-file.txt'),
+            'removed-file.txt has been deleted'
+        );
+
+        $this->assertEquals(
+            '',
+            $c->opsByPath('file-with-same-content.txt'),
+            'file-with-same-content has the same content and has not been moved'
+        );
+
+        $this->assertEquals(
+            '',
+            $c->opsByPath('unaffected.txt'),
+            'unaffected file doesn have any outstanding operation against it.'
+        );
     }
 }
