@@ -64,4 +64,10 @@ class MockCodeCollection implements CollectionInterface
     {
         return new MockCodeItem($this, $path);
     }
+
+
+    public function exists(string $path): bool
+    {
+        // TODO: Implement exists() method.
+    }
 }

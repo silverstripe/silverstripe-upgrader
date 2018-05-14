@@ -71,4 +71,10 @@ class MockCodeItem implements ItemInterface
     {
         return strtolower(pathinfo($this->getPath(), PATHINFO_EXTENSION));
     }
+
+    public function getMd5Hash(bool $normalizeEOL = false): string
+    {
+        // TODO: Implement getMd5Hash() method.
+        return '';
+    }
 }
