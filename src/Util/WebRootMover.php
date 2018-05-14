@@ -32,6 +32,7 @@ class WebRootMover
         "3.1.13" => "836947940aec5289d6fc84665d5fca0b",
         "3.1.14" => "9b3abe2df028df42e0c63469e26f44af",
         "4.1.0" => "cbf4f41c9ec7a1b3b4b3c2f4fca668fc",
+        "core-1.0.0" => "08964c3c62d56e0f8ef0c597312e60c2",
     ];
 
     /**
@@ -43,7 +44,8 @@ class WebRootMover
         "3.0.4" => "53a465e84d2f957f1a09181da44d7148",
         "3.0.6" => "411369990365352d2954a65b28166b9c",
         "3.1.11" => "b223f23ca26800ef97fa3964bd34ac8b",
-        "3.1.14" => "d3ada35b3eb8532b3e1039a92292bc08"
+        "3.1.14" => "d3ada35b3eb8532b3e1039a92292bc08",
+        "core-1.0.0" => "b3422ef2648272f606c29b3fc17b5be3"
     ];
 
     /**
@@ -120,19 +122,26 @@ class WebRootMover
     {
         // Make sure we have recipe-core install
         $packageInfo = $this->composer->show();
-        $packageInfo = array_filter($packageInfo, function ($package) {
+        $packageInfo = array_values(array_filter($packageInfo, function ($package) {
             return $package['name'] == SilverstripePackageInfo::RECIPE_CORE;
-        });
-        if (empty($packageInfo) ||
-            !Semver::satisfies($packageInfo[0]['version'], self::CORE_CONSTRAINT)
+        }));
+        if (empty($packageInfo)) {
+            throw new InvalidArgumentException(sprintf(
+                'To use the public webroot, your project must be using %s 1.1 or higher. ' .
+                'It is not currently installed.',
+                SilverstripePackageInfo::RECIPE_CORE
+            ));
+        } elseif (!Semver::satisfies($packageInfo[0]['version'], self::CORE_CONSTRAINT)
         ) {
             throw new InvalidArgumentException(sprintf(
-                'To use the public webroot, your project must be using %s 1.1 or higher.',
-                SilverstripePackageInfo::RECIPE_CORE
+                'To use the public webroot, your project must be using %s 1.1 or higher. ' .
+                'Version %s is currently installed.',
+                SilverstripePackageInfo::RECIPE_CORE,
+                $packageInfo[0]['version']
             ));
         }
 
-        // Make sure we don't already have a recipe core folder.
+        // Make sure we don't already have a public.
         $publicPath = $this->publicPath();
         if (file_exists($publicPath) &&
             (
@@ -141,7 +150,8 @@ class WebRootMover
             )
         ) {
             throw new InvalidArgumentException(
-                'There\'s already a non empty `public` folder in your project root.'
+                'There\'s already a non empty `public` folder in your project root. ' .
+                'You might alrady be using the public web root.'
             );
         }
     }
