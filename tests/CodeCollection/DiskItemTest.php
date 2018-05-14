@@ -15,9 +15,9 @@ class DiskItemTest extends TestCase
         'old_mac.txt' => "The quick brown\rfox jumps over\rthe lazy dog\r",
     ];
 
-    const unixHash = '183ec6ef8810b0f0bf6c2bb54af63d49';
-    const windowsHash = 'cc31bac25616b607fad628b011e8548a';
-    const macHash = '8f272593193cc15660add332d9b58066';
+    const UNIX_HASH = '183ec6ef8810b0f0bf6c2bb54af63d49';
+    const WIN_HASH = 'cc31bac25616b607fad628b011e8548a';
+    const MAC_HASH = '8f272593193cc15660add332d9b58066';
 
     public function testGetMd5Hash()
     {
@@ -26,13 +26,13 @@ class DiskItemTest extends TestCase
         // Test a normal unix file
         $item = new DiskItem($root->url(), 'unix.txt');
         $this->assertEquals(
-            self::unixHash,
+            self::UNIX_HASH,
             $item->getMd5Hash(false),
             'Did not get the expected hash.'
         );
 
         $this->assertEquals(
-            self::unixHash,
+            self::UNIX_HASH,
             $item->getMd5Hash(true),
             'Did not get the expected hash.'
         );
@@ -40,13 +40,13 @@ class DiskItemTest extends TestCase
         // Test a normal windows file
         $item = new DiskItem($root->url(), 'windows.txt');
         $this->assertEquals(
-            self::windowsHash,
+            self::WIN_HASH,
             $item->getMd5Hash(false),
             'Did not get the expected hash.'
         );
 
         $this->assertEquals(
-            self::unixHash,
+            self::UNIX_HASH,
             $item->getMd5Hash(true),
             'Did not get the expected hash.'
         );
@@ -55,13 +55,13 @@ class DiskItemTest extends TestCase
         // Test a normal classic mac file
         $item = new DiskItem($root->url(), 'old_mac.txt');
         $this->assertEquals(
-            self::macHash,
+            self::MAC_HASH,
             $item->getMd5Hash(false),
             'Did not get the expected hash.'
         );
 
         $this->assertEquals(
-            self::unixHash,
+            self::UNIX_HASH,
             $item->getMd5Hash(true),
             'Did not get the expected hash.'
         );
