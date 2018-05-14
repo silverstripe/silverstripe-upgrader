@@ -31,7 +31,6 @@ class RecomposeCommand extends AbstractCommand
             ->setDescription('Upgrade a composer file to use the latest version of SilverStripe.')
             ->setDefinition([
                 $this->getRootInputOption(),
-                $this->getRootInputOption(),
                 $this->getWriteInputOption(),
                 new InputOption(
                     'strict',
@@ -50,7 +49,7 @@ class RecomposeCommand extends AbstractCommand
                     'composer-path',
                     'P',
                     InputOption::VALUE_OPTIONAL,
-                    'Prefer ~ to ^ avoid accidental upgrades.',
+                    'Path to the composer executable.',
                     ''
                 )
             ]);
