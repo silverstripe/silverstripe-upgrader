@@ -14,6 +14,7 @@ use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
 use SilverStripe\Upgrader\Composer\Rules;
 use SilverStripe\Upgrader\Composer\Packagist;
+use SilverStripe\Upgrader\Composer\SilverstripePackageInfo;
 
 
 use InvalidArgumentException;
