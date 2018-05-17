@@ -58,10 +58,6 @@ trait ChangeApplier
      */
     private function createDirForPath(FileSystem $fs, string $basePath, string $relativePath): void
     {
-        $paths = explode(DIRECTORY_SEPARATOR, $relativePath);
-        array_pop($paths);
-        if ($paths) {
-            $fs->mkdir($basePath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $paths));
-        }
+        $fs->mkdir($basePath . DIRECTORY_SEPARATOR . dirname($relativePath));
     }
 }
