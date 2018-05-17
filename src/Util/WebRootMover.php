@@ -161,7 +161,7 @@ class WebRootMover
      * @internal Depends on `checkPrerequisites` having been run.
      * @param CodeChangeSet $diff
      */
-    public function moveServerConfigFile(CodeChangeSet &$diff)
+    public function moveServerConfigFile(CodeChangeSet $diff)
     {
         $this->processLegacyServerConfigFile($diff, '.htaccess', self::HTACCESS_HASHES);
         $this->processLegacyServerConfigFile($diff, 'web.config', self::WEBCONFIG_HASHES);
@@ -180,7 +180,7 @@ class WebRootMover
      * @return void
      */
     private function processLegacyServerConfigFile(
-        CodeChangeSet &$diff,
+        CodeChangeSet $diff,
         string $filename,
         array $unchangedHashes
     ): void {
@@ -273,7 +273,7 @@ EOF
      * @internal Depends on `initialisePublicFolder` having been run.
      * @param CodeChangeSet $diff
      */
-    public function moveAssets(CodeChangeSet &$diff): void
+    public function moveAssets(CodeChangeSet $diff): void
     {
         if ($this->disk->exists('assets')) {
             $diff->move('assets', 'public/assets');
@@ -285,7 +285,7 @@ EOF
      * @internal Depends on `initialisePublicFolder` having been run.
      * @param CodeChangeSet $diff
      */
-    public function moveInstallerFiles(CodeChangeSet &$diff)
+    public function moveInstallerFiles(CodeChangeSet $diff)
     {
         // Move some common non-essnetial file from recipe-core to public.
         foreach (['index.php', '.gitignore'] as $filename) {
