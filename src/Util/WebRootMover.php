@@ -151,7 +151,7 @@ class WebRootMover
         ) {
             throw new InvalidArgumentException(
                 'There\'s already a non empty `public` folder in your project root. ' .
-                'You might alrady be using the public web root.'
+                'You might already be using the public web root.'
             );
         }
     }
