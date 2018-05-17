@@ -52,6 +52,14 @@ class RecomposeCommand extends AbstractCommand
                     InputOption::VALUE_OPTIONAL,
                     'Path to the composer executable.',
                     ''
+                ),
+                new InputOption(
+                    'quick',
+                    'Q',
+                    InputOption::VALUE_NONE,
+                    'Terminate execution if the command in our `composer.json` file already meet the ' .
+                    '`recipe-core-constraint`. This will speed exeuction for script that need to call this command ' .
+                    'repetitively.'
                 )
             ]);
     }
@@ -69,8 +77,8 @@ class RecomposeCommand extends AbstractCommand
 
         $composerPath = $input->getOption('composer-path');
         $recipeCoreConstraint = $input->getOption('recipe-core-constraint');
-        $coreTarget = $this->findTargetRecipeCore($recipeCoreConstraint);
         $strict = $input->getOption('strict');
+        $quick = $input->getOption('quick');
 
         $console = new SymfonyStyle($input, $output);
 
@@ -81,6 +89,17 @@ class RecomposeCommand extends AbstractCommand
 
         // Set up some caching
         $this->initPackageCache($composer);
+
+        // Find out what version of recipe-core we will target and if we are already using it.
+        $coreTarget = $this->findTargetRecipeCore($recipeCoreConstraint);
+        if ($quick && $this->recipeCoreTargetIsInstalled($composer, $coreTarget)) {
+            $console->success(sprintf(
+                'Project already using recipe-core %s. Nothing to do. ' .
+                'Disable the `--quick` flag if you want to force the command to run.',
+                $coreTarget
+            ));
+            return null;
+        }
 
         // Set up our rules
         $rules = [
@@ -170,5 +189,31 @@ class RecomposeCommand extends AbstractCommand
                 Packagist::addCacheFolder($composerCache);
             }
         }
+    }
+
+    /**
+     * Determine if the current project has the required version of recipe core already installed.
+     * @param ComposerExec $composer
+     * @param string $targetRecipeCore
+     * @return bool
+     */
+    protected function recipeCoreTargetIsInstalled(ComposerExec $composer, string $targetRecipeCore): bool
+    {
+        $packages = $composer->show();
+
+        // Loop through all the installed packages and find recipe core
+        foreach ($packages as $package) {
+            if ($package['name'] == 'silverstripe/recipe-core') {
+                // We found recipe core but it's not our targeted version.
+                if ($package['version'] != $targetRecipeCore) {
+                    return false;
+                } else {
+                    // Let's make sure composer.lock is synced with composer.json
+                    return $composer->validate();
+                }
+            }
+        }
+
+        return false;
     }
 }
