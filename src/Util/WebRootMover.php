@@ -249,7 +249,8 @@ class WebRootMover
             // This should never occur.
             throw new LogicException(<<<EOF
 Could not move server file because of unexpected condition. This is probably a bug in the upgrader. Please log an issue
-at https://github.com/silverstripe/silverstripe-upgrader/issues/new.
+at https://github.com/silverstripe/silverstripe-upgrader/issues/new and include the following information: 
+`originCondition=$originCondition coreCondition=$coreCondition`.
 EOF
             );
         }
