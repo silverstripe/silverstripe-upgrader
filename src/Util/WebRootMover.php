@@ -72,6 +72,32 @@ class WebRootMover
         'recipe-core' . DIRECTORY_SEPARATOR;
 
     /**
+     * Root server file is absent from project. (Internal only)
+     */
+    const SERVER_FILE_ABSENT = 0x00;
+
+    /**
+     * Project root server file is unchanged. (Internal only)
+     */
+    const SERVER_FILE_UNCHANGED = 0x01;
+
+    /**
+     * Project root serer file is altered from the official release. (Internal only)
+     */
+    const SERVER_FILE_CHANGED = 0x02;
+
+    /**
+     * Recipe Core only provides a server file for the public folder. (Internal only)
+     */
+    const CORE_SERVER_FILE_PUBLIC_ONLY = 0x00;
+
+    /**
+     * Recipe Core provides a server file for the root and public folders. (Internal only)
+     */
+    const CORE_SERVER_FILE_ROOT_AND_PUBLIC = 0x10;
+
+
+    /**
      * @var string
      */
     private $rootPath;
@@ -201,29 +227,32 @@ class WebRootMover
         // Figuring out base conditions
         $originCondition = $originFile ?
             (in_array($originFile->getMd5Hash(true), $unchangedHashes) ?
-                'unchanged':
-                'changed'
+                self::SERVER_FILE_UNCHANGED:
+                self::SERVER_FILE_CHANGED
             ) :
-            'absent';
-        $coreCondition = $coreRootFile ? 'root_file' : 'no_root_file';
+            self::SERVER_FILE_ABSENT;
+        $coreCondition = $coreRootFile ?
+            self::CORE_SERVER_FILE_ROOT_AND_PUBLIC :
+            self::CORE_SERVER_FILE_PUBLIC_ONLY;
+        $condition = $originCondition | $coreCondition;
 
-        // Apply change based on conditions
-        if ($originCondition == 'absent' && $coreCondition == 'no_root_file') {
+        // Apply change based on condition
+        if ($condition == (self::SERVER_FILE_ABSENT | self::CORE_SERVER_FILE_PUBLIC_ONLY)) {
             // Copy the core file to the public folder
             $diff->addFileChange($targetPath, $corePublicFile->getContents(), null);
-        } elseif ($originCondition == 'absent' && $coreCondition == 'root_file') {
+        } elseif ($condition ==  (self::SERVER_FILE_ABSENT | self::CORE_SERVER_FILE_ROOT_AND_PUBLIC)) {
             // Copy public and root core files to project
             $diff->addFileChange($targetPath, $corePublicFile->getContents(), null);
             $diff->addFileChange($filename, $coreRootFile->getContents(), null);
-        } elseif ($originCondition == 'unchanged' && $coreCondition == 'no_root_file') {
+        } elseif ($condition == (self::SERVER_FILE_UNCHANGED | self::CORE_SERVER_FILE_PUBLIC_ONLY)) {
             // Move the server file from root to public and override with content of recipe-core public file
             $diff->addFileChange($filename, $corePublicFile->getContents(), $originFile->getContents(), $targetPath);
-        } elseif ($originCondition == 'unchanged' && $coreCondition == 'root_file') {
+        } elseif ($condition == (self::SERVER_FILE_UNCHANGED | self::CORE_SERVER_FILE_ROOT_AND_PUBLIC)) {
             // Override root file with content of recipe-core root file
             $diff->addFileChange($filename, $coreRootFile->getContents(), $originFile->getContents());
             // Copy public recipe-core file to public.
             $diff->addFileChange($targetPath, $corePublicFile->getContents(), null);
-        } elseif ($originCondition == 'changed' && $coreCondition == 'no_root_file') {
+        } elseif ($condition == (self::SERVER_FILE_CHANGED | self::CORE_SERVER_FILE_PUBLIC_ONLY)) {
             // Move root file to public without change.
             $diff->move($filename, $targetPath);
             // Add a warning
@@ -233,7 +262,7 @@ class WebRootMover
                 $filename,
                 self::RECIPE_CORE_PATH . $targetPath
             ));
-        } elseif ($originCondition == 'changed' && $coreCondition == 'root_file') {
+        } elseif ($condition == (self::SERVER_FILE_CHANGED | self::CORE_SERVER_FILE_ROOT_AND_PUBLIC)) {
             // Override root file with recipe-core root file.
             $diff->addFileChange($filename, $coreRootFile->getContents(), $originFile->getContents());
             // Copy content of root file to public as a new file.
@@ -250,7 +279,7 @@ class WebRootMover
             throw new LogicException(<<<EOF
 Could not move server file because of unexpected condition. This is probably a bug in the upgrader. Please log an issue
 at https://github.com/silverstripe/silverstripe-upgrader/issues/new and include the following information: 
-`originCondition=$originCondition coreCondition=$coreCondition`.
+`\$condition=$condition`.
 EOF
             );
         }
