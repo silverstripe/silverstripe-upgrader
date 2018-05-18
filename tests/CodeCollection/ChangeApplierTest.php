@@ -56,8 +56,8 @@ class ChangeApplierTest extends TestCase
             'fileMovedAndModified.txt'
         );
         $diff->move('fileToMoveToDir.txt', 'NewFolder/fileMovedToDir.txt');
-        $diff->addFileChange('FolderMoved/brandNewFile.txt', 'new content', false);
-        $diff->addFileChange('AnotherNewFolder/.htaccess', 'new content', false);
+        $diff->addFileChange('FolderMoved/brandNewFile.txt', 'new content', null);
+        $diff->addFileChange('AnotherNewFolder/.htaccess', 'new content', null);
 
         return $diff;
     }

@@ -89,13 +89,13 @@ class CodeChangeSetTest extends TestCase
         );
 
         // Check base changes for Moved file
-        $this->assertFalse(
+        $this->assertNull(
             $diff->newContents('move.txt'),
-            'Moved only file should have false new content'
+            'Moved only file should have null new content'
         );
-        $this->assertFalse(
+        $this->assertNull(
             $diff->oldContents('move.txt'),
-            'Old content should have been set to false for a moved file.'
+            'Old content should have been set to null for a moved file.'
         );
         $this->assertEquals(
             $diff->newPath('move.txt'),
@@ -132,13 +132,13 @@ class CodeChangeSetTest extends TestCase
         $this->assertFalse($diff->hasWarnings('move.txt'));
 
         // Check base changes for Moved file
-        $this->assertFalse(
+        $this->assertNull(
             $diff->newContents('move.txt'),
-            'Moved only file should have false new content'
+            'Moved only file should have null new content'
         );
-        $this->assertFalse(
+        $this->assertNull(
             $diff->oldContents('move.txt'),
-            'Old content should have been set to false for a moved file.'
+            'Old content should have been set to null for a moved file.'
         );
         $this->assertEquals(
             $diff->newPath('move.txt'),
@@ -157,7 +157,7 @@ class CodeChangeSetTest extends TestCase
         $this->assertEquals(
             [
                 'oldFile.txt' => [
-                    'path' => false
+                    'path' => null
                 ],
             ],
             $diff->allChanges(),
@@ -175,17 +175,17 @@ class CodeChangeSetTest extends TestCase
         $this->assertFalse($diff->hasWarnings('oldFile.txt'));
 
         // Check base changes for Deleted file
-        $this->assertFalse(
+        $this->assertNull(
             $diff->newContents('oldFile.txt'),
-            'Deleted file should have false new content'
+            'Deleted file should have null new content'
         );
-        $this->assertFalse(
+        $this->assertNull(
             $diff->oldContents('oldFile.txt'),
-            'Old content should have been set to false for a moved file.'
+            'Old content should have been set to null for a moved file.'
         );
-        $this->assertFalse(
+        $this->assertNull(
             $diff->newPath('oldFile.txt'),
-            'Path for deleted file should be false'
+            'Path for deleted file should be null.'
         );
     }
 
@@ -199,7 +199,7 @@ class CodeChangeSetTest extends TestCase
         $c->addFileChange('subdir/test3.php', 'baz', 'ba');
 
         $c->move('moveTo.txt', 'differentLocation.txt');
-        $c->addFileChange('brandNewFile.txt', 'new content', false);
+        $c->addFileChange('brandNewFile.txt', 'new content', null);
         $c->remove('removed-file.txt');
         $c->addFileChange('file-with-same-content.txt', 'no-change', 'no-change');
 
@@ -231,8 +231,8 @@ class CodeChangeSetTest extends TestCase
             'test3.php' => ['old' => 'ba', 'new' => 'bar', 'path' => 'test3.php'],
             'subdir/test3.php' => ['old' => 'ba', 'new' => 'baz', 'path' => 'subdir/test3.php'],
             'moveTo.txt' => ['path' => 'differentLocation.txt'],
-            'brandNewFile.txt' => ['new' => 'new content', 'old' => false, 'path' => 'brandNewFile.txt'],
-            'removed-file.txt' => ['path' => false],
+            'brandNewFile.txt' => ['new' => 'new content', 'old' => null, 'path' => 'brandNewFile.txt'],
+            'removed-file.txt' => ['path' => null],
             'file-with-same-content.txt' => ['path' => 'file-with-same-content.txt'],
         ], $c->allChanges());
     }

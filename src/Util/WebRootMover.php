@@ -210,11 +210,11 @@ class WebRootMover
         // Apply change based on conditions
         if ($originCondition == 'absent' && $coreCondition == 'no_root_file') {
             // Copy the core file to the public folder
-            $diff->addFileChange($targetPath, $corePublicFile->getContents(), false);
+            $diff->addFileChange($targetPath, $corePublicFile->getContents(), null);
         } elseif ($originCondition == 'absent' && $coreCondition == 'root_file') {
             // Copy public and root core files to project
-            $diff->addFileChange($targetPath, $corePublicFile->getContents(), false);
-            $diff->addFileChange($filename, $coreRootFile->getContents(), false);
+            $diff->addFileChange($targetPath, $corePublicFile->getContents(), null);
+            $diff->addFileChange($filename, $coreRootFile->getContents(), null);
         } elseif ($originCondition == 'unchanged' && $coreCondition == 'no_root_file') {
             // Move the server file from root to public and override with content of recipe-core public file
             $diff->addFileChange($filename, $corePublicFile->getContents(), $originFile->getContents(), $targetPath);
@@ -222,7 +222,7 @@ class WebRootMover
             // Override root file with content of recipe-core root file
             $diff->addFileChange($filename, $coreRootFile->getContents(), $originFile->getContents());
             // Copy public recipe-core file to public.
-            $diff->addFileChange($targetPath, $corePublicFile->getContents(), false);
+            $diff->addFileChange($targetPath, $corePublicFile->getContents(), null);
         } elseif ($originCondition == 'changed' && $coreCondition == 'no_root_file') {
             // Move root file to public without change.
             $diff->move($filename, $targetPath);
@@ -237,7 +237,7 @@ class WebRootMover
             // Override root file with recipe-core root file.
             $diff->addFileChange($filename, $coreRootFile->getContents(), $originFile->getContents());
             // Copy content of root file to public as a new file.
-            $diff->addFileChange($targetPath, $originFile->getContents(), false);
+            $diff->addFileChange($targetPath, $originFile->getContents(), null);
             // Add a warning
             $diff->addWarning($targetPath, 0, sprintf(
                 '`%s` has been modified from the generic version provided by SilverStripe.'.
@@ -293,7 +293,7 @@ EOF
             $targetPath = self::PUBLIC . DIRECTORY_SEPARATOR . $filename;
             $recipeCoreFile = $this->getRecipeCoreFileContent($targetPath);
             if ($recipeCoreFile) {
-                $diff->addFileChange($targetPath, $recipeCoreFile->getContents(), false);
+                $diff->addFileChange($targetPath, $recipeCoreFile->getContents(), null);
             }
         }
 

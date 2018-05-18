@@ -18,12 +18,12 @@ class CodeChangeSet
      *   'updatedFile.txt' => [
      *     'new' => 'framework',
      *     'old' => 'sapphire',
-     *     'path' => false
+     *     'path' => 'updatedFile.txt'
      *   ],
      *   'brandNewFile.txt' => [
      *     'new' => 'framework',
-     *     'old' => false,
-     *     'path' => false
+     *     'old' => null,
+     *     'path' => 'brandNewFile.txt'
      *   ],
      *   'moveFileWithUpdatedContent.txt' => [
      *     'new' => 'framework',
@@ -31,7 +31,7 @@ class CodeChangeSet
      *     'path' => 'newPath.txt
      *   ],
      *   'deletedFile.txt' => [
-     *     'new' => false,
+     *     'new' => null,
      *     'old' => 'sapphire'
      *   ],
      *   'moveFolder' => [
@@ -53,12 +53,13 @@ class CodeChangeSet
      * Add a file change.
      *
      * @param string $path
-     * @param string|false $contents New contents.
-     * @param string|false $original Original contents.
-     * @param false|string $newPath New location of the file.
+     * @param string|null $contents New contents. Can be set to null if moving a file without altering content.
+     * @param string|null $original Original contents. Can be set to null when moving file without altering content or
+     *                              adding a brand new file.
+     * @param string|null $newPath New location of the file. Leave to null if the location is not changing.
      * @return void
      */
-    public function addFileChange(string $path, $contents, $original, $newPath = false): void
+    public function addFileChange(string $path, $contents, $original, $newPath = null): void
     {
         if ($this->hasNewContents($path)) {
             user_error("Already added changes for $path, shouldn't add a 2nd time");
@@ -68,7 +69,7 @@ class CodeChangeSet
             'path' => $newPath ?: $path
         ];
 
-        if ($contents != $original) {
+        if ($contents !== $original) {
             $change['new'] = $contents;
             $change['old'] = $original;
         }
@@ -86,7 +87,7 @@ class CodeChangeSet
      */
     public function move(string $path, string $newPath): void
     {
-        $this->addFileChange($path, false, false, $newPath);
+        $this->addFileChange($path, null, null, $newPath);
     }
 
     /**
@@ -99,7 +100,7 @@ class CodeChangeSet
         if ($this->hasNewContents($path)) {
             user_error("Already added changes for $path, shouldn't add a 2nd time");
         }
-        $this->fileChanges[$path] = ['path' => false];
+        $this->fileChanges[$path] = ['path' => null];
 
         $this->addToAffectedFiles($path);
     }
@@ -168,7 +169,7 @@ class CodeChangeSet
             $change = $this->fileChanges[$path];
             return
                 isset($change['new']) &&
-                $change['new'] !== false &&
+                $change['new'] !== null &&
                 !(isset($change['old']) && $change['old'] == $change['new']);
         }
         return false;
@@ -188,32 +189,32 @@ class CodeChangeSet
      * Return the file contents for a given path
      *
      * @param string $path
-     * @return string|false
+     * @return string|null
      * @throws InvalidArgumentException If `$path` has not been recorded as changed.
      */
     public function newContents(string $path)
     {
         $change = $this->changeByPath($path);
-        return isset($change['new']) ? $change['new'] : false;
+        return isset($change['new']) ? $change['new'] : null;
     }
 
     /**
      * Return the prior file contents for a given path
      *
      * @param string $path
-     * @return string|false
+     * @return string|null
      * @throws InvalidArgumentException If `$path` has not been recorded as changed.
      */
     public function oldContents(string $path)
     {
         $change = $this->changeByPath($path);
-        return isset($change['old']) ? $change['old'] : false;
+        return isset($change['old']) ? $change['old'] : null;
     }
 
     /**
      * Return the new Path for a file.
      * @param string $path
-     * @return string|false
+     * @return string|null
      * @throws InvalidArgumentException If `$path` has not been recorded as changed.
      */
     public function newPath(string $path)
@@ -235,8 +236,8 @@ class CodeChangeSet
         if (isset($this->fileChanges[$path])) {
             $change = $this->fileChanges[$path];
 
-            if ($change['path'] === false) {
-                // If the path attribute is false, we are deleting the file
+            if ($change['path'] === null) {
+                // If the path attribute is null, we are deleting the file
                 return 'deleted';
             } elseif ($change['path'] != $path) {
                 // If the change path is different than the key path we are moving the file.
@@ -245,7 +246,7 @@ class CodeChangeSet
 
             if ($this->hasNewContents($path)) {
                 // If we have new contents with old content, we are modifying a file. Otherwise, it's a new file.
-                return (isset($change['old']) && $change['old'] !== false) ?
+                return (isset($change['old']) && $change['old'] !== null) ?
                     'modified':
                     'new file';
             }

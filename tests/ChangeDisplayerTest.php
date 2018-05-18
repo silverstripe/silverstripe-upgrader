@@ -20,7 +20,7 @@ class CodeChangeSetTest extends TestCase
         $c->addFileChange('subdir/test3.php', 'baz', 'ba');
 
         $c->move('moveTo.txt', 'differentLocation.txt');
-        $c->addFileChange('brandNewFile.txt', 'new content', false);
+        $c->addFileChange('brandNewFile.txt', 'new content', null);
         $c->remove('removed-file.txt');
         $c->addFileChange('file-with-same-content.txt', 'no-change', 'no-change');
 
