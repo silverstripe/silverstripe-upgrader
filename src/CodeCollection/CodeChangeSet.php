@@ -154,7 +154,7 @@ class CodeChangeSet
      */
     public function affectedFiles()
     {
-        return $this->affectedFiles;
+        return array_values($this->affectedFiles);
     }
 
     /**
@@ -291,8 +291,8 @@ class CodeChangeSet
      */
     private function addToAffectedFiles(string $path): void
     {
-        if (!in_array($path, $this->affectedFiles)) {
-            $this->affectedFiles[] = $path;
+        if (!isset($this->affectedFiles[$path])) {
+            $this->affectedFiles[$path] = $path;
         }
     }
 }
