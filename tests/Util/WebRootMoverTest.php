@@ -147,6 +147,23 @@ EOF
         $mover->checkPrerequisites();
     }
 
+    public function testCheckPrerequisitesFailedRecipeCoreDevVersion()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $composer = new MockComposer();
+        $composer->showOutput = [[
+            'name' => 'silverstripe/recipe-core',
+            'version' => '1.x-dev e7b0f14',
+            'description' => 'bla bla bla'
+        ]];
+
+        // Basic test
+        $root = vfsStream::setup('ss_project_root');
+        $mover = new WebRootMover($root->url(), $composer);
+        $mover->checkPrerequisites();
+    }
+
     /**
      * @internal checkPrerequisites doesn't have an output. The main thing we care about is that it should throw
      * exceptions.

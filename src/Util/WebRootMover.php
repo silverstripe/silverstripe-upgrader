@@ -183,13 +183,24 @@ class WebRootMover
             $version = $matches[1];
         }
 
+        // Make sure we are not running a dev branch.
+        if (preg_match('/.+-dev/', $version, $matches)) {
+            throw new InvalidArgumentException(sprintf(
+                'Your project is using a development branch of %s (%s). This upgrade path is not supported. ' .
+                'You need to install a stable release of %s first.',
+                SilverstripePackageInfo::RECIPE_CORE,
+                $version,
+                SilverstripePackageInfo::RECIPE_CORE
+            ));
+        }
+
         // Make sure our version of recipe core meet the constrain requirements.
         if (!Semver::satisfies($version, self::CORE_CONSTRAINT)) {
             throw new InvalidArgumentException(sprintf(
                 'To use the public webroot, your project must be using %s 1.1 or higher. ' .
                 'Version %s is currently installed.',
                 SilverstripePackageInfo::RECIPE_CORE,
-                $packageInfo[0]['version']
+                $version
             ));
         }
     }
