@@ -3,7 +3,11 @@
 namespace SilverStripe\Upgrader\CodeCollection;
 
 use Iterator;
+use InvalidArgumentException;
 
+/**
+ * Represent a collection of files on disk that can be iterated through to perform changes.
+ */
 class DiskCollection implements CollectionInterface
 {
 
@@ -32,13 +36,14 @@ class DiskCollection implements CollectionInterface
      * If given a directory, the collection will include all files in this directory.
      *
      * @param string $path
-     * @param bool $recursive
+     * @param boolean $recursive
      * @param array $exclusions
+     * @throws InvalidArgumentException If the path does not exists.
      */
-    public function __construct($path, $recursive = true, $exclusions = [])
+    public function __construct(string $path, bool $recursive = true, array $exclusions = [])
     {
         if (!file_exists($path)) {
-            throw new \InvalidArgumentException("Path '$path' does not exist");
+            throw new InvalidArgumentException("Path '$path' does not exist");
         }
         $this->path = $path;
         $this->recursive = $recursive;
@@ -50,7 +55,7 @@ class DiskCollection implements CollectionInterface
      *
      * @return Iterator
      */
-    public function iterateItems()
+    public function iterateItems(): Iterator
     {
         // Iterate once over this file only
         if (is_file($this->path)) {
@@ -66,7 +71,7 @@ class DiskCollection implements CollectionInterface
         }
         foreach ($iterator as $path) {
             // Fix iterator being passed in as path
-            $path = (string)$path;
+            $path = (string)$path->getPathname();
             if (!$this->isDiskItem($path)) {
                 continue;
             }
@@ -74,6 +79,7 @@ class DiskCollection implements CollectionInterface
             if (substr($path, 0, strlen($this->path)) == $this->path) {
                 $path = substr($path, strlen($this->path));
             }
+
             yield new DiskItem($this->path, $path);
         }
     }
@@ -82,12 +88,36 @@ class DiskCollection implements CollectionInterface
      * Check if this path is a valid DiskItem
      *
      * @param string $path
-     * @return bool
+     * @return boolean
      */
-    protected function isDiskItem($path)
+    protected function isDiskItem(string $path): bool
     {
-        // Dir isn't a diskitem
+        // Dir isn't a disk item
         if (is_dir($path)) {
+            return false;
+        }
+
+        return $this->realPathExists($path);
+    }
+
+    /**
+     * Checks if the provided path exist in the DiskCollection.
+     * @param string $path
+     * @return boolean
+     */
+    public function exists(string $path): bool
+    {
+        return $this->realPathExists($this->path . DIRECTORY_SEPARATOR .$path);
+    }
+
+    /**
+     * Check if the provided path exists on the FileSystem.
+     * @param string $path
+     * @return boolean
+     */
+    protected function realPathExists(string $path): bool
+    {
+        if (!file_exists($path)) {
             return false;
         }
 
@@ -106,14 +136,15 @@ class DiskCollection implements CollectionInterface
         return true;
     }
 
+
     /**
      * Check if this path matches a pattern
      *
      * @param string $path
      * @param string $pattern
-     * @return bool
+     * @return boolean
      */
-    protected function pathMatches($path, $pattern)
+    protected function pathMatches(string $path, string $pattern): bool
     {
         if (function_exists('fnmatch')) {
             return fnmatch($pattern, $path);
@@ -132,8 +163,9 @@ class DiskCollection implements CollectionInterface
      *
      * @param string $path
      * @return ItemInterface
+     * @throws InvalidArgumentException If path is not in the collection.
      */
-    public function itemByPath($path)
+    public function itemByPath(string $path): ItemInterface
     {
         $base = $this->path;
 
@@ -141,7 +173,7 @@ class DiskCollection implements CollectionInterface
         if (is_file($base)) {
             $base = dirname($base);
             if ($path !== basename($this->path)) {
-                throw new \InvalidArgumentException("{$path} is not in this collection");
+                throw new InvalidArgumentException("{$path} is not in this collection");
             }
         }
 

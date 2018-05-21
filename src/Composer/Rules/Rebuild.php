@@ -3,6 +3,7 @@
 namespace SilverStripe\Upgrader\Composer\Rules;
 
 use SilverStripe\Upgrader\Composer\Package;
+use SilverStripe\Upgrader\Composer\SilverstripePackageInfo;
 use SilverStripe\Upgrader\Composer\Recipe;
 use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
@@ -124,13 +125,13 @@ class Rebuild implements DependencyUpgradeRule
     public function switchToRecipeCore(array $dependencies): array
     {
         // Update base framework version
-        if (isset($dependencies['silverstripe/framework'])) {
-            unset($dependencies['silverstripe/framework']);
+        if (isset($dependencies[SilverstripePackageInfo::FRAMEWORK])) {
+            unset($dependencies[SilverstripePackageInfo::FRAMEWORK]);
         }
-        $dependencies['silverstripe/recipe-core'] = $this->recipeCoreTarget;
-        if (isset($dependencies['silverstripe/cms'])) {
-            unset($dependencies['silverstripe/cms']);
-            $dependencies['silverstripe/recipe-cms'] = $this->recipeCoreTarget;
+        $dependencies[SilverstripePackageInfo::RECIPE_CORE] = $this->recipeCoreTarget;
+        if (isset($dependencies[SilverstripePackageInfo::CMS])) {
+            unset($dependencies[SilverstripePackageInfo::CMS]);
+            $dependencies[SilverstripePackageInfo::RECIPE_CMS] = $this->recipeCoreTarget;
         }
 
         return $dependencies;
@@ -263,7 +264,7 @@ class Rebuild implements DependencyUpgradeRule
         // Start by removing packages
         foreach ($toRemove as $packageName) {
             // We keep recipe-core in for now to make sure whatever we install follows our framework constraint.
-            if ($packageName != 'silverstripe/recipe-core') {
+            if ($packageName != SilverstripePackageInfo::RECIPE_CORE) {
                 $composer->remove($packageName, $schemaFile->getBasePath());
             }
         }
@@ -272,9 +273,9 @@ class Rebuild implements DependencyUpgradeRule
             $composer->require($packageName, '', $schemaFile->getBasePath(), true);
         }
 
-        if (in_array('silverstripe/recipe-core', $toRemove)) {
+        if (in_array(SilverstripePackageInfo::RECIPE_CORE, $toRemove)) {
             // We ditch recipe core if need be.
-            $composer->remove('silverstripe/recipe-core', $schemaFile->getBasePath());
+            $composer->remove(SilverstripePackageInfo::RECIPE_CORE, $schemaFile->getBasePath());
         }
 
         // Get new dependency versions from the temp file.
@@ -301,10 +302,10 @@ class Rebuild implements DependencyUpgradeRule
     protected function isFramework(string $packageName): bool
     {
         return in_array($packageName, [
-            'silverstripe/framework',
-            'silverstripe/recipe-core',
-            'silverstripe/recipe-cms',
-            'silverstripe/cms'
+            SilverstripePackageInfo::FRAMEWORK,
+            SilverstripePackageInfo::RECIPE_CORE,
+            SilverstripePackageInfo::RECIPE_CMS,
+            SilverstripePackageInfo::CMS
         ]);
     }
 

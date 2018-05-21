@@ -30,4 +30,5 @@ $application->add(new Upgrader\InspectCommand());
 $application->add(new Upgrader\EnvironmentCommand());
 $application->add(new Upgrader\RecomposeCommand());
 $application->add(new Upgrader\ReorganiseCommand());
+$application->add(new Upgrader\WebrootCommand());
 $application->run();

@@ -7,6 +7,7 @@ use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
 use InvalidArgumentException;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Filesystem\Filesystem;
 
 class ComposerExecTest extends TestCase
 {
@@ -285,5 +286,71 @@ EOF
 
         // Try to run a composer update
         $composer->update();
+    }
+
+    public function testExpose()
+    {
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $composer->setWorkingDir($schema->getBasePath());
+
+        $schema->setContents(<<<EOF
+{
+    "name": "silverstripe-upgrader/temp-project",
+    "description": "silverstripe-upgrader-temp-project",
+    "license": "proprietary",
+    "minimum-stability": "dev",
+    "require": {"silverstripe/recipe-cms": "1.1"},
+    "prefer-stable": true
+}
+EOF
+        );
+
+        // Download dependency and the vendor-expose plugin
+        $composer->update();
+
+        // Update will have implicitly run vendor-expose. Let's remove the resources folder.
+        $resPath = $schema->getBasePath() . DIRECTORY_SEPARATOR . 'resources';
+        $fs = new Filesystem();
+        $fs->remove($resPath);
+
+        // Make sure we go in without an `resources` folder.
+        $this->assertFileNotExists(
+            $resPath,
+            'Need to make sure we do not have a resources folder before running our vendor-expose.'
+        );
+
+        // Run an expose to make sure it doesn't throw an exception on us.
+        $this->assertNull(
+            $composer->expose(),
+            "Vendor expose should have returned null without throwing an exception."
+        );
+
+        $this->assertFileExists($resPath, 'Vendor expose should have created a `resources` folder. ');
+    }
+
+    public function testExposeFailure()
+    {
+        $this->expectException(RuntimeException::class);
+
+        // Set up a dummy composer project
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $composer->setWorkingDir($schema->getBasePath());
+
+        $schema->setContents(<<<EOF
+{
+    "name": "silverstripe-upgrader/temp-project",
+    "description": "silverstripe-upgrader-temp-project",
+    "license": "proprietary",
+    "minimum-stability": "dev",
+    "require": {},
+    "prefer-stable": true
+}
+EOF
+        );
+
+        // This should throw an exception because
+        $composer->expose();
     }
 }

@@ -31,3 +31,4 @@ The following commands are available:
 * [`inspect`](docs/en/inspect.md)
 * [`reorganise`](docs/en/reorganise.md)
 * [`upgrade`](docs/en/upgrade.md)
+* [`webroot`](docs/en/webroot.md)

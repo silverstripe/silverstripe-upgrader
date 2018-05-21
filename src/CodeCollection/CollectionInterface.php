@@ -13,7 +13,7 @@ interface CollectionInterface
      * Returns an iterator, yieldig all ItemInterface items in this collectinn
      * @return Iterator
      */
-    public function iterateItems();
+    public function iterateItems(): Iterator;
 
     /**
      * Returns a specific item by its relative path
@@ -21,12 +21,20 @@ interface CollectionInterface
      * @param string $path
      * @return ItemInterface
      */
-    public function itemByPath($path);
+    public function itemByPath(string $path): ItemInterface;
 
     /**
      * Apply the changes in the given changeset to this collection
      *
      * @param CodeChangeSet $changes
+     * @return void
      */
-    public function applyChanges(CodeChangeSet $changes);
+    public function applyChanges(CodeChangeSet $changes): void;
+
+    /**
+     * Checks if the provided path exist in the DiskCollection.
+     * @param string $path
+     * @return boolean
+     */
+    public function exists(string $path): bool;
 }

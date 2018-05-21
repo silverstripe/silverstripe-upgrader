@@ -5,6 +5,7 @@ namespace SilverStripe\Upgrader\Tests\Composer;
 use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Composer\Package;
 use SilverStripe\Upgrader\Composer\PackageVersion;
+use SilverStripe\Upgrader\Composer\SilverstripePackageInfo;
 
 class PackageVersionTest extends TestCase
 {
@@ -31,7 +32,7 @@ class PackageVersionTest extends TestCase
             [
                 "silverstripe/assets" => "1.1.0@stable",
                 "silverstripe/config" => "1.0.4@stable",
-                "silverstripe/framework" => "4.1.0@stable",
+                SilverstripePackageInfo::FRAMEWORK => "4.1.0@stable",
                 "silverstripe/recipe-plugin" => "^1.1",
             ],
             ''
@@ -48,7 +49,7 @@ class PackageVersionTest extends TestCase
         );
 
         // Test recipe core
-        $corePackage = new Package('silverstripe/recipe-core');
+        $corePackage = new Package(SilverstripePackageInfo::RECIPE_CORE);
         $this->assertEquals(
             $corePackage->getVersion('1.0.2')->getFrameworkConstraint(),
             '4.0.2@stable',
@@ -56,7 +57,7 @@ class PackageVersionTest extends TestCase
         );
 
         // Test a package that depends on recipe core
-        $cmsPackage = new Package('silverstripe/recipe-cms');
+        $cmsPackage = new Package(SilverstripePackageInfo::RECIPE_CMS);
         $this->assertEquals(
             $cmsPackage->getVersion('1.0.3')->getFrameworkConstraint(),
             '4.0.3@stable',
@@ -81,7 +82,7 @@ class PackageVersionTest extends TestCase
         $data = json_decode(file_get_contents(__DIR__ . '/fixture/recipe-core.json'), true);
 
         return new PackageVersion(
-            $data['packages']['silverstripe/recipe-core']['1.1.0']
+            $data['packages'][SilverstripePackageInfo::RECIPE_CORE]['1.1.0']
         );
     }
 }

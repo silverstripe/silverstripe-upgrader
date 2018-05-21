@@ -3,14 +3,17 @@
 	<rule ref="PSR2" />
 	<rule ref="Squiz.Commenting.FunctionComment">
 	     <include-pattern>*/src/Composer/*</include-pattern>
+	     <include-pattern>*/src/CodeCollection/*</include-pattern>
 	     <exclude name="Squiz.Commenting.FunctionComment.MissingParamComment"/>
 	     <exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamName"/>
 	     <exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamType"/>
 	</rule>
     <rule ref="Squiz.Commenting.FunctionCommentThrowTag">
          <include-pattern>*/src/Composer/*</include-pattern>
+         <include-pattern>*/src/CodeCollection/*</include-pattern>
     </rule>
     <rule ref="Squiz.Commenting.ClassComment">
         <include-pattern>*/src/Composer/*</include-pattern>
+        <include-pattern>*/src/CodeCollection/*</include-pattern>
     </rule>
 </ruleset>

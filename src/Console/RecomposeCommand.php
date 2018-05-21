@@ -14,6 +14,7 @@ use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
 use SilverStripe\Upgrader\Composer\Rules;
 use SilverStripe\Upgrader\Composer\Packagist;
+use SilverStripe\Upgrader\Composer\SilverstripePackageInfo;
 
 
 use InvalidArgumentException;
@@ -30,7 +31,6 @@ class RecomposeCommand extends AbstractCommand
         $this->setName('recompose')
             ->setDescription('Upgrade a composer file to use the latest version of SilverStripe.')
             ->setDefinition([
-                $this->getRootInputOption(),
                 $this->getRootInputOption(),
                 $this->getWriteInputOption(),
                 new InputOption(
@@ -50,7 +50,7 @@ class RecomposeCommand extends AbstractCommand
                     'composer-path',
                     'P',
                     InputOption::VALUE_OPTIONAL,
-                    'Prefer ~ to ^ avoid accidental upgrades.',
+                    'Path to the composer executable.',
                     ''
                 )
             ]);
@@ -139,7 +139,7 @@ class RecomposeCommand extends AbstractCommand
      */
     protected function findTargetRecipeCore(string $constraint)
     {
-        $package = new Package('silverstripe/recipe-core');
+        $package = new Package(SilverstripePackageInfo::RECIPE_CORE);
         $version = $package->getVersion($constraint);
 
         if ($version) {

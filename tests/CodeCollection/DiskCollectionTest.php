@@ -8,7 +8,10 @@ use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 
 class DiskCollectionTest extends TestCase
 {
-    private $pathToSampleFolder = __DIR__ . '/fixtures/SampleCode';
+    private $pathToSampleFolder =
+        __DIR__ . DIRECTORY_SEPARATOR .
+        'fixtures' . DIRECTORY_SEPARATOR .
+        'SampleCode';
 
     public function testIterateItems()
     {
@@ -26,8 +29,7 @@ class DiskCollectionTest extends TestCase
             'ExcludedBySuffix.php',
             'ExcludedRegardlessOfFirstLetter.php',
             'FoundByItemPath.php',
-            'ShouldBeReturnedInSearch.php',
-            'SubSampleFolder'
+            'ShouldBeReturnedInSearch.php'
         ], $names);
 
         // Recursive without exclusion list
@@ -80,5 +82,24 @@ class DiskCollectionTest extends TestCase
         $item = $d->itemByPath('FoundByItemPath.php');
 
         $this->assertEquals($this->pathToSampleFolder . '/FoundByItemPath.php', $item->getFullPath());
+    }
+
+    public function testExists()
+    {
+        $d = new DiskCollection(
+            $this->pathToSampleFolder,
+            true,
+            [
+                '*/ExcludedBy*.php',
+                '*/?xcludedRegardlessOfFirstLetter.php'
+            ]
+        );
+
+        $this->assertTrue($d->exists('FoundByItemPath.php'), 'FoundByItemPath exist, should be true.');
+        $this->assertFalse($d->exists('NotFound.php'), 'NotFound does not exist, should be false.');
+        $this->assertFalse(
+            $d->exists('ExcludedBySyffix.php'),
+            'ExcludedBySyffix does exist but is excluded so it should be false.'
+        );
     }
 }

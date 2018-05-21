@@ -10,7 +10,7 @@ use Symfony\Component\Console\Exception\RuntimeException;
 /**
  * Utility for interacting with the `composer` executable.
  */
-class ComposerExec
+class ComposerExec implements ComposerInterface
 {
 
     const TEMP_SCHEMA_CONTENT = <<<EOF
@@ -71,7 +71,7 @@ EOF
      * @throws InvalidArgumentException If the composer executable can not be found.
      * @return void
      */
-    public function setExecPath(string $execPath)
+    public function setExecPath(string $execPath): void
     {
         if ($execPath) {
             // User wants to explicitly define the path to composer
@@ -107,7 +107,7 @@ EOF
      * @param string $workingDir
      * @return void
      */
-    public function setWorkingDir(string $workingDir)
+    public function setWorkingDir(string $workingDir): void
     {
         $this->workingDir = $workingDir;
     }
@@ -259,7 +259,7 @@ EOF
         string $constraint = '',
         string $workingDir = '',
         bool   $showFeedback = false
-    ) {
+    ):void {
         // Constrain our package to some version.
         if ($constraint) {
             $package .= ':"' . $constraint . '"';
@@ -276,6 +276,7 @@ EOF
             [
                 '--working-dir' => $workingDir,
                 '--prefer-stable' => '',
+                '--ignore-platform-reqs' => '',
             ],
             $showFeedback
         );
@@ -302,7 +303,7 @@ EOF
     public function update(
         string $workingDir = '',
         bool   $showFeedback = false
-    ) {
+    ): void {
         $showFeedback = $showFeedback && $this->out;
 
         if ($showFeedback) {
@@ -314,6 +315,7 @@ EOF
             [
                 '--working-dir' => $workingDir,
                 '--prefer-stable' => '',
+                '--ignore-platform-reqs' => '',
             ],
             $showFeedback
         );
@@ -337,7 +339,7 @@ EOF
      * $workingDir.
      * @return void
      */
-    public function remove(string $package, string $workingDir = '')
+    public function remove(string $package, string $workingDir = ''): void
     {
         $this->run(
             'remove ' . $package,
@@ -353,11 +355,11 @@ EOF
      * $workingDir.
      * @return void
      */
-    public function install(string $workingDir = '')
+    public function install(string $workingDir = ''): void
     {
         $this->run(
             'install',
-            ['--working-dir' => $workingDir]
+            ['--working-dir' => $workingDir, '--ignore-platform-reqs' => '']
         );
     }
 
@@ -394,5 +396,19 @@ EOF
         return (file_exists($cacheDir) && is_dir($cacheDir)) ?
             $cacheDir :
             '';
+    }
+
+    /**
+     * @inheritdoc
+     * @param string $workingDir
+     * @throws RuntimeException If there's an error occurs while running the command.
+     * @return void
+     */
+    public function expose(string $workingDir = ''): void
+    {
+        $process = $this->run('vendor-expose', ['--working-dir' => $workingDir]);
+        if (!$process->isSuccessful()) {
+            throw new RuntimeException($process->getErrorOutput());
+        }
     }
 }
