@@ -276,6 +276,7 @@ EOF
             [
                 '--working-dir' => $workingDir,
                 '--prefer-stable' => '',
+                '--ignore-platform-reqs' => '',
             ],
             $showFeedback
         );
@@ -314,6 +315,7 @@ EOF
             [
                 '--working-dir' => $workingDir,
                 '--prefer-stable' => '',
+                '--ignore-platform-reqs' => '',
             ],
             $showFeedback
         );
@@ -357,7 +359,7 @@ EOF
     {
         $this->run(
             'install',
-            ['--working-dir' => $workingDir]
+            ['--working-dir' => $workingDir, '--ignore-platform-reqs' => '']
         );
     }
 
