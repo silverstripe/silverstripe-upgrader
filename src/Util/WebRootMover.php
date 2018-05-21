@@ -146,19 +146,45 @@ class WebRootMover
      */
     public function checkPrerequisites(): void
     {
-        // Make sure we have recipe-core install
+        $this->checkRecipeCorePrerequisite();
+        $this->checkPublicFolderPrerequisite();
+    }
+
+    /**
+     * Make sure we have the minimal version of recipe-core installed.
+     *
+     * @throws InvalidArgumentException If we do not have the minimal version recipe-core.
+     * @return void
+     */
+    private function checkRecipeCorePrerequisite(): void
+    {
+        // Get package info for the project
         $packageInfo = $this->composer->show();
         $packageInfo = array_values(array_filter($packageInfo, function ($package) {
             return $package['name'] == SilverstripePackageInfo::RECIPE_CORE;
         }));
+
+        // Make sure we have Recipe core installed
         if (empty($packageInfo)) {
             throw new InvalidArgumentException(sprintf(
                 'To use the public webroot, your project must be using %s 1.1 or higher. ' .
                 'It is not currently installed.',
                 SilverstripePackageInfo::RECIPE_CORE
             ));
-        } elseif (!Semver::satisfies($packageInfo[0]['version'], self::CORE_CONSTRAINT)
-        ) {
+        }
+
+        /**
+         * @var string
+         */
+        $version = $packageInfo[0]['version'];
+
+        // Strip the commit hash from the version if present
+        if (preg_match('/(.+) [a-f0-9]/', $version, $matches)) {
+            $version = $matches[1];
+        }
+
+        // Make sure our version of recipe core meet the constrain requirements.
+        if (!Semver::satisfies($version, self::CORE_CONSTRAINT)) {
             throw new InvalidArgumentException(sprintf(
                 'To use the public webroot, your project must be using %s 1.1 or higher. ' .
                 'Version %s is currently installed.',
@@ -166,7 +192,15 @@ class WebRootMover
                 $packageInfo[0]['version']
             ));
         }
+    }
 
+    /**
+     * Make sure the we do not have a public folder or that it's empty.
+     * @throw InvalidArgumentException There's a non-empty public folder in the project.
+     * @return void
+     */
+    private function checkPublicFolderPrerequisite(): void
+    {
         // Make sure we don't already have a public.
         $publicPath = $this->publicPath();
         if (file_exists($publicPath) &&
