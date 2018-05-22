@@ -79,7 +79,17 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
     {
         $args['--quick'] = true;
         $args['--write'] = true;
-        return $args;
+        return array_intersect_key(
+            $args,
+            array_flip([
+                '--quick',
+                '--write',
+                '--root-dir',
+                '--strict',
+                '--recipe-core-constraint',
+                '--composer-path'
+            ])
+        );
     }
 
     /**
