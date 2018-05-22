@@ -2,7 +2,9 @@
 
 namespace SilverStripe\Upgrader\Console;
 
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,10 +24,14 @@ use InvalidArgumentException;
 /**
  * Command to try to update a composer file to use SS4.
  */
-class RecomposeCommand extends AbstractCommand
+class RecomposeCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
+    use AutomatedCommandTrait;
 
+    /**
+     * @inheritdoc
+     */
     protected function configure()
     {
         $this->setName('recompose')
@@ -65,6 +71,19 @@ class RecomposeCommand extends AbstractCommand
     }
 
     /**
+     * @inheritdoc
+     * @param array $args
+     * @return array
+     */
+    protected function enrichArgs(array $args): array
+    {
+        $args['--quick'] = true;
+        $args['--write'] = true;
+        return $args;
+    }
+
+    /**
+     * @inheritdoc
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int|null
@@ -112,6 +131,7 @@ class RecomposeCommand extends AbstractCommand
 
         // Try to upgrade the project
         $change = $schema->upgrade($rules, $console);
+        $this->diff = $change;
 
         // Check if we got new content
         $console->title('Showing difference');
@@ -135,12 +155,21 @@ class RecomposeCommand extends AbstractCommand
             $console->title('Trying to install new dependencies');
             try {
                 $composer->update('', true);
+                // We need to run another update because our recipes will update the `extra` object in our
+                // composer.json which invalidates our composer.lock
+                $composer->update('', false);
                 $console->success('Dependencies installed successfully.');
             } catch (RuntimeException $ex) {
-                $console->warning(
+                $message =
                     'Composer could not resolved your updated dependencies. '.
-                    'You\'ll need to manually resolve conflicts.'
-                );
+                    'You\'ll need to manually resolve conflicts.';
+                if ($this->isAutomated()) {
+                    // If we are running the command in an automated context, we need a clean failure to terminate
+                    // execution.
+                    throw new RuntimeException($message);
+                } else {
+                    $console->warning($message);
+                }
             }
         } else {
             $console->note("Changes not saved; Run with --write to commit to disk");

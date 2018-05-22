@@ -2,6 +2,7 @@
 
 namespace SilverStripe\Upgrader\Console;
 
+use SilverStripe\Upgrader\Util\CommandRunner;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,7 +28,7 @@ class AllInOneCommand extends AbstractCommand
 
     protected function configure()
     {
-        $this->setName('recompose')
+        $this->setName('all-in-one')
             ->setDescription('Aggregate all the commands required to upgrade a SilverStripe project.')
             ->setDefinition([
                 $this->getRootInputOption(),
@@ -69,10 +70,20 @@ class AllInOneCommand extends AbstractCommand
 
         $console = new SymfonyStyle($input, $output);
 
+        $runner = new CommandRunner();
 
-
+        $runner->run(
+            $this->getApplication(),
+            ['recompose'],
+            [
+                '--composer-path' => $composerPath,
+                '--recipe-core-constraint' => $recipeCoreConstraint,
+                '--strict' => $strict,
+                '--root-dir' => $rootPath
+            ],
+            $output
+        );
 
         return null;
     }
-
 }
