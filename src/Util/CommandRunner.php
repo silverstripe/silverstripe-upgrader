@@ -2,20 +2,40 @@
 
 namespace SilverStripe\Upgrader\Util;
 
-use LogicException;
+use SilverStripe\Upgrader\Console\AutomatedCommand;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Exception\LogicException;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Aggregate many command together and run them sequentially.
+ * Aggregate many commands together and run them sequentially.
  */
 class CommandRunner
 {
 
-
-    public function __construct(
-        $args=[]
-    ) {
-
+    /**
+     * Run a list of command sequentially.
+     * @param Application $app
+     * @param array $commands
+     * @param array $args
+     * @param OutputInterface $output
+     */
+    public function run(Application $app, array $commands, array $args, OutputInterface $output): void
+    {
+        foreach ($commands as $commandName) {
+            /**
+             * @var AutomatedCommand
+             */
+            $cmd = $app->find($commandName);
+            if ($cmd instanceof AutomatedCommand) {
+                $cmd->automatedRun($args, $output);
+                $args = $cmd->updatedArguments();
+            } else {
+                throw new LogicException(sprintf(
+                    '%s does not implement the AutomatedCommand interface.',
+                    $commandName
+                ));
+            }
+        }
     }
-
-
 }
