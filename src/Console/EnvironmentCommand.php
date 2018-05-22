@@ -12,15 +12,34 @@ use SilverStripe\Upgrader\ChangeDisplayer;
 /**
  * Command to convert a SilverStripe 3 `_ss_environment.php` to a SilverStripe 4 `.env` file.
  */
-class EnvironmentCommand extends AbstractCommand
+class EnvironmentCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
+    use AutomatedCommandTrait;
 
     /**
      * Name of the environement file in SilverStripe 3.
      * @var string
      */
     const SS3_ENV_FILE = '_ss_environment.php';
+
+
+    /**
+     * @inheritdoc
+     * @param array $args
+     * @return array
+     */
+    protected function enrichArgs(array $args): array
+    {
+        $args['--write'] = true;
+        return array_intersect_key(
+            $args,
+            array_flip([
+                '--write',
+                '--root-dir',
+            ])
+        );
+    }
 
     protected function configure()
     {
@@ -83,7 +102,8 @@ class EnvironmentCommand extends AbstractCommand
 
         //Display changes
         $display = new ChangeDisplayer();
-        $display->displayChanges($output, $dotEnvLoader->buildCodeChangeSet());
+        $this->diff = $dotEnvLoader->buildCodeChangeSet();
+        $display->displayChanges($output, $this->diff);
 
         // Apply them to the project
         if ($write) {

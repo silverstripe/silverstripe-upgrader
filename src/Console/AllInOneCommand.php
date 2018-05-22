@@ -74,7 +74,10 @@ class AllInOneCommand extends AbstractCommand
 
         $runner->run(
             $this->getApplication(),
-            ['recompose'],
+            [
+                'recompose',
+                'environment',
+            ],
             [
                 '--composer-path' => $composerPath,
                 '--recipe-core-constraint' => $recipeCoreConstraint,
