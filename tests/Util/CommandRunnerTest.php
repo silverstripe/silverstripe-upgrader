@@ -2,6 +2,7 @@
 
 namespace SilverStripe\Upgrader\Tests\Util;
 
+use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Tests\Console\MockAutomatedCommand;
 use SilverStripe\Upgrader\Tests\Console\MockFailedAutomatedCommand;
@@ -12,6 +13,30 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 class CommandRunnerTest extends TestCase
 {
+
+    const STANDARD_SS3 = [
+        'mysite' => [
+            '_config.php' => '<?php',
+            'code' => [
+                'Page.php' => '<?php class Page extends SiteTree { }'
+            ],
+            '_config' => [
+                'config.yml' => '# Some YML comment'
+            ]
+        ]
+    ];
+
+    const STANDARD_SS4 = [
+        'app' => [
+            '_config.php' => '<?php',
+            'src' => [
+                'Page.php' => '<?php class Page extends SiteTree { }'
+            ],
+            '_config' => [
+                'config.yml' => '# Some YML comment'
+            ]
+        ]
+    ];
 
     public function testRun()
     {
@@ -55,5 +80,35 @@ class CommandRunnerTest extends TestCase
 
         $runner = new CommandRunner();
         $runner->run($app, ['bad', 'good'], ['--exec' => 0], new BufferedOutput());
+    }
+
+    public function testAddProjectFolders()
+    {
+
+        $runner = new CommandRunner();
+
+        // Testing with an SS3 set up
+        $root = vfsStream::setup('ss_project_root', null, self::STANDARD_SS3);
+        $args = $runner->addProjectFolders(['--root-dir' => $root->url()]);
+        $this->assertEquals(
+            [
+                '--root-dir' => $root->url(),
+                'project-path' => $root->url() . DIRECTORY_SEPARATOR . 'mysite',
+                'code-path' => $root->url() . DIRECTORY_SEPARATOR . 'mysite' . DIRECTORY_SEPARATOR . 'code',
+            ],
+            $args
+        );
+
+        // Testing with an SS4 set up
+        $root = vfsStream::setup('ss_project_root', null, self::STANDARD_SS4);
+        $args = $runner->addProjectFolders(['--root-dir' => $root->url()]);
+        $this->assertEquals(
+            [
+                '--root-dir' => $root->url(),
+                'project-path' => $root->url() . DIRECTORY_SEPARATOR . 'app',
+                'code-path' => $root->url() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'src',
+            ],
+            $args
+        );
     }
 }
