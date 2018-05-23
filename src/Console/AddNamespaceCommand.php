@@ -13,14 +13,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AddNamespaceCommand extends AbstractCommand
+class AddNamespaceCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
+    use AutomatedCommandTrait;
 
     protected function configure()
     {
         $this->setName('add-namespace')
-            ->setDescription('Add a namespace to a file')
+            ->setDescription('Add a namespace to a file.')
             ->setDefinition([
                 new InputArgument(
                     'namespace',
@@ -43,6 +44,28 @@ class AddNamespaceCommand extends AbstractCommand
                 $this->getRootInputOption(),
                 $this->getWriteInputOption()
             ]);
+    }
+
+    /**
+     * @inheritdoc
+     * @param array $args
+     * @return array
+     */
+    protected function enrichArgs(array $args): array
+    {
+        $args['--write'] = true;
+        $args['--recursive'] = true;
+        $args['path'] = $args['code-path'];
+        return array_intersect_key(
+            $args,
+            array_flip([
+                '--write',
+                '--root-dir',
+                '--recursive',
+                'namespace',
+                'path',
+            ])
+        );
     }
 
 

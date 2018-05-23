@@ -3,21 +3,10 @@
 namespace SilverStripe\Upgrader\Console;
 
 use SilverStripe\Upgrader\Util\CommandRunner;
-use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
-
-use SilverStripe\Upgrader\ChangeDisplayer;
-use SilverStripe\Upgrader\Composer\Package;
-use SilverStripe\Upgrader\Composer\ComposerExec;
-use SilverStripe\Upgrader\Composer\ComposerFile;
-use SilverStripe\Upgrader\Composer\Rules;
-use SilverStripe\Upgrader\Composer\Packagist;
-
-
-use InvalidArgumentException;
 
 /**
  * Command to try to update a composer file to use SS4.
@@ -49,8 +38,21 @@ class AllInOneCommand extends AbstractCommand
                     'composer-path',
                     'P',
                     InputOption::VALUE_OPTIONAL,
-                    'Path to your composer executable',
+                    'Path to your composer executable.',
                     ''
+                ),
+                new InputOption(
+                    'skip-namespace',
+                    null,
+                    InputOption::VALUE_NONE,
+                    'Skip the `add-namespace` command.'
+                ),
+                new InputOption(
+                    'namespace',
+                    'N',
+                    InputOption::VALUE_OPTIONAL,
+                    'Path to your composer executable.',
+                    '\\App'
                 )
             ]);
     }
@@ -67,6 +69,16 @@ class AllInOneCommand extends AbstractCommand
         $composerPath = $input->getOption('composer-path');
         $recipeCoreConstraint = $input->getOption('recipe-core-constraint');
         $strict = $input->getOption('strict');
+        $skipNamespace = $input->getOption('skip-namespace');
+        $namespace = $input->getOption('namespace');
+
+        $commandList = [];
+        $commandList[] = 'recompose';
+        $commandList[] = 'environment';
+        if (!$skipNamespace) {
+            $commandList[] = 'add-namespace';
+        }
+
 
         $console = new SymfonyStyle($input, $output);
 
@@ -74,15 +86,13 @@ class AllInOneCommand extends AbstractCommand
 
         $runner->run(
             $this->getApplication(),
-            [
-                'recompose',
-                'environment',
-            ],
+            $commandList,
             [
                 '--composer-path' => $composerPath,
                 '--recipe-core-constraint' => $recipeCoreConstraint,
                 '--strict' => $strict,
-                '--root-dir' => $rootPath
+                '--root-dir' => $rootPath,
+                'namespace' => $namespace,
             ],
             $output
         );
