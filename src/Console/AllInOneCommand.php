@@ -78,6 +78,7 @@ class AllInOneCommand extends AbstractCommand
         if (!$skipNamespace) {
             $commandList[] = 'add-namespace';
         }
+        $commandList[] = 'upgrade';
 
 
         $console = new SymfonyStyle($input, $output);

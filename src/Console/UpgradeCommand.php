@@ -17,14 +17,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class UpgradeCommand extends AbstractCommand
+class UpgradeCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
+    use AutomatedCommandTrait;
 
     protected function configure()
     {
         $this->setName('upgrade')
-            ->setDescription('Upgrade a set of code files to work with a newer version of a library ')
+            ->setDescription('Upgrade a set of code files to work with a newer version of a library.')
             ->setDefinition([
                 $this->getPathInputArgument(),
                 new InputOption(
@@ -38,6 +39,25 @@ class UpgradeCommand extends AbstractCommand
                 $this->getRootInputOption(),
                 $this->getWriteInputOption()
             ]);
+    }
+
+    /**
+     * @inheritdoc
+     * @param array $args
+     * @return array
+     */
+    protected function enrichArgs(array $args): array
+    {
+        $args['--write'] = true;
+        $args['path'] = $args['project-path'];
+        return array_intersect_key(
+            $args,
+            array_flip([
+                '--write',
+                '--root-dir',
+                'path',
+            ])
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -60,6 +80,7 @@ class UpgradeCommand extends AbstractCommand
         $exclusions = isset($config['excludedPaths']) ? $config['excludedPaths'] : [];
         $code = new DiskCollection($filePath, true, $exclusions);
         $changes = $upgrader->upgrade($code);
+        $this->diff = $changes;
 
         // Display the resulting changes
         $display = new ChangeDisplayer();
