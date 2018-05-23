@@ -15,9 +15,10 @@ use SilverStripe\Upgrader\Composer\ComposerExec;
 /**
  * Command to switch to public web root.
  */
-class WebrootCommand extends AbstractCommand
+class WebrootCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
+    use AutomatedCommandTrait;
 
     protected function configure()
     {
@@ -34,6 +35,24 @@ class WebrootCommand extends AbstractCommand
                     ''
                 )
             ]);
+    }
+
+    /**
+     * @inheritdoc
+     * @param array $args
+     * @return array
+     */
+    protected function enrichArgs(array $args): array
+    {
+        $args['--write'] = true;
+        return array_intersect_key(
+            $args,
+            array_flip([
+                '--write',
+                '--root-dir',
+                '--composer-path'
+            ])
+        );
     }
 
     /**

@@ -53,7 +53,19 @@ class AllInOneCommand extends AbstractCommand
                     InputOption::VALUE_OPTIONAL,
                     'Path to your composer executable.',
                     'App\\Web'
-                )
+                ),
+                new InputOption(
+                    'skip-reorganise',
+                    null,
+                    InputOption::VALUE_NONE,
+                    'Skip the `reorganise` command.'
+                ),
+                new InputOption(
+                    'skip-webroot',
+                    null,
+                    InputOption::VALUE_NONE,
+                    'Skip the `webroot` command.'
+                ),
             ]);
     }
 
@@ -71,7 +83,10 @@ class AllInOneCommand extends AbstractCommand
         $strict = $input->getOption('strict');
         $skipNamespace = $input->getOption('skip-namespace');
         $namespace = $input->getOption('namespace');
+        $skipReorganise = $input->getOption('skip-reorganise');
+        $skipWebroot = $input->getOption('skip-webroot');
 
+        // Build command list
         $commandList = [];
         $commandList[] = 'recompose';
         $commandList[] = 'environment';
@@ -80,6 +95,12 @@ class AllInOneCommand extends AbstractCommand
         }
         $commandList[] = 'upgrade';
         $commandList[] = 'inspect';
+        if (!$skipReorganise) {
+            $commandList[] = 'reorganise';
+        }
+        if (!$skipWebroot) {
+            $commandList[] = 'webroot';
+        }
 
 
         $console = new SymfonyStyle($input, $output);
