@@ -52,7 +52,7 @@ class AllInOneCommand extends AbstractCommand
                     'N',
                     InputOption::VALUE_OPTIONAL,
                     'Path to your composer executable.',
-                    '\\App'
+                    'App\\Web'
                 )
             ]);
     }
@@ -79,6 +79,7 @@ class AllInOneCommand extends AbstractCommand
             $commandList[] = 'add-namespace';
         }
         $commandList[] = 'upgrade';
+        $commandList[] = 'inspect';
 
 
         $console = new SymfonyStyle($input, $output);

@@ -14,9 +14,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class InspectCommand extends UpgradeCommand
+class InspectCommand extends UpgradeCommand implements AutomatedCommand
 {
     use FileCommandTrait;
+    use AutomatedCommandTrait;
 
     protected function configure()
     {
@@ -27,6 +28,25 @@ class InspectCommand extends UpgradeCommand
                 $this->getRootInputOption(),
                 $this->getWriteInputOption()
             ]);
+    }
+
+    /**
+     * @inheritdoc
+     * @param array $args
+     * @return array
+     */
+    protected function enrichArgs(array $args): array
+    {
+        $args['--write'] = true;
+        $args['path'] = $args['project-path'];
+        return array_intersect_key(
+            $args,
+            array_flip([
+                '--write',
+                '--root-dir',
+                'path',
+            ])
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
