@@ -327,4 +327,43 @@ class CodeChangeSetTest extends TestCase
             'unaffected file doesn have any outstanding operation against it.'
         );
     }
+
+    public function testMergeWarnings()
+    {
+
+        $target = new CodeChangeSet();
+        $target->addWarning('target-only.txt', 1, 'warn me');
+        $target->addWarning('collision.txt', 2, 'warn one');
+
+
+        $updates = new CodeChangeSet();
+        $updates->addWarning('updates-only.txt', 3, 'warn me');
+        $updates->addWarning('collision.txt', 4, 'warn two');
+
+        $target->mergeWarnings($updates);
+
+        $this->assertEquals(
+            ['target-only.txt', 'collision.txt', 'updates-only.txt'],
+            $target->affectedFiles(),
+            'Affected files should include everything from $target and $updates'
+        );
+
+        $this->assertEquals(
+            ["<info>target-only.txt:1</info> <comment>warn me</comment>"],
+            $target->warningsForPath('target-only.txt')
+        );
+
+        $this->assertEquals(
+            ["<info>updates-only.txt:3</info> <comment>warn me</comment>"],
+            $target->warningsForPath('updates-only.txt')
+        );
+
+        $this->assertEquals(
+            [
+                "<info>collision.txt:2</info> <comment>warn one</comment>",
+                "<info>collision.txt:4</info> <comment>warn two</comment>"
+            ],
+            $target->warningsForPath('collision.txt')
+        );
+    }
 }
