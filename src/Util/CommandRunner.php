@@ -2,6 +2,9 @@
 
 namespace SilverStripe\Upgrader\Util;
 
+use SilverStripe\Upgrader\ChangeDisplayer;
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
+use SilverStripe\Upgrader\Console\AbstractCommand;
 use SilverStripe\Upgrader\Console\AutomatedCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Exception\LogicException;
@@ -20,18 +23,36 @@ class CommandRunner
      * @param array $args
      * @param OutputInterface $output
      */
-    public function run(Application $app, array $commands, array $args, OutputInterface $output): void
-    {
+    public function run(
+        Application $app,
+        array $commands,
+        array $args,
+        OutputInterface $output
+    ): void {
         $args = $this->addProjectFolders($args);
 
+        $step = 0;
+
+        $warnings = new CodeChangeSet();
+
+        // Run each command one by one.
         foreach ($commands as $commandName) {
+            $step++;
+
             /**
-             * @var AutomatedCommand
+             * @var AutomatedCommand|AbstractCommand
              */
             $cmd = $app->find($commandName);
             if ($cmd instanceof AutomatedCommand) {
+                $titleBlock = sprintf('Step %s - Running %s', $step, $cmd->getName());
+
+                $output->write($this->wrapTitle($titleBlock));
                 $cmd->automatedRun($args, $output);
                 $args = $cmd->updatedArguments();
+                $diff = $cmd->getDiff();
+                if ($diff) {
+                    $warnings->mergeWarnings($diff);
+                }
             } else {
                 throw new LogicException(sprintf(
                     '%s does not implement the AutomatedCommand interface.',
@@ -39,6 +60,14 @@ class CommandRunner
                 ));
             }
         }
+
+        // Show a summary of the upgrade
+        $output->write($this->wrapTitle('Summary of upgrades'));
+
+        $output->writeln('All commands got executed successfully. Please address any outstanding warnings.');
+
+        $displayer = new ChangeDisplayer();
+        $displayer->displayWarningsOnly($output, $warnings);
     }
 
     /**
@@ -77,5 +106,26 @@ class CommandRunner
         }
 
         return $args;
+    }
+
+
+    /**
+     * Wrap the title with a lot of emphasis to make it stand out.
+     * @param string $title
+     * @return string
+     */
+    private function wrapTitle(string $title): string
+    {
+        $lineLength = 80;
+        $textLength = $lineLength - 6;
+
+        $string = "\n\n<fg=cyan;options=bold>";
+        $string .= str_repeat('*', $lineLength) . "\n";
+        $string .= '*  ' . str_repeat(' ', $textLength) . "  *\n";
+        $string .= '*  ' . strtoupper($title) . str_repeat(' ', $textLength - strlen($title)) . "  *\n";
+        $string .= '*  ' . str_repeat(' ', $textLength) . "  *\n";
+        $string .= str_repeat('*', $lineLength) . "</>\n";
+
+        return $string;
     }
 }
