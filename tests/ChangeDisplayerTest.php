@@ -46,6 +46,27 @@ class CodeChangeSetTest extends TestCase
         );
     }
 
+    public function testDisplayWarningsOnly()
+    {
+        $out = new BufferedOutput();
+        $diff = new CodeChangeSet();
+        $diff->addWarning('file.txt', 1, 'boom');
+        $diff->addFileChange('new.txt', 'new file content', 'old content');
+
+        $changeDisplayer = new ChangeDisplayer();
+        $changeDisplayer->displayWarningsOnly($out, $diff);
+
+        $this->assertEquals(
+            <<<EOF
+Warnings for file.txt:
+ - file.txt:1 boom
+
+EOF
+            ,
+            $out->fetch()
+        );
+    }
+
     private $expected = <<<EOF
 modified:	test1.php
 @@ -1,1 +1,1 @@

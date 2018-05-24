@@ -46,4 +46,23 @@ class ChangeDisplayer
             }
         }
     }
+
+    /**
+     * Render a visual representation of a Code Change Set's warning to an output.
+     * @param OutputInterface $output
+     * @param CodeChangeSet $changes
+     * @return void
+     */
+    public function displayWarningsOnly(OutputInterface $output, CodeChangeSet $changes): void
+    {
+        foreach ($changes->affectedFiles() as $path) {
+            // Display warnings if any
+            if ($changes->hasWarnings($path)) {
+                $output->writeln("Warnings for $path:");
+                foreach ($changes->warningsForPath($path) as $warning) {
+                    $output->writeln(" - $warning");
+                }
+            }
+        }
+    }
 }
