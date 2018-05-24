@@ -18,10 +18,9 @@ trait AutomatedCommandTrait
 {
 
     /**
-     *
      * @var CodeChangeSet
      */
-    protected $diff;
+    private $diff;
 
     /**
      * @var array
@@ -97,5 +96,16 @@ trait AutomatedCommandTrait
     public function isAutomated(): bool
     {
         return $this->isBeingRunAutomated;
+    }
+
+    /**
+     * Setter for the Code Change set for this automated command. Commands using this trait should call this method so
+     * the parent CommandRunner can no what has changed.
+     * @param CodeChangeSet $diff
+     * @return void
+     */
+    protected function setDiff(CodeChangeSet $diff): void
+    {
+        $this->diff = $diff;
     }
 }
