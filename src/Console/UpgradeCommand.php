@@ -80,7 +80,7 @@ class UpgradeCommand extends AbstractCommand implements AutomatedCommand
         $exclusions = isset($config['excludedPaths']) ? $config['excludedPaths'] : [];
         $code = new DiskCollection($filePath, true, $exclusions);
         $changes = $upgrader->upgrade($code);
-        $this->diff = $changes;
+        $this->setDiff($changes);
 
         // Display the resulting changes
         $display = new ChangeDisplayer();

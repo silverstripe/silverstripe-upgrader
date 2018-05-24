@@ -112,8 +112,9 @@ class ReorganiseCommand extends AbstractCommand implements AutomatedCommand
             new DiskCollection($rootPath, true, ['*/framework/*', '*/vendor/*', '*/assets/*', '*/cms/*'])
         );
 
-        $this->diff = $grep->findAsWarning();
-        if ($this->diff->affectedFiles()) {
+        $diff = $grep->findAsWarning();
+        if ($diff->affectedFiles()) {
+            $this->setDiff($diff);
             $output->writeln(
                 "\nWe found occurrences of `mysite` in your code base. You might need to replace those with `app`."
             );

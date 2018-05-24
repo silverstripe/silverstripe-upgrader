@@ -85,14 +85,6 @@ class EnvironmentCommand extends AbstractCommand implements AutomatedCommand
             return null;
         }
 
-        // Test file to see if it's suitable
-        if (!$parser->isValid()) {
-            $output->writeln(
-                "Your environment file contains unusual constructs. " .
-                "Upgrader will try to convert it any way, but take time to validate the result."
-            );
-        }
-
         // Get constants from the legacy file
         $consts = $parser->getSSFourEnv();
 
@@ -100,10 +92,23 @@ class EnvironmentCommand extends AbstractCommand implements AutomatedCommand
         $dotEnvLoader = new DotEnvLoader($rootPath . DIRECTORY_SEPARATOR . '.env');
         $dotEnvLoader->apply($consts);
 
-        //Display changes
+        // Get Code chanage
         $display = new ChangeDisplayer();
-        $this->diff = $dotEnvLoader->buildCodeChangeSet();
-        $display->displayChanges($output, $this->diff);
+        $diff = $dotEnvLoader->buildCodeChangeSet();
+
+        // Test file to see if it's suitable
+        if (!$parser->isValid()) {
+            $diff->addWarning(
+                self::SS3_ENV_FILE,
+                0,
+                "Your environment file contains unusual constructs. " .
+                "It can still be converted, but take time to validate the result."
+            );
+        }
+
+        //Display changes
+        $this->setDiff($diff);
+        $display->displayChanges($output, $diff);
 
         // Apply them to the project
         if ($write) {

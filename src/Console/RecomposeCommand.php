@@ -141,7 +141,7 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
 
         // Try to upgrade the project
         $change = $schema->upgrade($rules, $console);
-        $this->diff = $change;
+        $this->setDiff($change);
 
         // Check if we got new content
         $console->title('Showing difference');

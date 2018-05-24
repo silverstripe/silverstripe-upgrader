@@ -126,6 +126,7 @@ class AddNamespaceCommand extends AbstractCommand implements AutomatedCommand
         $output->writeln("Applying namespace to \"{$filePath}\" in module \"{$module}\"");
         $code = new DiskCollection($filePath, $recursive);
         $changes = $upgrader->upgrade($code);
+        $this->setDiff($changes);
 
         // Display the resulting changes
         $display = new ChangeDisplayer();

@@ -2,6 +2,7 @@
 
 namespace SilverStripe\Upgrader\Console;
 
+use Nette\InvalidArgumentException;
 use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\Util\WebRootMover;
 use Symfony\Component\Console\Input\InputInterface;
@@ -73,9 +74,18 @@ class WebrootCommand extends AbstractCommand implements AutomatedCommand
         // Initialise our mover
         $composer = new ComposerExec($rootPath, $composerPath, $output);
         $mover = new WebRootMover($rootPath, $composer);
-        $diff = $mover->move();
+
+        try {
+            $diff = $mover->move();
+        } catch (\InvalidArgumentException $ex) {
+            // It's not a big deal if the command fails. It shouldn't stop an automated execution.
+            $console->warning($ex->getMessage());
+            return null;
+        }
+
 
         // Show changes
+        $this->setDiff($diff);
         $display = new ChangeDisplayer();
         $display->displayChanges($output, $diff);
 

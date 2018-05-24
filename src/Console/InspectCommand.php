@@ -76,7 +76,7 @@ class InspectCommand extends UpgradeCommand implements AutomatedCommand
         // Run upgrade
         $output->writeln("Running post-upgrade on \"{$filePath}\"");
         $changes = $upgrader->upgrade($code);
-        $this->diff = $changes;
+        $this->setDiff($changes);
 
         // Display the resulting changes
         $display = new ChangeDisplayer();
