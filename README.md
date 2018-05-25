@@ -25,6 +25,7 @@ use --root-dir=/path.
 
 The following commands are available:
 * [`add-namespace`](docs/en/add-namespace.md)
+* [`all-in-one`](docs/en/all-in-one.md)
 * [`recompose`](docs/en/recompose.md)
 * [`doctor`](docs/en/doctor.md)
 * [`environment`](docs/en/environment.md)
