@@ -38,7 +38,7 @@ class InspectCommand extends UpgradeCommand implements AutomatedCommand
     protected function enrichArgs(array $args): array
     {
         $args['--write'] = true;
-        $args['path'] = $args['project-path'];
+        $args['path'] = $args['code-path'];
         return array_intersect_key(
             $args,
             array_flip([
