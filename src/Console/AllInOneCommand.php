@@ -102,9 +102,6 @@ class AllInOneCommand extends AbstractCommand
             $commandList[] = 'webroot';
         }
 
-
-        $console = new SymfonyStyle($input, $output);
-
         $runner = new CommandRunner();
 
         $runner->run(
