@@ -274,6 +274,7 @@ class CodeChangeSet
     /**
      * Merge warnings from another CodeChangeSet into this CodeChangeSet
      * @param CodeChangeSet $diff
+     * @return void
      */
     public function mergeWarnings(CodeChangeSet $diff): void
     {
