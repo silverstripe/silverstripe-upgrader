@@ -1,0 +1,77 @@
+{
+    "add-namespace": [
+        {
+            "namespace": "Upgrader\\NewNamespace",
+            "path": "/",
+            "psr4": true
+        }
+    ]
+}
+------
+<?php
+
+class A {
+
+}
+------
+<?php
+
+namespace Upgrader\NewNamespace;
+
+
+
+
+class A {
+
+}
+------
+<?php
+
+class B {
+
+}
+------
+<?php
+
+namespace Upgrader\NewNamespace\Foo;
+
+
+
+
+class B {
+
+}
+------
+<?php
+
+class C {
+
+}
+------
+<?php
+
+namespace Upgrader\NewNamespace\Bar;
+
+
+
+
+class C {
+
+}
+------
+<?php
+
+class D {
+
+}
+------
+<?php
+
+namespace Upgrader\NewNamespace\Bin\Baz;
+
+
+
+
+class D {
+
+}

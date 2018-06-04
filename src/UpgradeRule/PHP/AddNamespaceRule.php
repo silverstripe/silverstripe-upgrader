@@ -59,7 +59,7 @@ class AddNamespaceRule extends PHPUpgradeRule
     {
         $modification = $this->getModificationForFile($file);
         if ($modification && isset($modification['namespace'])) {
-            if ($modification['psr4']) {
+            if (isset($modification['psr4']) && $modification['psr4']) {
                 $namespaceParts = explode(DIRECTORY_SEPARATOR, $file->getPath());
                 array_pop($namespaceParts);
                 if (!empty($namespaceParts)) {

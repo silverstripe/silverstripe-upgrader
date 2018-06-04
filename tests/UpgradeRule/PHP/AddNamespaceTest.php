@@ -94,4 +94,56 @@ class AddNamespaceTest extends TestCase
         $this->assertEquals($output, $input);
         $this->assertEquals($output, $generated);
     }
+
+    public function testPsr4Option()
+    {
+        list($parameters, $input1, $output1, $input2, $output2, $input3, $output3, $input4, $output4) =
+            $this->loadFixture(__DIR__ .'/fixtures/add-namespace-psr4.testfixture');
+
+        // Build mock collection
+        $code = new MockCodeCollection([
+            'test1.php' => $input1,
+            'Foo/test2.php' => $input2,
+            'Bar/test3.php' => $input3,
+            'Bin/Baz/test4.php' => $input4,
+        ]);
+        $file1 = $code->itemByPath('test1.php');
+        $file2 = $code->itemByPath('Foo/test2.php');
+        $file3 = $code->itemByPath('Bar/test3.php');
+        $file4 = $code->itemByPath('Bin/Baz/test4.php');
+
+        // Add spec to rule
+        $namespacer = new AddNamespaceRule();
+        $namespacer
+            ->withParameters($parameters)
+            ->withRoot('');
+
+        // Check loading namespace from config
+        $this->assertEquals('Upgrader\\NewNamespace', $namespacer->getNamespaceForFile($file1));
+        $this->assertEquals('Upgrader\\NewNamespace\\Foo', $namespacer->getNamespaceForFile($file2));
+        $this->assertEquals('Upgrader\\NewNamespace\\Bar', $namespacer->getNamespaceForFile($file3));
+        $this->assertEquals('Upgrader\\NewNamespace\\Bin\\Baz', $namespacer->getNamespaceForFile($file4));
+
+        $changeset = new CodeChangeSet();
+
+        // Test upgrading file1
+        $generated1 = $namespacer->upgradeFile($input1, $file1, $changeset);
+        $this->assertFalse($changeset->hasWarnings($file1->getPath()));
+        $this->assertEquals($output1, $generated1);
+
+        // Test upgrading file2
+        $generated2 = $namespacer->upgradeFile($input2, $file2, $changeset);
+        $this->assertFalse($changeset->hasWarnings($file2->getPath()));
+        $this->assertEquals($output2, $generated2);
+
+        // Test upgrading file3
+        $generated3 = $namespacer->upgradeFile($input3, $file3, $changeset);
+        $this->assertFalse($changeset->hasWarnings($file3->getPath()));
+        $this->assertEquals($output3, $generated3);
+
+        // Test upgrading file4
+        $generated4 = $namespacer->upgradeFile($input4, $file4, $changeset);
+        $this->assertFalse($changeset->hasWarnings($file4->getPath()));
+        $this->assertEquals($output4, $generated4);
+    }
 }
