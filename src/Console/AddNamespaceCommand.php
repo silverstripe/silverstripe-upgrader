@@ -34,6 +34,12 @@ class AddNamespaceCommand extends AbstractCommand
                     InputOption::VALUE_NONE,
                     'Set to recursively namespace'
                 ),
+                new InputOption(
+                    'psr4',
+                    'p',
+                    InputOption::VALUE_NONE,
+                    'When used with the recursive option, assume directories and namespaces are PSR-4 compliant'
+                ),
                 $this->getRootInputOption(),
                 $this->getWriteInputOption()
             ]);
@@ -50,6 +56,7 @@ class AddNamespaceCommand extends AbstractCommand
         $writeChanges = !empty($settings['write']);
         $namespace = $settings['namespace'];
         $recursive = !empty($settings['recursive']);
+        $psr4 = !empty($settings['psr4']);
 
         // Capture missing double-escape in CLI for namespaces. :)
         if (stripos($namespace, "\\") === false) {
@@ -76,6 +83,7 @@ class AddNamespaceCommand extends AbstractCommand
                         'Page_Controller',
                         'PageController',
                     ],
+                    'psr4' => $psr4,
                 ],
             ],
         ];
