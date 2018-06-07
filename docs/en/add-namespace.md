@@ -3,7 +3,7 @@
 You can run the below to add namespace to any class
 
 ```bash
-upgrade-code add-namespace <namespace> <filepath> [--root-dir=<dir>] [--write] [--recursive] [-r] [-p] [-vvv]
+upgrade-code add-namespace <namespace> <filepath> [--root-dir=<dir>] [--write] [--recursive] [--psr4] [-vvv]
 ```
 
 E.g.
