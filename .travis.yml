@@ -10,8 +10,12 @@ matrix:
   fast_finish: true
   include:
     - php: 7.1
-      env: LINT_TEST=1
+      env:
+        - LINT_TEST=1
+        - SYMFONY: "~4.0.0"
     - php: 7.2
+      env:
+        - SYMFONY: "~3.0.0"
 
 sudo: false
 
@@ -23,6 +27,7 @@ before_script:
 
 # Install composer dependencies
   - composer validate
+  - composer require symfony/console:$SYMFONY symfony/yaml:$SYMFONY symfony/process:$SYMFONY symfony/filesystem:$SYMFONY --no-update
   - composer install
   - composer global require squizlabs/php_codesniffer:^3 --prefer-dist --no-interaction --no-progress --no-suggest -o
 
