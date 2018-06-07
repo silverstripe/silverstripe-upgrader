@@ -85,7 +85,7 @@ class UpdateConfigClasses extends YMLUpgradeRule
     public function appliesTo(ItemInterface $file)
     {
         // Only _config/*.yml files
-        return preg_match('#/_config/[^/]+\.y(a?)ml$#', $file->getFullPath());
+        return preg_match('#[/\\\\]_config[/\\\\][^/\\\\]+\.y(a?)ml$#', $file->getFullPath());
     }
 
     /**

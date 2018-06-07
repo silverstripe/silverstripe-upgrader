@@ -39,11 +39,17 @@ class UpdateConfigClassesTest extends TestCase
             // True
             [ 'mysite/_config/settings.yml', true ],
             [ 'mysite/_config/config.yaml', true ],
+            [ 'mysite\\_config\\settings.yaml', true ],
+            [ 'mysite\\_config\\config.yaml', true ],
             // False
             [ 'mysite/_config.php', false ],
             [ 'mysite/_config/config.php', false ],
             [ 'mysite/_config.js', false ],
             [ 'mysite/config.php', false ],
+            [ 'mysite\\_config.php', false ],
+            [ 'mysite\\_config\\config.php', false ],
+            [ 'mysite\\_config.js', false ],
+            [ 'mysite\\config.php', false ],
         ];
     }
 
