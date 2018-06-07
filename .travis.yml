@@ -15,7 +15,7 @@ matrix:
         - SYMFONY="4.0.*"
     - php: 7.2
       env:
-        - SYMFONY="3.0.*"
+        - SYMFONY="3.2.*"
 
 sudo: false
 
