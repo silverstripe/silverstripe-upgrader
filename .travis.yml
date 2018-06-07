@@ -12,10 +12,10 @@ matrix:
     - php: 7.1
       env:
         - LINT_TEST=1
-        - SYMFONY: "~4.0.0"
+        - SYMFONY="~4.0.0"
     - php: 7.2
       env:
-        - SYMFONY: "~3.0.0"
+        - SYMFONY="~3.0.0"
 
 sudo: false
 
