@@ -42,7 +42,7 @@ class AllInOneCommand extends AbstractCommand
                     ''
                 ),
                 new InputOption(
-                    'skip-namespace',
+                    'skip-add-namespace',
                     null,
                     InputOption::VALUE_NONE,
                     'Skip the `add-namespace` command.'
@@ -81,7 +81,7 @@ class AllInOneCommand extends AbstractCommand
         $composerPath = $input->getOption('composer-path');
         $recipeCoreConstraint = $input->getOption('recipe-core-constraint');
         $strict = $input->getOption('strict');
-        $skipNamespace = $input->getOption('skip-namespace');
+        $skipNamespace = $input->getOption('skip-add-namespace');
         $namespace = $input->getOption('namespace');
         $skipReorganise = $input->getOption('skip-reorganise');
         $skipWebroot = $input->getOption('skip-webroot');

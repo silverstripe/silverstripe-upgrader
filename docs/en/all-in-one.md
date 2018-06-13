@@ -11,7 +11,7 @@ upgrade-code all-in-one \
     [--namespace="App\\Web"] \
     [--skip-reorganise] \
     [--skip-webroot] \
-    [--skip-namespace]
+    [--skip-add-namespace]
 ```
 
 E.g.
