@@ -3,10 +3,10 @@
 namespace SilverStripe\Upgrader\Console;
 
 use SilverStripe\Upgrader\Util\CommandRunner;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Command to try to update a composer file to use SS4.
@@ -17,7 +17,7 @@ class AllInOneCommand extends AbstractCommand
 
     protected function configure()
     {
-        $this->setName('all-in-one')
+        $this->setName('all')
             ->setDescription('Aggregate all the commands required to upgrade a SilverStripe project.')
             ->setDefinition([
                 $this->getRootInputOption(),
@@ -25,13 +25,13 @@ class AllInOneCommand extends AbstractCommand
                     'strict',
                     'S',
                     InputOption::VALUE_NONE,
-                    'Prefer ~ to ^ avoid accidental updates'
+                    'Prefer ~ to ^ avoid accidental updates.'
                 ),
                 new InputOption(
                     'recipe-core-constraint',
                     'R',
                     InputOption::VALUE_OPTIONAL,
-                    'Version of `silverstripe/recipe-core` you are targeting. Defaults to the last stable',
+                    'Version of `silverstripe/recipe-core` you are targeting. Defaults to the last stable.',
                     '*'
                 ),
                 new InputOption(
@@ -51,8 +51,7 @@ class AllInOneCommand extends AbstractCommand
                     'namespace',
                     'N',
                     InputOption::VALUE_OPTIONAL,
-                    'Path to your composer executable.',
-                    'App\\Web'
+                    'Path to your composer executable.'
                 ),
                 new InputOption(
                     'skip-reorganise',
@@ -65,6 +64,12 @@ class AllInOneCommand extends AbstractCommand
                     null,
                     InputOption::VALUE_NONE,
                     'Skip the `webroot` command.'
+                ),
+                new InputOption(
+                    'psr4',
+                    'p',
+                    InputOption::VALUE_NONE,
+                    'When used with the recursive option, assume directories and namespaces are PSR-4 compliant.'
                 ),
             ]);
     }
@@ -81,16 +86,23 @@ class AllInOneCommand extends AbstractCommand
         $composerPath = $input->getOption('composer-path');
         $recipeCoreConstraint = $input->getOption('recipe-core-constraint');
         $strict = $input->getOption('strict');
-        $skipNamespace = $input->getOption('skip-add-namespace');
+
+        $skipAddNamespace = $input->getOption('skip-add-namespace');
         $namespace = $input->getOption('namespace');
+        $psr4 = $input->getOption('psr4');
+
         $skipReorganise = $input->getOption('skip-reorganise');
         $skipWebroot = $input->getOption('skip-webroot');
+
+        // Make sure our combination of namespace argument makes senses
+        $this->validateNamespaceInputCombination($skipAddNamespace, $namespace, $psr4);
+
 
         // Build command list
         $commandList = [];
         $commandList[] = 'recompose';
         $commandList[] = 'environment';
-        if (!$skipNamespace) {
+        if (!$skipAddNamespace) {
             $commandList[] = 'add-namespace';
         }
         $commandList[] = 'upgrade';
@@ -113,10 +125,40 @@ class AllInOneCommand extends AbstractCommand
                 '--strict' => $strict,
                 '--root-dir' => $rootPath,
                 'namespace' => $namespace,
+                '--psr4' => $psr4
             ],
             $output
         );
 
         return null;
+    }
+
+    /**
+     * Validate the combination of namespace argument provided.
+     * @param null|bool $skipAddNamespace
+     * @param null|string $namespace
+     * @param null|bool $psr4
+     * @throws InvalidArgumentException
+     */
+    private function validateNamespaceInputCombination($skipAddNamespace, $namespace, $psr4)
+    {
+        if ($skipAddNamespace && $psr4) {
+            throw new InvalidArgumentException(
+                'The `--skip-add-namespace` and `--psr4` flag cannot be used simultaneously.'
+            );
+        }
+
+        if ($skipAddNamespace && $namespace) {
+            throw new InvalidArgumentException(
+                'The `--skip-add-namespace` and `--namespace` flag cannot be used simultaneously.'
+            );
+        }
+
+        if (!$skipAddNamespace && !$namespace) {
+            throw new InvalidArgumentException(
+                'You must use the `--namespace` flag to specify which namespace you want to use for your project. ' .
+                'If you do not want to namespace your project, set the `--skip-add-namespace` flag.'
+            );
+        }
     }
 }

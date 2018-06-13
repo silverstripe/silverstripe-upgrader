@@ -3,15 +3,16 @@
 Run all commands in the recommended order with sensible default values.
 
 ```bash
-upgrade-code all-in-one \
+upgrade-code all \
     [--root-dir=<root>] \
     [--composer-path=composer] \
     [--strict] \
-    [--recipe-core-constraint=RECIPE-CORE-CONSTRAINT]\ 
-    [--namespace="App\\Web"] \
+    [--recipe-core-constraint=RECIPE-CORE-CONSTRAINT] \ 
+    [--namespace] \
     [--skip-reorganise] \
     [--skip-webroot] \
-    [--skip-add-namespace]
+    [--skip-add-namespace] \
+    [--psr4]
 ```
 
 E.g.
@@ -34,5 +35,5 @@ performed beforehand.
   * reorganise
   * webroot
 * the `--skip` flags allows to skip optional steps.
-* `--namespace` is relayed to the `add-namespace` command.
+* `--namespace` and `--psr4` are relayed to the `add-namespace` command.
 * `--strict` and `--recipe-core-constraint` are relayed to the `recompose` command.

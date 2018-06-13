@@ -26,20 +26,20 @@ class AddNamespaceCommand extends AbstractCommand implements AutomatedCommand
                 new InputArgument(
                     'namespace',
                     InputArgument::REQUIRED,
-                    'Namespace to add'
+                    'Namespace to add.'
                 ),
                 $this->getPathInputArgument(),
                 new InputOption(
                     'recursive',
                     'r',
                     InputOption::VALUE_NONE,
-                    'Set to recursively namespace'
+                    'Set to recursively namespace.'
                 ),
                 new InputOption(
                     'psr4',
                     'p',
                     InputOption::VALUE_NONE,
-                    'When used with the recursive option, assume directories and namespaces are PSR-4 compliant'
+                    'When used with the recursive option, assume directories and namespaces are PSR-4 compliant.'
                 ),
                 $this->getRootInputOption(),
                 $this->getWriteInputOption()
@@ -64,6 +64,7 @@ class AddNamespaceCommand extends AbstractCommand implements AutomatedCommand
                 '--recursive',
                 'namespace',
                 'path',
+                '--psr4',
             ])
         );
     }
