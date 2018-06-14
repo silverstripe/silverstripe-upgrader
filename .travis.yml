@@ -26,7 +26,6 @@ before_script:
   - export PATH=~/.composer/vendor/bin:$PATH
 
 # Install composer dependencies
-  - rm composer.lock
   - composer validate
   - composer require symfony/console:$SYMFONY symfony/process:$SYMFONY symfony/filesystem:$SYMFONY
   - composer install
