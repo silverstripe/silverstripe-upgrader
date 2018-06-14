@@ -27,7 +27,7 @@ before_script:
 
 # Install composer dependencies
   - composer validate
-  - composer require symfony/console:$SYMFONY symfony/yaml:$SYMFONY symfony/process:$SYMFONY symfony/filesystem:$SYMFONY
+  - composer require symfony/console:$SYMFONY symfony/process:$SYMFONY symfony/filesystem:$SYMFONY
   - composer install
   - composer global require squizlabs/php_codesniffer:^3 --prefer-dist --no-interaction --no-progress --no-suggest -o
 
