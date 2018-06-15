@@ -29,9 +29,17 @@ class ComposerFileTest extends TestCase
             'ComposerFile should validate when provided a valid content string.'
         );
 
+        $json = json_decode(file_get_contents(__DIR__ . '/fixture/composer.json'), true);
         $this->assertTrue(
-            $file->validate(json_decode(file_get_contents(__DIR__ . '/fixture/composer.json'), true)),
+            $file->validate($json),
             'ComposerFile should validate when provided a valid content array.'
+        );
+
+        $json['require'] = [];
+        $json['require-dev'] = [];
+        $this->assertTrue(
+            $file->validate($json),
+            'ComposerFile should validate even if require and require-dev are empty.'
         );
 
         $this->assertFalse(

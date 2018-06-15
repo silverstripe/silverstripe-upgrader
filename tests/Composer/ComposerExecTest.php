@@ -82,6 +82,23 @@ class ComposerExecTest extends TestCase
         );
     }
 
+    public function testValidateWithLockOutOfSyncFile()
+    {
+        $composer = new ComposerExec(
+            __DIR__ . DIRECTORY_SEPARATOR .
+            'fixture' . DIRECTORY_SEPARATOR .
+            'out-of-sync-composer'
+        );
+        $this->assertFalse($composer->validate(), 'Out of sync composer file should be invalid.');
+
+        $composer = new ComposerExec(
+            __DIR__ . DIRECTORY_SEPARATOR .
+            'fixture' . DIRECTORY_SEPARATOR .
+            'in-sync-composer'
+        );
+        $this->assertTrue($composer->validate(), 'In sync composer file should be valid.');
+    }
+
     public function testValidateException()
     {
         $this->expectException(RuntimeException::class);

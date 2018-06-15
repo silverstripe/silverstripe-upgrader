@@ -252,7 +252,7 @@ class Package
 
     /**
      * Get this package type.
-     * @return string [description]
+     * @return string
      */
     public function getType(): string
     {

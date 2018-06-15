@@ -32,7 +32,8 @@ class CodeChangeSet
      *   ],
      *   'deletedFile.txt' => [
      *     'new' => null,
-     *     'old' => 'sapphire'
+     *     'old' => 'sapphire',
+     *     'path' => null
      *   ],
      *   'moveFolder' => [
      *      'path' => 'newFolderPath'
@@ -267,6 +268,27 @@ class CodeChangeSet
             return $this->warnings[$path];
         } else {
             throw new InvalidArgumentException("No warnings found for $path");
+        }
+    }
+
+    /**
+     * Merge warnings from another CodeChangeSet into this CodeChangeSet
+     * @param CodeChangeSet $diff
+     * @return void
+     */
+    public function mergeWarnings(CodeChangeSet $diff): void
+    {
+       // Merge warnings
+        foreach ($diff->affectedFiles() as $path) {
+            if ($diff->hasWarnings($path)) {
+                $warnings = $diff->warningsForPath($path);
+                if (isset($this->warnings[$path])) {
+                    $this->warnings[$path] = array_merge($this->warnings[$path], $warnings);
+                } else {
+                    $this->warnings[$path] = $warnings;
+                    $this->addToAffectedFiles($path);
+                }
+            }
         }
     }
 

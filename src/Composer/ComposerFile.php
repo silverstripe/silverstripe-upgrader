@@ -97,12 +97,7 @@ class ComposerFile extends DiskItem
 
         // If we have an array, JSON code it
         if (is_array($content)) {
-            // If require is empty it will be outputted. as an array. `composer validate` expect it to be an object, so
-            // we recast it as an object to be on the safe side.
-            if (isset($content['require'])) {
-                $content['require'] = (object)$content['require'];
-            }
-            $content = json_encode($content);
+            $content = $this->encode($content);
         }
 
         if (!is_string($content)) {
@@ -161,8 +156,8 @@ class ComposerFile extends DiskItem
 
         // Build our propose new output
         $jsonData = $this->composerJson;
-        $jsonData['require'] = (object)$dependencies;
-        $upgradedContent = json_encode($jsonData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $jsonData['require'] = $dependencies;
+        $upgradedContent = $this->encode($jsonData);
 
         // Finally get our diff
         $change = new CodeChangeSet();
@@ -171,5 +166,26 @@ class ComposerFile extends DiskItem
             $change->addFileChange($this->getFullPath(), $upgradedContent, $oldContent);
         }
         return $change;
+    }
+
+    /**
+     * Converts a Composer Schema from a PHP array to a JSOn string.
+     * @param array $json
+     * @return string
+     */
+    private function encode(array $json): string
+    {
+        // Recast some keys as object to avoid them being outputted as empty arrays in the JSON.
+        $keys = ['require', 'require-dev', 'extra', 'config'];
+        foreach ($keys as $key) {
+            if (isset($json[$key])) {
+                $json[$key] = (object)$json[$key];
+            }
+        }
+
+        return json_encode(
+            $json,
+            JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+        );
     }
 }

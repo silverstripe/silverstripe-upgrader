@@ -1,0 +1,9 @@
+{
+    "name": "maxime/out-of-sync-composer",
+    "description": "An out of sync composer fille.",
+    "type": "project",
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": ">=0"
+    }
+}

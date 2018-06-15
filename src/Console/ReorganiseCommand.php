@@ -12,9 +12,10 @@ use SilverStripe\Upgrader\ChangeDisplayer;
 /**
  * Command to convert a SilverStripe 3 `_ss_environment.php` to a SilverStripe 4 `.env` file.
  */
-class ReorganiseCommand extends AbstractCommand
+class ReorganiseCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
+    use AutomatedCommandTrait;
 
     protected function configure()
     {
@@ -24,6 +25,23 @@ class ReorganiseCommand extends AbstractCommand
             $this->getRootInputOption(),
             $this->getWriteInputOption()
         ]);
+    }
+
+    /**
+     * @inheritdoc
+     * @param array $args
+     * @return array
+     */
+    protected function enrichArgs(array $args): array
+    {
+        $args['--write'] = true;
+        return array_intersect_key(
+            $args,
+            array_flip([
+                '--write',
+                '--root-dir',
+            ])
+        );
     }
 
     /**
@@ -78,27 +96,30 @@ class ReorganiseCommand extends AbstractCommand
                 break;
         }
 
-        // Give some insightfull feedback to our user.
+        // Give some insightful feedback to our user.
         if ($write) {
             $output->writeln("Your project has been reorganised");
+            $this->args['project-path'] = $this->args['--root-dir'] . DIRECOTRY_SEPARATOR . 'app';
+            $this->args['code-path'] = $this->args['project-path'] . DIRECOTRY_SEPARATOR . 'src';
         } else {
             $output->writeln("Changes not saved; Run with --write to commit to disk");
         }
 
-        // Display warning if we find any occurence of mysite
+        // Display warning if we find any occurrence of mysite
         // @TODO It would be cool to exclude anything in `.gitignore`
         $grep = new CodeGrep(
             '/mysite/',
             new DiskCollection($rootPath, true, ['*/framework/*', '*/vendor/*', '*/assets/*', '*/cms/*'])
         );
 
-        $changeSet = $grep->findAsWarning();
-        if ($changeSet->affectedFiles()) {
+        $diff = $grep->findAsWarning();
+        if ($diff->affectedFiles()) {
+            $this->setDiff($diff);
             $output->writeln(
-                "\nWe found occurences of `mysite` in your code base. You might need to replace those with `app`."
+                "\nWe found occurrences of `mysite` in your code base. You might need to replace those with `app`."
             );
             $display = new ChangeDisplayer();
-            $display->displayChanges($output, $changeSet);
+            $display->displayChanges($output, $this->diff);
         }
 
 

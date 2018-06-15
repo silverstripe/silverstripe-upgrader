@@ -2,7 +2,9 @@
 
 namespace SilverStripe\Upgrader\Console;
 
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,10 +24,14 @@ use InvalidArgumentException;
 /**
  * Command to try to update a composer file to use SS4.
  */
-class RecomposeCommand extends AbstractCommand
+class RecomposeCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
+    use AutomatedCommandTrait;
 
+    /**
+     * @inheritdoc
+     */
     protected function configure()
     {
         $this->setName('recompose')
@@ -52,11 +58,42 @@ class RecomposeCommand extends AbstractCommand
                     InputOption::VALUE_OPTIONAL,
                     'Path to the composer executable.',
                     ''
+                ),
+                new InputOption(
+                    'quick',
+                    'Q',
+                    InputOption::VALUE_NONE,
+                    'Terminate execution if the command in our `composer.json` file already meet the ' .
+                    '`recipe-core-constraint`. This will speed exeuction for script that need to call this command ' .
+                    'repetitively.'
                 )
             ]);
     }
 
     /**
+     * @inheritdoc
+     * @param array $args
+     * @return array
+     */
+    protected function enrichArgs(array $args): array
+    {
+        $args['--quick'] = true;
+        $args['--write'] = true;
+        return array_intersect_key(
+            $args,
+            array_flip([
+                '--quick',
+                '--write',
+                '--root-dir',
+                '--strict',
+                '--recipe-core-constraint',
+                '--composer-path'
+            ])
+        );
+    }
+
+    /**
+     * @inheritdoc
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int|null
@@ -69,8 +106,8 @@ class RecomposeCommand extends AbstractCommand
 
         $composerPath = $input->getOption('composer-path');
         $recipeCoreConstraint = $input->getOption('recipe-core-constraint');
-        $coreTarget = $this->findTargetRecipeCore($recipeCoreConstraint);
         $strict = $input->getOption('strict');
+        $quick = $input->getOption('quick');
 
         $console = new SymfonyStyle($input, $output);
 
@@ -81,6 +118,17 @@ class RecomposeCommand extends AbstractCommand
 
         // Set up some caching
         $this->initPackageCache($composer);
+
+        // Find out what version of recipe-core we will target and if we are already using it.
+        $coreTarget = $this->findTargetRecipeCore($recipeCoreConstraint);
+        if ($quick && $this->recipeCoreTargetIsInstalled($composer, $coreTarget)) {
+            $console->success(sprintf(
+                'Project already using recipe-core %s. Nothing to do. ' .
+                'Disable the `--quick` flag if you want to force the command to run.',
+                $coreTarget
+            ));
+            return null;
+        }
 
         // Set up our rules
         $rules = [
@@ -93,6 +141,7 @@ class RecomposeCommand extends AbstractCommand
 
         // Try to upgrade the project
         $change = $schema->upgrade($rules, $console);
+        $this->setDiff($change);
 
         // Check if we got new content
         $console->title('Showing difference');
@@ -116,12 +165,21 @@ class RecomposeCommand extends AbstractCommand
             $console->title('Trying to install new dependencies');
             try {
                 $composer->update('', true);
+                // We need to run another update because our recipes will update the `extra` object in our
+                // composer.json which invalidates our composer.lock
+                $composer->update('', false);
                 $console->success('Dependencies installed successfully.');
             } catch (RuntimeException $ex) {
-                $console->warning(
+                $message =
                     'Composer could not resolved your updated dependencies. '.
-                    'You\'ll need to manually resolve conflicts.'
-                );
+                    'You\'ll need to manually resolve conflicts.';
+                if ($this->isAutomated()) {
+                    // If we are running the command in an automated context, we need a clean failure to terminate
+                    // execution.
+                    throw new RuntimeException($message);
+                } else {
+                    $console->warning($message);
+                }
             }
         } else {
             $console->note("Changes not saved; Run with --write to commit to disk");
@@ -170,5 +228,31 @@ class RecomposeCommand extends AbstractCommand
                 Packagist::addCacheFolder($composerCache);
             }
         }
+    }
+
+    /**
+     * Determine if the current project has the required version of recipe core already installed.
+     * @param ComposerExec $composer
+     * @param string $targetRecipeCore
+     * @return bool
+     */
+    protected function recipeCoreTargetIsInstalled(ComposerExec $composer, string $targetRecipeCore): bool
+    {
+        $packages = $composer->show();
+
+        // Loop through all the installed packages and find recipe core
+        foreach ($packages as $package) {
+            if ($package['name'] == 'silverstripe/recipe-core') {
+                // We found recipe core but it's not our targeted version.
+                if ($package['version'] != $targetRecipeCore) {
+                    return false;
+                } else {
+                    // Let's make sure composer.lock is synced with composer.json
+                    return $composer->validate();
+                }
+            }
+        }
+
+        return false;
     }
 }

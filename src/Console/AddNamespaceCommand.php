@@ -13,36 +13,60 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AddNamespaceCommand extends AbstractCommand
+class AddNamespaceCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
+    use AutomatedCommandTrait;
 
     protected function configure()
     {
         $this->setName('add-namespace')
-            ->setDescription('Add a namespace to a file')
+            ->setDescription('Add a namespace to a file.')
             ->setDefinition([
                 new InputArgument(
                     'namespace',
                     InputArgument::REQUIRED,
-                    'Namespace to add'
+                    'Namespace to add.'
                 ),
                 $this->getPathInputArgument(),
                 new InputOption(
                     'recursive',
                     'r',
                     InputOption::VALUE_NONE,
-                    'Set to recursively namespace'
+                    'Set to recursively namespace.'
                 ),
                 new InputOption(
                     'psr4',
                     'p',
                     InputOption::VALUE_NONE,
-                    'When used with the recursive option, assume directories and namespaces are PSR-4 compliant'
+                    'When used with the recursive option, assume directories and namespaces are PSR-4 compliant.'
                 ),
                 $this->getRootInputOption(),
                 $this->getWriteInputOption()
             ]);
+    }
+
+    /**
+     * @inheritdoc
+     * @param array $args
+     * @return array
+     */
+    protected function enrichArgs(array $args): array
+    {
+        $args['--write'] = true;
+        $args['--recursive'] = true;
+        $args['path'] = $args['code-path'];
+        return array_intersect_key(
+            $args,
+            array_flip([
+                '--write',
+                '--root-dir',
+                '--recursive',
+                'namespace',
+                'path',
+                '--psr4',
+            ])
+        );
     }
 
 
@@ -103,6 +127,7 @@ class AddNamespaceCommand extends AbstractCommand
         $output->writeln("Applying namespace to \"{$filePath}\" in module \"{$module}\"");
         $code = new DiskCollection($filePath, $recursive);
         $changes = $upgrader->upgrade($code);
+        $this->setDiff($changes);
 
         // Display the resulting changes
         $display = new ChangeDisplayer();

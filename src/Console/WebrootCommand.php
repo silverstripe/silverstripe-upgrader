@@ -2,6 +2,7 @@
 
 namespace SilverStripe\Upgrader\Console;
 
+use Nette\InvalidArgumentException;
 use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\Util\WebRootMover;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,9 +16,10 @@ use SilverStripe\Upgrader\Composer\ComposerExec;
 /**
  * Command to switch to public web root.
  */
-class WebrootCommand extends AbstractCommand
+class WebrootCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
+    use AutomatedCommandTrait;
 
     protected function configure()
     {
@@ -34,6 +36,24 @@ class WebrootCommand extends AbstractCommand
                     ''
                 )
             ]);
+    }
+
+    /**
+     * @inheritdoc
+     * @param array $args
+     * @return array
+     */
+    protected function enrichArgs(array $args): array
+    {
+        $args['--write'] = true;
+        return array_intersect_key(
+            $args,
+            array_flip([
+                '--write',
+                '--root-dir',
+                '--composer-path'
+            ])
+        );
     }
 
     /**
@@ -54,9 +74,18 @@ class WebrootCommand extends AbstractCommand
         // Initialise our mover
         $composer = new ComposerExec($rootPath, $composerPath, $output);
         $mover = new WebRootMover($rootPath, $composer);
-        $diff = $mover->move();
+
+        try {
+            $diff = $mover->move();
+        } catch (\InvalidArgumentException $ex) {
+            // It's not a big deal if the command fails. It shouldn't stop an automated execution.
+            $console->warning($ex->getMessage());
+            return null;
+        }
+
 
         // Show changes
+        $this->setDiff($diff);
         $display = new ChangeDisplayer();
         $display->displayChanges($output, $diff);
 

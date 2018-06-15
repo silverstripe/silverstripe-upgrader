@@ -205,13 +205,15 @@ EOF
     }
 
     /**
-     * Validate a specific composer file.
-     * @param  string  $path           Path to our composer file.
+     * Validate a specific composer file. This will return false if run against a composer file next to an out of sync
+     * `composer.lock`.
+     * @param  string  $path           Path to our composer file. Leave blank if you want to validate the file in the
+     *                                 working dir.
      * @param  boolean $throwException Whatever to throw an exception on invalid file. Default: false.
      * @throws RuntimeException If validation fails and $throwException is true.
      * @return boolean
      */
-    public function validate(string $path, bool $throwException = false): bool
+    public function validate(string $path = '', bool $throwException = false): bool
     {
         $process = $this->run('validate ' . $path);
 
