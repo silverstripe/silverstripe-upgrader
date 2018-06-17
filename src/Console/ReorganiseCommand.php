@@ -99,8 +99,8 @@ class ReorganiseCommand extends AbstractCommand implements AutomatedCommand
         // Give some insightful feedback to our user.
         if ($write) {
             $output->writeln("Your project has been reorganised");
-            $this->args['project-path'] = $this->args['--root-dir'] . DIRECOTRY_SEPARATOR . 'app';
-            $this->args['code-path'] = $this->args['project-path'] . DIRECOTRY_SEPARATOR . 'src';
+            $this->args['project-path'] = $this->args['--root-dir'] . DIRECTORY_SEPARATOR . 'app';
+            $this->args['code-path'] = $this->args['project-path'] . DIRECTORY_SEPARATOR . 'src';
         } else {
             $output->writeln("Changes not saved; Run with --write to commit to disk");
         }
