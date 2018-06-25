@@ -115,14 +115,13 @@ upgrade-code recompose [--root-dir=<dir>] [--write] [--strict]  [-vvv] [--recipe
 Example:
 
 ```bash
-upgrade-code recompose --root-dir=/var/www/SS_project --write --recipe-core-constraint="1.0"
+upgrade-code recompose --root-dir=/var/www/SS_project --write --recipe-core-constraint="4.1"
 ```
 
 * You may end up with broken dependencies after running this command. You'll have to resolve those broken issues
 manually.
-* You can specify which version of SilverStripe 4 you want to upgrade to via the `--recipe-core-constraint` option. This
-expect a version of `silverstripe/recipe-core` (e.g.: 1.1 for SiverStripe 4.1). If left blank, you'll be upgraded to
-the latest stable version.
+* You can specify which version of SilverStripe you want to upgrade to via the `--recipe-core-constraint` option.
+  If left blank, you'll be upgraded to the latest stable version.
 * This script relies on composer to fetch the latest dependencies. If `composer` is in your path and is called
 `composer` or `composer.phar`, you don't need to do anything. Otherwise you'll have to specify the `--composer-path`
 option.
@@ -204,7 +203,7 @@ use these inferred types to automatically update method usages.
 ### `reorganise`
 
 You can use this command to reorganise your folder structure to conform to the new structure introduced with SilverStripe 4.1.
-Basically, your `mysite` folder will be renamed to `app` and your `code` folder will be rename to `src`.
+Your `mysite` folder will be renamed to `app` and your `code` folder will be rename to `src`.
 
 `upgrade-code reorganise [--root-dir=<dir>] [--write] [--recursive] [-vvv]`
 
@@ -367,7 +366,7 @@ Example:
 upgrade-code webroot /var/www/ss_project
 ```
 
-* Your project must be using `silverstripe/recipe-core` 1.1 or greater to use this command. Otherwise you'll get a 
+* Your project must be using `silverstripe/recipe-core` 4.1 or greater to use this command. Otherwise you'll get a 
 warning.
 * If you've customised your server configuration files (`.htaccess` and/or `web.config`), you'll have to reconcile 
 those manually with the generic ones provided by `silverstripe/recipe-core`.
