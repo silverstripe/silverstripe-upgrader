@@ -104,8 +104,6 @@ that referenced the un-namespaced versions of these classes.
 
 ### `recompose`
 
-# Environment
-
 You can use this command to upgrade your `composer.json` dependencies from SivlerStripe 3 to Silverstripe 4.
 
 ```bash
