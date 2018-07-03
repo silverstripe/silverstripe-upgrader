@@ -16,6 +16,7 @@ matrix:
     - php: 7.2
       env:
         - SYMFONY="3.2.*"
+    - php: 7.2
 
 sudo: false
 
@@ -24,11 +25,11 @@ before_script:
   - phpenv rehash
   - phpenv config-rm xdebug.ini
   - export PATH=~/.composer/vendor/bin:$PATH
-  - rm composer.lock
+  - if [[ $SYMFONY ]]; rm composer.lock; fi
 
 # Install composer dependencies
   - composer validate
-  - composer require symfony/console:$SYMFONY symfony/process:$SYMFONY symfony/filesystem:$SYMFONY
+  - if [[ $SYMFONY ]]; composer require symfony/console:$SYMFONY symfony/process:$SYMFONY symfony/filesystem:$SYMFONY; fi
   - composer install
   - composer global require squizlabs/php_codesniffer:^3 --prefer-dist --no-interaction --no-progress --no-suggest -o
 
