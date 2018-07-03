@@ -8,6 +8,7 @@ use SilverStripe\Upgrader\Composer\Recipe;
 use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Composer\Semver\Comparator;
 
 /**
  * Rule to go through the require list and update the constraint to work with a specific version of Framework.
@@ -51,7 +52,7 @@ class Rebuild implements DependencyUpgradeRule
     /**
      * @var string
      */
-    protected $recipeCoreTarget;
+    private $recipeCoreTarget;
 
     /**
      * Instantiate a new Rebuild Upgrade Rule.
@@ -60,8 +61,39 @@ class Rebuild implements DependencyUpgradeRule
      */
     public function __construct(string $recipeCoreTarget, SymfonyStyle $console = null)
     {
-        $this->recipeCoreTarget = $recipeCoreTarget;
+        $this->setRecipeCoreTarget($recipeCoreTarget);
         $this->console = $console;
+    }
+
+    /**
+     * Getter for the Recipe Core Targeted version.
+     * @return string
+     */
+    public function getRecipeCoreTarget(): string
+    {
+        return $this->recipeCoreTarget;
+    }
+
+    /**
+     * Setter for the Recipe Core Targeted version.
+     * @param string $value
+     */
+    public function setRecipeCoreTarget(string $value):void
+    {
+        if (
+            Comparator::greaterThanOrEqualTo($value, '4.0') &&
+            Comparator::lessThan($value, '4.2')) {
+            // If the value is between 4.0 and 4.2, convert it to the the 1.x equivalent.
+            // This is necessary because recipe-core and recipe-cms were originally release with a 1.0 version and got
+            // renumbered to 4.x with 4.2
+            $value = preg_replace('/^4/', '1', $value);
+        } else if (
+            // Rewrite any version constraint above 1.2 but below 2 to 4.x
+            Comparator::greaterThanOrEqualTo($value, '1.2') &&
+            Comparator::lessThan($value, '2.0')) {
+            $value = preg_replace('/^1/', '4', $value);
+        }
+        $this->recipeCoreTarget = $value;
     }
 
     /**
@@ -128,10 +160,10 @@ class Rebuild implements DependencyUpgradeRule
         if (isset($dependencies[SilverstripePackageInfo::FRAMEWORK])) {
             unset($dependencies[SilverstripePackageInfo::FRAMEWORK]);
         }
-        $dependencies[SilverstripePackageInfo::RECIPE_CORE] = $this->recipeCoreTarget;
+        $dependencies[SilverstripePackageInfo::RECIPE_CORE] = $this->getRecipeCoreTarget();
         if (isset($dependencies[SilverstripePackageInfo::CMS])) {
             unset($dependencies[SilverstripePackageInfo::CMS]);
-            $dependencies[SilverstripePackageInfo::RECIPE_CMS] = $this->recipeCoreTarget;
+            $dependencies[SilverstripePackageInfo::RECIPE_CMS] = $this->getRecipeCoreTarget();
         }
 
         return $dependencies;
