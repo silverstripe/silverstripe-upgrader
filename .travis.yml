@@ -24,6 +24,7 @@ before_script:
   - phpenv rehash
   - phpenv config-rm xdebug.ini
   - export PATH=~/.composer/vendor/bin:$PATH
+  - rm composer.lock
 
 # Install composer dependencies
   - composer validate
