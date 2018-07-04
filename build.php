@@ -6,6 +6,9 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
+// Suppress warning for `token_get_all` when compiling
+error_reporting(E_ALL & ~E_COMPILE_WARNING);
+
 if(!defined('PACKAGE_ROOT')) define('PACKAGE_ROOT', dirname(__FILE__) . '/');
 if(!defined('BUILD_FOLDER')) define('BUILD_FOLDER', tempnam(sys_get_temp_dir(),'') );
 
@@ -40,7 +43,7 @@ $compiler->addDirectory('vendor');
 
 $compiledPath = PACKAGE_ROOT . "upgrade-code.phar";
 if ($fs->exists($compiledPath)) { $fs->remove($compiledPath);}
-@$compiler->compile($compiledPath);
+$compiler->compile($compiledPath);
 $fs->chmod($compiledPath, 0755);
 
 // Clean up
