@@ -77,18 +77,17 @@ class Rebuild implements DependencyUpgradeRule
     /**
      * Setter for the Recipe Core Targeted version.
      * @param string $value
+     * @return void
      */
     public function setRecipeCoreTarget(string $value):void
     {
-        if (
-            Comparator::greaterThanOrEqualTo($value, '4.0') &&
+        if (Comparator::greaterThanOrEqualTo($value, '4.0') &&
             Comparator::lessThan($value, '4.2')) {
             // If the value is between 4.0 and 4.2, convert it to the the 1.x equivalent.
             // This is necessary because recipe-core and recipe-cms were originally release with a 1.0 version and got
             // renumbered to 4.x with 4.2
             $value = preg_replace('/^4/', '1', $value);
-        } else if (
-            // Rewrite any version constraint above 1.2 but below 2 to 4.x
+        } elseif (// Rewrite any version constraint above 1.2 but below 2 to 4.x
             Comparator::greaterThanOrEqualTo($value, '1.2') &&
             Comparator::lessThan($value, '2.0')) {
             $value = preg_replace('/^1/', '4', $value);
