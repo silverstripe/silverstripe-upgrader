@@ -108,8 +108,8 @@ class RebuildTest extends TestCase
         $dependencies = $rule->switchToRecipeCore($this->dependencies);
 
         // Test a package that has recipe-core and recipe-cms explicitly define
-        $composer->require(SilverstripePackageInfo::RECIPE_CORE, '^1.1', $schema->getBasePath());
-        $composer->require(SilverstripePackageInfo::RECIPE_CMS, '^1.1', $schema->getBasePath());
+        $composer->require(SilverstripePackageInfo::RECIPE_CORE, '^4.2', $schema->getBasePath());
+        $composer->require(SilverstripePackageInfo::RECIPE_CMS, '^4.2', $schema->getBasePath());
 
         $rule->findRecipeEquivalence($dependencies, $composer, $schema);
 
@@ -145,5 +145,19 @@ class RebuildTest extends TestCase
         $this->assertArrayNotHasKey(SilverstripePackageInfo::FRAMEWORK, $require);
         $this->assertArrayNotHasKey(SilverstripePackageInfo::CMS, $require);
         $this->assertArrayNotHasKey('silverstripe/contentreview', $require);
+    }
+
+    public function testRecipeCoreTarget()
+    {
+        $rule = new Rebuild('4.1.1');
+        $this->assertEquals('1.1.1', $rule->getRecipeCoreTarget());
+        $rule->setRecipeCoreTarget('4.2.0');
+        $this->assertEquals('4.2.0', $rule->getRecipeCoreTarget());
+        $rule->setRecipeCoreTarget('4.0.0');
+        $this->assertEquals('1.0.0', $rule->getRecipeCoreTarget());
+        $rule->setRecipeCoreTarget('1.0.1');
+        $this->assertEquals('1.0.1', $rule->getRecipeCoreTarget());
+        $rule->setRecipeCoreTarget('1.2.0');
+        $this->assertEquals('4.2.0', $rule->getRecipeCoreTarget());
     }
 }
