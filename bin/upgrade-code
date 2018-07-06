@@ -22,7 +22,7 @@ use Symfony\Component\Console\Application;
 
 $application = new Application();
 $application->setName("SilverStripe Upgrader");
-$application->setVersion('1.2.0');
+$application->setVersion('1.2.1');
 $application->add(new Upgrader\UpgradeCommand());
 $application->add(new Upgrader\AddNamespaceCommand());
 $application->add(new Upgrader\DoctorCommand());
