@@ -17,6 +17,8 @@ matrix:
       env:
         - SYMFONY="3.2.*"
     - php: 7.2
+      env:
+        - RELEASE=1
 
 sudo: false
 
@@ -36,3 +38,27 @@ before_script:
 script:
   - vendor/bin/phpunit --color tests
   - if [[ $LINT_TEST ]]; then composer run-script lint; fi
+
+before_deploy:
+  - if [[ ! -f ./release/upgrade-code.phar ]]; then php build.php; fi
+  - mkdir -p ./release
+  - if [[ -f ./upgrade-code.phar ]]; then mv upgrade-code.phar ./release/; fi
+
+deploy:
+  - provider: releases
+    skip_cleanup: true
+    api_key: $GITHUB_API_TOKEN
+    file: release/upgrade-code.phar
+    on:
+      tags: true
+      repo: silverstripe/silverstripe-upgrader
+      condition: -n $RELEASE
+  - provider: pages
+    skip_cleanup: true
+    keep-history: true
+    github-token: $GITHUB_API_TOKEN
+    local-dir: release
+    on:
+      tags: true
+      repo: silverstripe/silverstripe-upgrader
+      condition: -n $RELEASE
