@@ -64,8 +64,8 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
                     'Q',
                     InputOption::VALUE_NONE,
                     'Terminate execution if the command in our `composer.json` file already meet the ' .
-                    '`recipe-core-constraint`. This will speed exeuction for script that need to call this command ' .
-                    'repetitively.'
+                    '`recipe-core-constraint`. This will speed up execution for scripts that need to call this ' .
+                    'command repetitively.'
                 )
             ]);
     }
