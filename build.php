@@ -51,6 +51,7 @@ $fs->remove(BUILD_FOLDER);
 $process = new Process($compiledPath);
 try {
     $process->mustRun();
+    echo "Phar built to: $compiledPath \n";
 } catch (ProcessFailedException $ex) {
     echo "The generated executable is broken.\nDO NOT PUBLISH!!!\n\n";
     echo $ex->getMessage();
