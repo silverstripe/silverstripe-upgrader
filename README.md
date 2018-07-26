@@ -18,7 +18,7 @@ To install the PHAR executable:
 2. Make the file executable `chmod +x upgrade-code.phar`
 3. Move the file to a folder in your path, for example `sudo mv upgrade-code.phar /usr/local/bin/upgrade-code` 
 
-### Install as a PHAR executable
+### Install the upgrader globally with composer
 
 You can install the upgrader globally with composer. This can make it easier to update to newer releases, however you can get dependency conflicts if you have other packages installed globally. 
 
