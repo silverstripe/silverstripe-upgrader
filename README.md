@@ -10,6 +10,18 @@ Developed by @sminnee and @tractorcow with inspiration and encouragement from @c
 
 ## Install
 
+The upgrader is available as a phar executable. 
+
+To install the PHAR executable:
+
+1. [Download the upgrader as a PHAR executable](https://silverstripe.github.io/silverstripe-upgrader/upgrade-code.phar) or `wget https://silverstripe.github.io/silverstripe-upgrader/upgrade-code.phar`
+2. Make the file executable `chmod +x upgrade-code.phar`
+3. Move the file to a folder in your path, for example `sudo mv upgrade-code.phar /usr/local/bin/upgrade-code` 
+
+### Install the upgrader globally with composer
+
+You can install the upgrader globally with composer. This can make it easier to update to newer releases, however you can get dependency conflicts if you have other packages installed globally. 
+
 To install globally run:
 
 `composer global require silverstripe/upgrader`
@@ -20,16 +32,6 @@ Make sure your `$HOME/.composer/vendor/bin` directory is in your PATH (or the eq
 
 Then you can run this script with `upgrade-code <command>` in your project root. If not running in the root,
 use --root-dir=/path.
-
-### Install as a PHAR executable
-
-The upgrader is also available as a phar executable. This can be helpful if installing the upgrader globally through composer conflicts with other libraries.
-
-To install the PHAR executable:
-
-1. [Download the upgrader as a PHAR executable](https://silverstripe.github.io/silverstripe-upgrader/upgrade-code.phar) or `wget https://silverstripe.github.io/silverstripe-upgrader/upgrade-code.phar`
-2. Make the file executable `chmod +x upgrade-code.phar`
-3. Move the file to a folder in your path, for example `sudo mv upgrade-code.phar /usr/local/bin/upgrade-code` 
 
 ## Available commands
 
