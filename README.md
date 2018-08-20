@@ -116,7 +116,7 @@ that referenced the un-namespaced versions of these classes.
 
 ### `recompose`
 
-You can use this command to upgrade your `composer.json` dependencies from SivlerStripe 3 to Silverstripe 4.
+You can use this command to upgrade your `composer.json` dependencies from SilverStripe 3 to Silverstripe 4.
 
 ```bash
 upgrade-code recompose [--root-dir=<dir>] [--write] [--strict]  [-vvv] [--recipe-core-constraint=*] [--composer-path=composer]
