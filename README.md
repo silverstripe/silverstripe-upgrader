@@ -39,7 +39,7 @@ use --root-dir=/path.
 
 The following commands are available:
 * [`all`](#all): Aggregate all the commands required to upgrade a SilverStripe project.
-* [`add-namespace`](#add): Add a namespace to a file.
+* [`add-namespace`](#add-namespace): Add a namespace to a file.
 * [`recompose`](#recompose): Upgrade a composer file to use the latest version of SilverStripe.
 * [`doctor`](#doctor): Run all cleanup tasks configured for this project
 * [`environment`](#environment): Migrate settings from `_ss_environment.php` to .env
