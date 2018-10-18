@@ -215,7 +215,7 @@ EOF
      */
     public function validate(string $path = '', bool $throwException = false): bool
     {
-        $process = $this->run('validate ' . $path);
+        $process = $this->run(sprintf('validate %s', escapeshellarg($path)));
 
         if ($throwException && !$process->isSuccessful()) {
             throw new RuntimeException($process->getErrorOutput());

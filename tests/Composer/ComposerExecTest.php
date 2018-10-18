@@ -71,6 +71,11 @@ class ComposerExecTest extends TestCase
             'Validating a valid composer file should return true'
         );
 
+        $this->assertTrue(
+            $composer->validate(__DIR__ . '/fixture/!@#$%^&* crazy folder name/composer.json'),
+            'Validating should work even if the path contains spaces.'
+        );
+
         $this->assertFalse(
             $composer->validate(__DIR__ . '/fixture/invalid-composer.json'),
             'Validating an invalid composer file should return false'
