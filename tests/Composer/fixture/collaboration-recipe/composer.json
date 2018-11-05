@@ -6,23 +6,23 @@
     "license": "BSD-3-Clause",
     "require": {
 
-        "silverstripe/assets": "1.2.x-dev",
-        "silverstripe/config": "1.0.x-dev",
-        "silverstripe/framework": "4.2.x-dev",
+        "silverstripe/assets": "1.1.0",
+        "silverstripe/config": "1.0.0",
+        "silverstripe/framework": "4.1.0",
 
-        "silverstripe/admin": "1.1.x-dev",
-        "silverstripe/asset-admin": "1.1.x-dev",
-        "silverstripe/campaign-admin": "1.1.x-dev",
-        "silverstripe/cms": "4.1.x-dev",
-        "silverstripe/errorpage": "1.1.x-dev",
-        "silverstripe/graphql": "1.1.x-dev",
-        "silverstripe/reports": "4.1.x-dev",
-        "silverstripe/siteconfig": "4.1.x-dev",
-        "silverstripe/versioned": "1.1.x-dev",
+        "silverstripe/admin": "1.1.0",
+        "silverstripe/asset-admin": "1.1.0",
+        "silverstripe/campaign-admin": "1.1.0",
+        "silverstripe/cms": "4.1.0",
+        "silverstripe/errorpage": "1.1.0",
+        "silverstripe/graphql": "1.1.0",
+        "silverstripe/reports": "4.1.0",
+        "silverstripe/siteconfig": "4.1.0",
+        "silverstripe/versioned": "1.1.0",
 
-        "silverstripe/contentreview": "4.0.x-dev",
-        "silverstripe/sharedraftcontent": "2.x-dev",
-        "symbiote/silverstripe-advancedworkflow": "5.0.x-dev"
+        "silverstripe/contentreview": "4.0.0",
+        "silverstripe/sharedraftcontent": "2.0.0",
+        "symbiote/silverstripe-advancedworkflow": "5.0.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7"
