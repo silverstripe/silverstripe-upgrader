@@ -301,7 +301,7 @@ class Rebuild implements DependencyUpgradeRule
         }
 
         foreach ($toInstall as $packageName) {
-            $composer->require($packageName, '', $schemaFile->getBasePath(), true);
+            $composer->require($packageName, '*', $schemaFile->getBasePath(), true);
         }
 
         if (in_array(SilverstripePackageInfo::RECIPE_CORE, $toRemove)) {

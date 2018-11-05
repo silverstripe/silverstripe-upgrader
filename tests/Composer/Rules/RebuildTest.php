@@ -120,7 +120,7 @@ class RebuildTest extends TestCase
         $this->assertArrayNotHasKey(SilverstripePackageInfo::RECIPE_CORE, $require);
         $this->assertArrayNotHasKey(SilverstripePackageInfo::RECIPE_CMS, $require);
 
-        // Test a composer file that doesn't define any recipe but has all undelying package install.
+        // Test a composer file that doesn't define any recipe but has all underlying package install.
         $schema = $composer->initTemporarySchema();
         $pathToCollaboration = __DIR__ . DIRECTORY_SEPARATOR . '..' .
             DIRECTORY_SEPARATOR . 'fixture' .
