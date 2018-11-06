@@ -101,6 +101,9 @@ class Recipe
      */
     public function subsetOf(array $dependencies, array $tree = []): array
     {
+        // If our recipe is already installed, let's return all the packages that can be remove thanks to it.
+        $recipeInDependency = in_array($this->getName(), $dependencies);
+
         $tree = $tree ?: $this->buildDependencyTree();
 
         $intersection = [];
@@ -121,12 +124,16 @@ class Recipe
                     $intersection[] = $branch;
                     $intersection = array_merge($intersection, $subSetIntersection);
                 } else {
+                    if (!$recipeInDependency) {
+                        // Dependency was not met
+                        return [];
+                    }
+                }
+            } else {
+                if (!$recipeInDependency) {
                     // Dependency was not met
                     return [];
                 }
-            } else {
-                // Dependency was not met
-                return [];
             }
         }
 
