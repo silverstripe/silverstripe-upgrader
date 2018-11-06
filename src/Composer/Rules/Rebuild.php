@@ -274,7 +274,7 @@ class Rebuild implements DependencyUpgradeRule
 
         foreach (Recipe::getKnownRecipes() as $recipe) {
             $recipeName = $recipe->getName();
-
+            
             $subset = $recipe->subsetOf($installedDependencies);
             if ($subset) {
                 $toInstall[] = $recipeName;
@@ -291,6 +291,8 @@ class Rebuild implements DependencyUpgradeRule
         // Clean up our arrays and make sure there's nothing in $toInstall that's also in $toRemove.
         $toRemove = array_unique($toRemove);
         $toInstall = array_diff($toInstall, $toRemove);
+        // Don't try to install the dependency if it's already installed
+        $toInstall = array_diff($toInstall, $explicitDependencies);
 
         // Start by removing packages
         foreach ($toRemove as $packageName) {
