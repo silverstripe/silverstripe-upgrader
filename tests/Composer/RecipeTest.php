@@ -92,4 +92,45 @@ class RecipeTest extends TestCase
             'Recipe/core is in the list, we should get all entries from the tree'
         );
     }
+
+    public function testSubsetOfWithRecipeAlreadyInstalled()
+    {
+        $recipe = new Recipe(new Package(SilverstripePackageInfo::RECIPE_CMS));
+
+        // All these packages are implied by recipe CMS
+        $expected = [
+            "silverstripe/admin",
+            "silverstripe/asset-admin",
+            "silverstripe/campaign-admin",
+            "silverstripe/errorpage",
+            "silverstripe/framework"
+        ];
+
+        // Let's add recipe cms to the list
+        $dependencies = array_merge([SilverstripePackageInfo::RECIPE_CMS], $expected);
+
+
+        $results = $recipe->subsetOf($dependencies);
+        $this->assertEquals(
+            sort($expected),
+            sort($results),
+            'When a recipe is already in the list Recipe::subset should return the list of packages that can be removed'
+        );
+    }
+
+    public function testKnownRecipes()
+    {
+        /**
+         * @var Recipe
+         */
+        $recipes = [];
+        foreach (Recipe::getKnownRecipes() as $recipe) {
+            $recipes[$recipe->getName()] = $recipe;
+        }
+
+        $this->assertTrue(isset($recipes['silverstripe/recipe-core']));
+        $this->assertTrue(isset($recipes['silverstripe/recipe-cms']));
+        $this->assertFalse(isset($recipes['silverstripe/cms']));
+        $this->assertFalse(isset($recipes['silverstripe/framework']));
+    }
 }

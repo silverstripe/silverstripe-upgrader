@@ -180,7 +180,7 @@ EOF
         }
 
         // Output errors.
-        if ($process->isSuccessful() && !$this->suppressErrors && $this->out) {
+        if (!$process->isSuccessful() && !$this->suppressErrors && $this->out) {
             $out = $this->out instanceof ConsoleOutputInterface ?
                 $this->out->getErrorOutput() :
                 $this->out;
@@ -258,7 +258,7 @@ EOF
      */
     public function require(
         string $package,
-        string $constraint = '',
+        string $constraint = '*',
         string $workingDir = '',
         bool   $showFeedback = false
     ):void {
@@ -279,6 +279,7 @@ EOF
                 '--working-dir' => $workingDir,
                 '--prefer-stable' => '',
                 '--ignore-platform-reqs' => '',
+                '--no-plugins' => ''
             ],
             $showFeedback
         );
@@ -299,12 +300,14 @@ EOF
      * @param  string  $workingDir   Path to the directory containing the `composer.json`. Defaults to this instance's
      *    $workingDir.
      * @param  boolean $showFeedback Write out some information about what is going on.
+     * @param  boolean $allowPlugins Whatever we let composer plugins run. Defaults to false.
      * @throws RuntimeException If update fails.
      * @return void
      */
     public function update(
         string $workingDir = '',
-        bool   $showFeedback = false
+        bool   $showFeedback = false,
+        bool   $allowPlugins = false
     ): void {
         $showFeedback = $showFeedback && $this->out;
 
@@ -312,15 +315,17 @@ EOF
             $this->out->write(' Trying to install dependencies ');
         }
 
-        $process = $this->run(
-            "update",
-            [
-                '--working-dir' => $workingDir,
-                '--prefer-stable' => '',
-                '--ignore-platform-reqs' => '',
-            ],
-            $showFeedback
-        );
+        $options = [
+            '--working-dir' => $workingDir,
+            '--prefer-stable' => '',
+            '--ignore-platform-reqs' => '',
+        ];
+
+        if (!$allowPlugins) {
+            $options['--no-plugins'] = '';
+        }
+
+        $process = $this->run("update", $options, $showFeedback);
 
         if ($process->isSuccessful()) {
             if ($showFeedback) {
@@ -347,6 +352,7 @@ EOF
             'remove ' . $package,
             [
                 '--working-dir' => $workingDir,
+                '--no-plugins' => ''
             ]
         );
     }
@@ -361,7 +367,7 @@ EOF
     {
         $this->run(
             'install',
-            ['--working-dir' => $workingDir, '--ignore-platform-reqs' => '']
+            ['--working-dir' => $workingDir, '--ignore-platform-reqs' => '', '--no-plugins' => '']
         );
     }
 

@@ -164,10 +164,10 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
 
             $console->title('Trying to install new dependencies');
             try {
-                $composer->update('', true);
-                // We need to run another update because our recipes will update the `extra` object in our
+                // We need to run the update twice because our recipes will update the `extra` object in our
                 // composer.json which invalidates our composer.lock
-                $composer->update('', false);
+                $composer->update('', false, true);
+                $composer->update('', false, true);
                 $console->success('Dependencies installed successfully.');
             } catch (RuntimeException $ex) {
                 $message =
