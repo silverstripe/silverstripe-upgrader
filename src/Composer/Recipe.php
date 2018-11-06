@@ -123,17 +123,13 @@ class Recipe
                 if ($subSetIntersection) {
                     $intersection[] = $branch;
                     $intersection = array_merge($intersection, $subSetIntersection);
-                } else {
-                    if (!$recipeInDependency) {
-                        // Dependency was not met
-                        return [];
-                    }
-                }
-            } else {
-                if (!$recipeInDependency) {
+                } elseif (!$recipeInDependency) {
                     // Dependency was not met
                     return [];
                 }
+            } elseif (!$recipeInDependency) {
+                // Dependency was not met
+                return [];
             }
         }
 
