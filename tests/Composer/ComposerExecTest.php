@@ -7,6 +7,7 @@ use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
 use InvalidArgumentException;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ComposerExecTest extends TestCase
@@ -308,6 +309,53 @@ EOF
 
         // Try to run a composer update
         $composer->update();
+    }
+
+    public function testUpdateNoPluginFlag()
+    {
+        $composer = new ComposerExec(__DIR__, "", new ConsoleOutput(), false);
+
+        $schema = $composer->initTemporarySchema();
+        $composer->setWorkingDir($schema->getBasePath());
+        $schema->setContents(<<<EOF
+{
+    "name": "silverstripe-upgrader/temp-project",
+    "description": "silverstripe-upgrader-temp-project",
+    "license": "proprietary",
+    "minimum-stability": "dev",
+    "require": {"silverstripe/recipe-cms": "4.2"},
+    "prefer-stable": true
+}
+EOF
+        );
+
+        $composer->update('', false, false);
+        $json = json_decode($schema->getContents(), true);
+        $this->assertFalse(
+            isset($json['extra']['project-files-installed']),
+            'Composer update with allowPlugins set to false should not have added an extra key'
+        );
+
+        $schema = $composer->initTemporarySchema();
+        $composer->setWorkingDir($schema->getBasePath());
+        $schema->setContents(<<<EOF
+{
+    "name": "silverstripe-upgrader/temp-project",
+    "description": "silverstripe-upgrader-temp-project",
+    "license": "proprietary",
+    "minimum-stability": "dev",
+    "require": {"silverstripe/recipe-cms": "4.2"},
+    "prefer-stable": true
+}
+EOF
+        );
+
+        $composer->update('', false, true);
+        $json = json_decode($schema->getContents(), true);
+        $this->assertTrue(
+            isset($json['extra']['project-files-installed']),
+            'Composer update with allowPlugins set to true should have added an extra key'
+        );
     }
 
     public function testExpose()
