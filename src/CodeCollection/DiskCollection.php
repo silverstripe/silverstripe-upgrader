@@ -35,6 +35,8 @@ class DiskCollection implements CollectionInterface
      * If given a single file, then the colection will be limited to that file only.
      * If given a directory, the collection will include all files in this directory.
      *
+     * Exclusions matching the path will be ignored.
+     *
      * @param string $path
      * @param boolean $recursive
      * @param array $exclusions
@@ -47,7 +49,9 @@ class DiskCollection implements CollectionInterface
         }
         $this->path = $path;
         $this->recursive = $recursive;
-        $this->exclusions = $exclusions;
+        $this->exclusions = array_filter($exclusions, function($exclusion) use($path) {
+            return !$this->pathMatches($path, $exclusion);
+        });
     }
 
     /**
