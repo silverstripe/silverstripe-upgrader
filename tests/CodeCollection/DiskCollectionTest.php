@@ -102,4 +102,17 @@ class DiskCollectionTest extends TestCase
             'ExcludedBySyffix does exist but is excluded so it should be false.'
         );
     }
+
+    public function testPathNotExcluded()
+    {
+        $d = new DiskCollection(
+            $this->pathToSampleFolder,
+            true,
+            [
+                '*/SampleCode*',
+            ]
+        );
+
+        $this->assertTrue($d->exists('FoundByItemPath.php'), 'FoundByItemPath exist, should be true.');
+    }
 }

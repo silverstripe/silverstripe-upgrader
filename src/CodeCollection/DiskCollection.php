@@ -49,7 +49,7 @@ class DiskCollection implements CollectionInterface
         }
         $this->path = $path;
         $this->recursive = $recursive;
-        $this->exclusions = array_filter($exclusions, function($exclusion) use($path) {
+        $this->exclusions = array_filter($exclusions, function ($exclusion) use ($path) {
             return !$this->pathMatches($path, $exclusion);
         });
     }
