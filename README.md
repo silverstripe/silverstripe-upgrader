@@ -360,6 +360,8 @@ warnings:
     'MyClass::MY_CONSTANT':
       message: 'Use OTHER_CONSTANT instead'
       replacement: 'OTHER_CONSTANT'
+excludedPaths:
+  - '*thirdparty*'
 ```
 
 ### `webroot`
