@@ -4,6 +4,9 @@ namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Property;
 use PhpParser\NodeVisitor;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
@@ -64,7 +67,10 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
             if ($this->matchesSpec($node, $spec)) {
                 // Only match first spec that matches this node
                 $this->rewriteWithSpec($node, $spec);
-                $this->addWarning($node, $spec);
+                if ($spec->getMessage() && !$node instanceof Property) {
+                    $this->addWarning($node, $spec);
+                }
+
                 return;
             }
         }
@@ -122,6 +128,10 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
      */
     protected function nodeMatchesSymbol(Node $node, $name)
     {
+        if ($node instanceof Property) {
+            return strpos($this->source->getNodeString($node), "$$name") !== false;
+        }
+
         // No symbol available
         if (!isset($node->name)) {
             return false;
@@ -142,6 +152,14 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
      */
     protected function nodeMatchesClass(Node $node, $class)
     {
+        // We check the class differently for these node types
+        if ($node instanceof ClassMethod
+            || $node instanceof Property)
+        {
+            $distances = $node->getAttribute('scope')->getClassReflection()->getClassHierarchyDistances();
+            return array_key_exists($class, $distances);
+        }
+
         // Validate all classes
         $classCandidates = $node->getAttribute('contextTypes'); // Classes this node could be
         if (empty($classCandidates)) {
@@ -252,5 +270,33 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
 
         // Return position and length
         return [$start, strlen($search)];
+    }
+
+    /**
+     * @param Node $node
+     * @param int $visibility
+     * @return int returns whether the provided node has the visibility provided
+     */
+    protected static function hasVisibility($node, $visibility = Class_::MODIFIER_PRIVATE)
+    {
+        return ($node->flags & $visibility);
+    }
+
+    /**
+     * @param $node
+     * @param int $visibility
+     * @return mixed
+     */
+    protected static function changeVisibility($node, $visibility = Class_::MODIFIER_PRIVATE)
+    {
+        // remove other flags
+        if ($visibility != Class_::MODIFIER_PRIVATE) $node->flags = $node->flags & (~ Class_::MODIFIER_PRIVATE);
+        if ($visibility != Class_::MODIFIER_PROTECTED) $node->flags = $node->flags & (~ Class_::MODIFIER_PROTECTED);
+        if ($visibility != Class_::MODIFIER_PUBLIC) $node->flags = $node->flags & (~ Class_::MODIFIER_PUBLIC);
+
+        // add our flag
+        $node->flags |= $visibility;
+
+        return $node;
     }
 }

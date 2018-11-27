@@ -1,0 +1,60 @@
+{
+}
+------
+<?php
+
+use SilverStripe\ORM\DataObject;
+
+class Animal extends DataObject
+{
+    public static $db = [
+        'Name' => 'Varchar'
+    ];
+
+    public function myMethod()
+    {
+        echo "Hello, world!";
+    }
+
+    public static $do_not_change_me = "foobar";
+}
+
+class Unrelated
+{
+    public static $db = [
+        'Name' => 'Varchar'
+    ];
+
+    public function myMethod()
+    {
+        echo "Hello, world!";
+    }
+}
+------
+<?php
+
+use SilverStripe\ORM\DataObject;
+
+class Animal extends DataObject
+{
+    private static $db = array('Name' => 'Varchar');
+
+    private function myMethod()
+{
+    echo "Hello, world!";
+}
+
+    public static $do_not_change_me = "foobar";
+}
+
+class Unrelated
+{
+    public static $db = [
+        'Name' => 'Varchar'
+    ];
+
+    public function myMethod()
+    {
+        echo "Hello, world!";
+    }
+}

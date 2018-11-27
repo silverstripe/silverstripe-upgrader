@@ -126,9 +126,16 @@ PATTERN;
      */
     protected function rewriteWithSpec(Node $node, ApiChangeWarningSpec $spec)
     {
+        // Update visibility if necessary
+        if ($node instanceof ClassMethod && !isset($this->options['skip-visibility'])) {
+            $visibility = $spec->getVisibilityBitMask();
+            if ($visibility && !self::hasVisibility($node, $visibility)) {
+                $this->source->replaceNode($node, self::changeVisibility($node, $visibility));
+            }
+        }
+
         // Skip if there is no replacement
-        $replacement = $spec->getReplacement();
-        if ($replacement) {
+        if ($replacement = $spec->getReplacement()) {
             $this->replaceNodePart($node, $node->name, $replacement);
         }
     }

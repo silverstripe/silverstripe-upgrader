@@ -3,6 +3,7 @@
 namespace SilverStripe\Upgrader\Util;
 
 use PhpParser\Lexer;
+use PhpParser\Node\Stmt\Property;
 use PhpParser\ParserFactory;
 use PhpParser\Parser;
 use PhpParser\PrettyPrinter;
@@ -91,6 +92,12 @@ class MutableSource
     public function replaceNode(Node $node, $replacement)
     {
         list($start, $length) = $this->nodeRange($node);
+
+        # make sure we don't remove the semicolon
+        if ($replacement instanceof Property) {
+            $length -= 1;
+        }
+
         $this->replace($start, $length, $replacement);
     }
 

@@ -30,9 +30,20 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
      */
     protected $container;
 
-    public function __construct(Container $container)
+    /**
+     * @var array
+     */
+    private $options;
+
+    /**
+     * ApiChangeWarningsRule constructor.
+     * @param Container $container
+     * @param array $options
+     */
+    public function __construct(Container $container, array $options = [])
     {
         $this->container = $container;
+        $this->options = $options;
     }
 
 
@@ -148,7 +159,7 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
             $visitors[] = new ConstantWarningsVisitor($warnings['constants'], $source, $file);
         }
         if (isset($warnings['props'])) {
-            $visitors[] = new PropertyWarningsVisitor($warnings['props'], $source, $file);
+            $visitors[] = new PropertyWarningsVisitor($warnings['props'], $source, $file, $this->options);
         }
 
         return $visitors;

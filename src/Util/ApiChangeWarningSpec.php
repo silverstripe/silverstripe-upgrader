@@ -2,6 +2,8 @@
 
 namespace SilverStripe\Upgrader\Util;
 
+use PhpParser\Node\Stmt\Class_;
+
 /**
  * Defines a warning for a particular code use (e.g. a class or a method).
  *
@@ -20,6 +22,13 @@ class ApiChangeWarningSpec
      * @var string
      */
     protected $replacement;
+
+    /**
+     * Required visibility
+     *
+     * @var string
+     */
+    protected $visibility;
 
     /**
      * @var string
@@ -45,12 +54,17 @@ class ApiChangeWarningSpec
     public function __construct($symbol, $spec)
     {
         $this->symbol = $symbol;
-        $this->message = $spec['message'];
+        if (isset($spec['message'])) {
+            $this->setMessage($spec['message']);
+        }
         if (isset($spec['url'])) {
             $this->setUrl($spec['url']);
         }
         if (isset($spec['replacement'])) {
             $this->setReplacement($spec['replacement']);
+        }
+        if (isset($spec['visibility'])) {
+            $this->setVisibility($spec['visibility']);
         }
     }
 
@@ -63,6 +77,15 @@ class ApiChangeWarningSpec
         $this->url = $url;
 
         return $this;
+    }
+
+    /**
+     * @param String $message
+     * @return String
+     */
+    public function setMessage($message)
+    {
+        return $this->message = $message;
     }
 
     /**
@@ -87,6 +110,40 @@ class ApiChangeWarningSpec
     public function getReplacement()
     {
         return $this->replacement;
+    }
+
+    /**
+     * @return string
+     */
+    public function getVisibility()
+    {
+        return $this->visibility;
+    }
+
+    /**
+     * @param string $visibility
+     * @return $this
+     */
+    public function setVisibility(string $visibility)
+    {
+        $this->visibility = $visibility;
+        return $this;
+    }
+
+    /**
+     * @return int|null returns the BitMask flag for the visibility of this spec as used by PhpParser
+     */
+    public function getVisibilityBitMask()
+    {
+        $visibility = $this->getVisibility();
+
+        switch ($visibility) {
+            case 'private': return Class_::MODIFIER_PRIVATE;
+            case 'protected': return Class_::MODIFIER_PROTECTED;
+            case 'public': return Class_::MODIFIER_PUBLIC;
+        }
+
+        return null;
     }
 
     /**

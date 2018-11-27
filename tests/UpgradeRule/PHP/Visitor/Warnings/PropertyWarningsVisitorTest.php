@@ -2,13 +2,17 @@
 
 namespace SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor\Warnings;
 
+use SilverStripe\Upgrader\Tests\FixtureLoader;
 use SilverStripe\Upgrader\Tests\UpgradeRule\PHP\Visitor\BaseVisitorTest;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\MethodWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\PropertyWarningsVisitor;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\MutableSource;
 
 class PropertyWarningsVisitorTest extends BaseVisitorTest
 {
+    use FixtureLoader;
+
     /**
      * @runInSeparateProcess
      */
@@ -335,5 +339,43 @@ PHP;
         $actualClass = $source->getModifiedString();
         $this->assertNotEquals($source->getOrigString(), $actualClass);
         $this->assertEquals($newClass, $actualClass);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @throws \Exception
+     */
+    public function testUpdateVisibility()
+    {
+        list($parameters, $input, $expected) =
+            $this->loadFixture(__DIR__ .'/../../fixtures/update-visibility.testfixture');
+
+        $inputFile = $this->getMockFile($input);
+        $source = new MutableSource($inputFile->getContents());
+        $visitors = [
+            new PropertyWarningsVisitor([
+                new ApiChangeWarningSpec('SilverStripe\ORM\DataObject::db', [
+                    'visibility' => 'private',
+                ])
+            ], $source, $inputFile),
+            new MethodWarningsVisitor([
+                new ApiChangeWarningSpec('SilverStripe\ORM\DataObject->myMethod', [
+                    'visibility' => 'private',
+                ])
+            ], $source, $inputFile),
+        ];
+
+        $this->traverseWithVisitors($source, $inputFile, $visitors);
+
+        $warnings = [];
+        foreach ($visitors as $visitor) {
+            array_merge($warnings, $visitor->getWarnings());
+        }
+        $this->assertCount(0, $warnings);
+
+        // Ensure rewrite works
+        $actual = $source->getModifiedString();
+        $this->assertNotEquals($source->getOrigString(), $expected);
+        $this->assertEquals($actual, $expected);
     }
 }

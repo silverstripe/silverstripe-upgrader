@@ -26,7 +26,7 @@ trait FixtureLoader
 
         // Parse parameters
         $parameters = json_decode(array_shift($parts), true);
-        if (!$parameters || json_last_error()) {
+        if ($parameters === null || json_last_error()) {
             throw new Exception(json_last_error_msg() ?: 'Invalid fixture file');
         }
 

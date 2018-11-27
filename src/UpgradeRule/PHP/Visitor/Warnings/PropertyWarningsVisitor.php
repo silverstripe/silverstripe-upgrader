@@ -6,8 +6,12 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticPropertyFetch;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\PropertyProperty;
+use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
+use SilverStripe\Upgrader\Util\MutableSource;
 
 /**
  * Relies on {@link SymbolContextVisitor} to annotate the
@@ -15,10 +19,23 @@ use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
  */
 class PropertyWarningsVisitor extends WarningsVisitor
 {
+    /**
+     * @var array
+     */
+    private $options;
+
+    public function __construct(array $specs, MutableSource $source, ItemInterface $file, $options = [])
+    {
+        parent::__construct($specs, $source, $file);
+
+        $this->options = $options;
+    }
+
     public function matchesNode(Node $node)
     {
         // Must be property
         $isPropNode = (
+            $node instanceof Property ||
             $node instanceof PropertyProperty ||
             $node instanceof PropertyFetch ||
             $node instanceof StaticPropertyFetch
@@ -28,12 +45,12 @@ class PropertyWarningsVisitor extends WarningsVisitor
         }
 
         // Must have name
-        if (!isset($node->name)) {
+        if ((!$node instanceof Property) && !isset($node->name)) {
             return false;
         }
 
         // Don't process dynamic fetches ($obj->$someField)
-        if ($node->name instanceof Variable) {
+        if ((!$node instanceof Property) && $node->name instanceof Variable) {
             return false;
         }
 
@@ -81,14 +98,21 @@ class PropertyWarningsVisitor extends WarningsVisitor
      */
     protected function rewriteWithSpec(Node $node, ApiChangeWarningSpec $spec)
     {
+        // Update visibility if necessary
+        if ($node instanceof Property && !$this->options['skip-visibility']) {
+            $visibility = $spec->getVisibilityBitMask();
+            if ($visibility && !self::hasVisibility($node, $visibility)) {
+                $this->source->replaceNode($node, self::changeVisibility($node, $visibility));
+            }
+            return;
+        }
+
         // Skip if there is no replacement
-        $replacement = $spec->getReplacement();
-        if ($replacement) {
+        if ($replacement = $spec->getReplacement()) {
             // Replace name only
             $this->replaceNodePart($node, $node->name, $replacement);
         }
     }
-
 
     /**
      * Is static, and matches class and property name
@@ -100,7 +124,7 @@ class PropertyWarningsVisitor extends WarningsVisitor
      */
     protected function matchesStaticClassProperty(Node $node, $class, $property)
     {
-        return ($node instanceof StaticPropertyFetch || $node instanceof PropertyProperty)
+        return ($node instanceof StaticPropertyFetch || $node instanceof PropertyProperty || $node instanceof Property)
             && $this->nodeMatchesClassSymbol($node, $class, $property);
     }
 
@@ -114,7 +138,7 @@ class PropertyWarningsVisitor extends WarningsVisitor
      */
     protected function matchesInstanceClassProperty(Node $node, $class, $property)
     {
-        return ($node instanceof PropertyFetch || $node instanceof PropertyProperty)
+        return ($node instanceof PropertyFetch || $node instanceof PropertyProperty || $node instanceof Property)
             && $this->nodeMatchesClassSymbol($node, $class, $property);
     }
 
@@ -127,7 +151,7 @@ class PropertyWarningsVisitor extends WarningsVisitor
      */
     protected function matchesStaticProperty(Node $node, $property)
     {
-        return ($node instanceof StaticPropertyFetch || $node instanceof PropertyProperty)
+        return ($node instanceof StaticPropertyFetch || $node instanceof PropertyProperty || $node instanceof Property)
             && $this->nodeMatchesSymbol($node, $property);
     }
 
