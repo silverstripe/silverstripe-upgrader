@@ -29,7 +29,8 @@
     "require-dev": {
         "phpunit/phpunit": "^7",
         "mikey179/vfsStream": "^1.6",
-        "secondtruth/phar-compiler": "^1.1"
+        "secondtruth/phar-compiler": "^1.1",
+        "roave/security-advisories": "dev-master"
     },
     "extra": {
         "branch-alias": {
