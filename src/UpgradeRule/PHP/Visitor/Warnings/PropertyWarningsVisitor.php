@@ -99,7 +99,10 @@ class PropertyWarningsVisitor extends WarningsVisitor
     protected function rewriteWithSpec(Node $node, ApiChangeWarningSpec $spec)
     {
         // Update visibility if necessary
-        if ($node instanceof Property && !$this->options['skip-visibility']) {
+        if ($node instanceof Property
+            && !$this->options['skip-visibility']
+            && !$spec->getReplacement()
+        ) {
             $visibility = $spec->getVisibilityBitMask();
             if ($visibility && !self::hasVisibility($node, $visibility)) {
                 $this->source->replaceNode($node, self::changeVisibility($node, $visibility));
