@@ -15,10 +15,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class InspectCommand extends UpgradeCommand implements AutomatedCommand
+class InspectCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
     use AutomatedCommandTrait;
+    use ConfigurableCommandTrait;
 
     protected function configure()
     {
@@ -63,8 +64,9 @@ class InspectCommand extends UpgradeCommand implements AutomatedCommand
         $this->enableProjectAutoloading($input);
 
         // Build spec
+        $rootPath = $this->getRootPath($input);
+        $config = $this->getConfig($rootPath);
         $spec = new UpgradeSpec();
-        $config = $this->getConfig($input);
         $spec->addRule((new ApiChangeWarningsRule($container))->withParameters($config));
 
         $options = $input->getOptions();

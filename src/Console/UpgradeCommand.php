@@ -21,6 +21,7 @@ class UpgradeCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
     use AutomatedCommandTrait;
+    use ConfigurableCommandTrait;
 
     protected function configure()
     {
@@ -65,7 +66,8 @@ class UpgradeCommand extends AbstractCommand implements AutomatedCommand
         // Build spec
         $spec = new UpgradeSpec();
         $rules = $this->getRules($input);
-        $config = $this->getConfig($input);
+        $rootPath = $this->getRootPath($input);
+        $config = $this->getConfig($rootPath);
         foreach ($rules as $rule) {
             $spec->addRule($rule->withParameters($config));
         }
@@ -125,22 +127,5 @@ class UpgradeCommand extends AbstractCommand implements AutomatedCommand
             $ruleObjects[] = new RenameTemplateLangKeys();
         }
         return $ruleObjects;
-    }
-
-    /**
-     * @param InputInterface $input
-     * @return array
-     */
-    protected function getConfig($input): array
-    {
-        $rootPath = $this->getRootPath($input);
-        $config = ConfigFile::loadCombinedConfig($rootPath);
-        if (!$config) {
-            throw new InvalidArgumentException(
-                "No .upgrade.yml definitions found in modules on \"{$rootPath}\". " .
-                "Please ensure you upgrade your SilverStripe dependencies before running this task."
-            );
-        }
-        return $config;
     }
 }
