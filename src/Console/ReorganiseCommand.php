@@ -56,8 +56,6 @@ class ReorganiseCommand extends AbstractCommand implements AutomatedCommand
 
         $reorg = new ProjectReorganiser($rootPath);
 
-
-
         // Looking at the code folder
         switch ($reorg->checkCodeFolder()) {
             case ProjectReorganiser::NOTHING:
