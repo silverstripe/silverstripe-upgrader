@@ -31,6 +31,12 @@ class Rebuild implements DependencyUpgradeRule
     private $console;
 
     /**
+     * List of packages that should be substituted with other packages
+     * @var string[][]
+     */
+    private $recipeEquivalences = [];
+
+    /**
      * @inheritdoc
      * @return string
      */
@@ -58,10 +64,12 @@ class Rebuild implements DependencyUpgradeRule
      * Instantiate a new Rebuild Upgrade Rule.
      * @param string       $recipeCoreTarget
      * @param SymfonyStyle $console
+     * @param string[][]      $recipeEquivalence List of packages that should be substituted with other packages
      */
-    public function __construct(string $recipeCoreTarget, SymfonyStyle $console = null)
+    public function __construct(string $recipeCoreTarget, SymfonyStyle $console = null, array $recipeEquivalences = [])
     {
         $this->setRecipeCoreTarget($recipeCoreTarget);
+        $this->setRecipeEquivalences($recipeEquivalences);
         $this->console = $console;
     }
 
@@ -93,6 +101,24 @@ class Rebuild implements DependencyUpgradeRule
             $value = preg_replace('/^1/', '4', $value);
         }
         $this->recipeCoreTarget = $value;
+    }
+
+    /**
+     * Get list of packages that should be substituted  by other recipes.
+     * @return string[][]
+     */
+    public function getRecipeEquivalences(): array
+    {
+        return $this->recipeEquivalences;
+    }
+
+    /**
+     * Set list of packages that should be substituted  by other recipes.
+     * @param string[][] $recipeEquivalences
+     */
+    public function setRecipeEquivalences(array $recipeEquivalences): void
+    {
+        $this->recipeEquivalences = $recipeEquivalences;
     }
 
     /**

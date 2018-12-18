@@ -160,4 +160,19 @@ class RebuildTest extends TestCase
         $rule->setRecipeCoreTarget('1.2.0');
         $this->assertEquals('4.2.0', $rule->getRecipeCoreTarget());
     }
+
+    public function testRecipeEquivalences()
+    {
+        $payload = [
+            "cwp/cwp-recipe-basic" => ["cwp/cwp-recipe-cms"],
+            "cwp/cwp-recipe-blog" => ["cwp/cwp-recipe-cms", "silverstripe/recipe-blog"],
+            "cwp/cwp-core" => ["cwp/cwp-recipe-core"],
+        ];
+        $rule = new Rebuild('4.1.1');
+        $rule->setRecipeEquivalences($payload);
+        $this->assertEquals(
+            $payload,
+            $rule->getRecipeEquivalences()
+        );
+    }
 }

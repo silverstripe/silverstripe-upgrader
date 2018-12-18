@@ -28,6 +28,7 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
 {
     use FileCommandTrait;
     use AutomatedCommandTrait;
+    use ConfigurableCommandTrait;
 
     /**
      * @inheritdoc
@@ -130,10 +131,25 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
             return null;
         }
 
+        // Compute Recipe equivalence from config
+        $recipeEquivalences = [
+            "cwp/cwp-recipe-basic" => ["cwp/cwp-recipe-cms"],
+            "cwp/cwp-recipe-blog" => ["cwp/cwp-recipe-cms", "silverstripe/recipe-blog"],
+            "cwp/cwp-core" => ["cwp/cwp-recipe-core"],
+        ];
+        $config = $this->getConfig($rootPath, false);
+        if (isset($config['recipeEquivalences']) && is_array($config['recipeEquivalences'])) {
+            $recipeEquivalences = array_merge(
+                $recipeEquivalences,
+                $config['recipeEquivalences']
+            );
+        }
+
+
         // Set up our rules
         $rules = [
             new Rules\PhpVersion(),
-            new Rules\Rebuild($coreTarget, $console),
+            new Rules\Rebuild($coreTarget, $console, $recipeEquivalences),
         ];
         if ($strict) {
             $rules[] = new Rules\StrictVersion();
