@@ -54,6 +54,14 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
                     '*'
                 ),
                 new InputOption(
+                    'cwp-constraint',
+                    null,
+                    InputOption::VALUE_OPTIONAL,
+                    'Version of `cwp/cwp-recipe-core` you are targeting. If left blank, ' .
+                    '`cwp-recipe-core` will not be constrained. Overrides `recipe-core-constraint`.',
+                    ''
+                ),
+                new InputOption(
                     'composer-path',
                     'P',
                     InputOption::VALUE_OPTIONAL,
@@ -107,6 +115,7 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
 
         $composerPath = $input->getOption('composer-path');
         $recipeCoreConstraint = $input->getOption('recipe-core-constraint');
+        $cwpCoreConstraint = $input->getOption('cwp-constraint');
         $strict = $input->getOption('strict');
         $quick = $input->getOption('quick');
 
@@ -121,18 +130,20 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
         $this->initPackageCache($composer);
 
         // Find out what version of recipe-core we will target and if we are already using it.
-        $coreTarget = $this->findTargetRecipeCore($recipeCoreConstraint);
-        if ($quick && $this->recipeCoreTargetIsInstalled($composer, $coreTarget)) {
+        $targets = $this->findTarget($recipeCoreConstraint, $cwpCoreConstraint);
+        if ($quick && $this->targetsInstalled($composer, $targets)) {
             $console->success(sprintf(
-                'Project already using recipe-core %s. Nothing to do. ' .
+                'Project already using targeted versions of %s. Nothing to do. ' .
                 'Disable the `--quick` flag if you want to force the command to run.',
-                $coreTarget
+                implode(array_keys($targets), ', ')
             ));
             return null;
         }
 
         // Compute Recipe equivalence from config
         $recipeEquivalences = [
+            "silverstripe/framework" => ["silverstripe/recipe-core"],
+            "silverstripe/cms" => ["silverstripe/recipe-cms"],
             "cwp/cwp-recipe-basic" => ["cwp/cwp-recipe-cms"],
             "cwp/cwp-recipe-blog" => ["cwp/cwp-recipe-cms", "silverstripe/recipe-blog"],
             "cwp/cwp-core" => ["cwp/cwp-recipe-core"],
@@ -149,7 +160,7 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
         // Set up our rules
         $rules = [
             new Rules\PhpVersion(),
-            new Rules\Rebuild($coreTarget, $console, $recipeEquivalences),
+            new Rules\Rebuild($targets, $recipeEquivalences, $console),
         ];
         if ($strict) {
             $rules[] = new Rules\StrictVersion();
@@ -207,20 +218,31 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
 
     /**
      * Get the latest version of recipe core meeting the provided constraint.
-     * @param  $constraint
-     * @return string
+     * @param  string $recipeCoreConstraint
+     * @return string $cwpCoreConstraint
      * @throws InvalidArgumentException
      */
-    protected function findTargetRecipeCore(string $constraint)
+    protected function findTarget(string $recipeCoreConstraint, string $cwpCoreConstraint): array
     {
-        $package = new Package(SilverstripePackageInfo::RECIPE_CORE);
+        if ($cwpCoreConstraint) {
+            $package = new Package(SilverstripePackageInfo::CWP_RECIPE_CORE);
+            $constraint = $cwpCoreConstraint;
+        } else {
+            $package = new Package(SilverstripePackageInfo::RECIPE_CORE);
+            $constraint = $recipeCoreConstraint;
+        }
+
         $version = $package->getVersion($constraint);
 
         if ($version) {
-            return $version->getId();
+            return [$package->getName() => $version->getId()];
         } else {
             throw new InvalidArgumentException(
-                "Could not find a version of silverstripe/recipe-core matching $constraint"
+                sprintf(
+                    "Could not find a version of `%s` matching %s",
+                    $package->getName(),
+                    $constraint
+                )
             );
         }
     }
@@ -249,26 +271,38 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
     /**
      * Determine if the current project has the required version of recipe core already installed.
      * @param ComposerExec $composer
-     * @param string $targetRecipeCore
+     * @param string[] $targetRecipeCore
      * @return bool
      */
-    protected function recipeCoreTargetIsInstalled(ComposerExec $composer, string $targetRecipeCore): bool
+    protected function targetsInstalled(ComposerExec $composer, array $targets): bool
     {
-        $packages = $composer->show();
-
-        // Loop through all the installed packages and find recipe core
-        foreach ($packages as $package) {
-            if ($package['name'] == 'silverstripe/recipe-core') {
-                // We found recipe core but it's not our targeted version.
-                if ($package['version'] != $targetRecipeCore) {
-                    return false;
-                } else {
-                    // Let's make sure composer.lock is synced with composer.json
-                    return $composer->validate();
-                }
-            }
+        if (!$composer->validate()) {
+            return false;
         }
 
-        return false;
+        $installedPackages = $composer->show();
+
+        // Loop through the targeted package
+        foreach ($targets as $targetedPackage => $targetedVersion) {
+            // Loop through all the installed packages and try finding the targeted package
+            foreach ($installedPackages as $package) {
+                $packageName = $package['name'];
+                if ($packageName == $targetedPackage) {
+                    if ($package['version'] != $targetedVersion) {
+                        // We found the targeted package but the version did not match
+                        return false;
+                    } else {
+                        // We found the targeted package and the version matched ... move to next target
+                        continue 2;
+                    }
+                }
+            }
+
+            // The targeted package wasn't found.
+            return false;
+        }
+
+        // All targeted packages were found
+        return true;
     }
 }
