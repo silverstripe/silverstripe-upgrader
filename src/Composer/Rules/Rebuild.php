@@ -56,19 +56,22 @@ class Rebuild implements DependencyUpgradeRule
     }
 
     /**
-     * @var string
+     * @var string[]
      */
-    private $recipeCoreTarget;
+    private $targets;
 
     /**
      * Instantiate a new Rebuild Upgrade Rule.
-     * @param string       $recipeCoreTarget
+     * @param string[]     $targets Package to targets and what version
+     * @param string[][]   $recipeEquivalences List of packages that should be substituted with other packages
      * @param SymfonyStyle $console
-     * @param string[][]      $recipeEquivalence List of packages that should be substituted with other packages
      */
-    public function __construct(string $recipeCoreTarget, SymfonyStyle $console = null, array $recipeEquivalences = [])
-    {
-        $this->setRecipeCoreTarget($recipeCoreTarget);
+    public function __construct(
+        array $targets = [],
+        array $recipeEquivalences = [],
+        SymfonyStyle $console = null
+    ) {
+        $this->setTargets($targets);
         $this->setRecipeEquivalences($recipeEquivalences);
         $this->console = $console;
     }
@@ -79,7 +82,9 @@ class Rebuild implements DependencyUpgradeRule
      */
     public function getRecipeCoreTarget(): string
     {
-        return $this->recipeCoreTarget;
+        return isset($this->targets[SilverstripePackageInfo::RECIPE_CORE])
+            ? $this->targets[SilverstripePackageInfo::RECIPE_CORE]
+            : '';
     }
 
     /**
@@ -100,7 +105,28 @@ class Rebuild implements DependencyUpgradeRule
             Comparator::lessThan($value, '2.0')) {
             $value = preg_replace('/^1/', '4', $value);
         }
-        $this->recipeCoreTarget = $value;
+        $this->targets[SilverstripePackageInfo::RECIPE_CORE] = $value;
+    }
+
+    /**
+     * Retrieve that list of targeted constraints
+     * @return string[]
+     */
+    public function getTargets(): array
+    {
+        return $this->targets;
+    }
+
+    /**
+     * Set a list of specific target package constraint
+     * @param string[] $targets
+     */
+    public function setTargets(array $targets): void
+    {
+        $this->targets = $targets;
+        if (isset($targets[SilverstripePackageInfo::RECIPE_CORE])) {
+            $this->setRecipeCoreTarget($targets[SilverstripePackageInfo::RECIPE_CORE]);
+        }
     }
 
     /**
@@ -133,7 +159,7 @@ class Rebuild implements DependencyUpgradeRule
         $original = $dependencies;
 
         // Update base framework version
-        $dependencies = $this->switchToRecipeCore($dependencies);
+        $dependencies = $this->switchToRecipes($dependencies);
 
         // Categorise the dependencies
         $groupedDependencies = $this->groupDependenciesByType($dependencies);
@@ -175,20 +201,21 @@ class Rebuild implements DependencyUpgradeRule
     }
 
     /**
-     * Replaces reference to framework or cms with recipe-core and recipe-cms.
+     * Replaces reference to legacy packages with their recipe equivalents.
      * @param  array $dependencies
      * @return array
      */
-    public function switchToRecipeCore(array $dependencies): array
+    public function switchToRecipes(array $dependencies): array
     {
-        // Update base framework version
-        if (isset($dependencies[SilverstripePackageInfo::FRAMEWORK])) {
-            unset($dependencies[SilverstripePackageInfo::FRAMEWORK]);
-        }
-        $dependencies[SilverstripePackageInfo::RECIPE_CORE] = $this->getRecipeCoreTarget();
-        if (isset($dependencies[SilverstripePackageInfo::CMS])) {
-            unset($dependencies[SilverstripePackageInfo::CMS]);
-            $dependencies[SilverstripePackageInfo::RECIPE_CMS] = $this->getRecipeCoreTarget();
+        $equivalences = $this->getRecipeEquivalences();
+
+        $intersections = array_keys(array_intersect_key($dependencies, $equivalences));
+
+        foreach ($intersections as $package) {
+            unset($dependencies[$package]);
+            foreach ($equivalences[$package] as $equivalentRecipe) {
+                $dependencies[$equivalentRecipe] = '*';
+            }
         }
 
         return $dependencies;
@@ -247,19 +274,17 @@ class Rebuild implements DependencyUpgradeRule
         ComposerExec $composer,
         ComposerFile $schemaFile
     ) {
-        // Add dependencies with fix versions
-        foreach (['system', 'framework'] as $group) {
-            foreach ($groupedDependencies[$group] as $package) {
-                $composer->require($package, $dependencies[$package], $schemaFile->getBasePath(), true);
-            }
-
-            unset($groupedDependencies[$group]);
+        $targetedDependencies = $this->getTargets();
+        foreach ($targetedDependencies as $package => $constraint) {
+            $composer->require($package, $constraint, $schemaFile->getBasePath(), true);
         }
 
         // Add other dependencies
         foreach ($groupedDependencies as $group) {
             foreach ($group as $package) {
-                $composer->require($package, '', $schemaFile->getBasePath(), true);
+                if (!array_key_exists($package, $targetedDependencies)) {
+                    $composer->require($package, '', $schemaFile->getBasePath(), true);
+                }
             }
         }
 
@@ -281,6 +306,7 @@ class Rebuild implements DependencyUpgradeRule
         ComposerFile $schemaFile
     ) {
         $installedDependencies = [];
+        $targetedPackages = array_keys($this->getTargets());
 
         // Get a list of what was installed from composer show
         $showedDependencies = $composer->show($schemaFile->getBasePath());
@@ -322,8 +348,8 @@ class Rebuild implements DependencyUpgradeRule
 
         // Start by removing packages
         foreach ($toRemove as $packageName) {
-            // We keep recipe-core in for now to make sure whatever we install follows our framework constraint.
-            if ($packageName != SilverstripePackageInfo::RECIPE_CORE) {
+            // We keep targeted packages in for now to make sure whatever we install respect our targeted constraints
+            if (!in_array($packageName, $targetedPackages)) {
                 $composer->remove($packageName, $schemaFile->getBasePath());
             }
         }
@@ -332,9 +358,10 @@ class Rebuild implements DependencyUpgradeRule
             $composer->require($packageName, '*', $schemaFile->getBasePath(), true);
         }
 
-        if (in_array(SilverstripePackageInfo::RECIPE_CORE, $toRemove)) {
-            // We ditch recipe core if need be.
-            $composer->remove(SilverstripePackageInfo::RECIPE_CORE, $schemaFile->getBasePath());
+        // Remove targeted packages that we didn't remove on the first pass
+        $targetedPackagesToRemove = array_intersect($toRemove, $targetedPackages);
+        foreach ($targetedPackagesToRemove as $packageName) {
+            $composer->remove($packageName, $schemaFile->getBasePath());
         }
 
         // Get new dependency versions from the temp file.
@@ -364,7 +391,10 @@ class Rebuild implements DependencyUpgradeRule
             SilverstripePackageInfo::FRAMEWORK,
             SilverstripePackageInfo::RECIPE_CORE,
             SilverstripePackageInfo::RECIPE_CMS,
-            SilverstripePackageInfo::CMS
+            SilverstripePackageInfo::CMS,
+            SilverstripePackageInfo::CWP_CORE,
+            SilverstripePackageInfo::CWP_RECIPE_CORE,
+            SilverstripePackageInfo::CWP_RECIPE_CMS,
         ]);
     }
 
