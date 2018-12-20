@@ -7,6 +7,8 @@ use SilverStripe\Upgrader\Composer\Rules\Rebuild;
 use SilverStripe\Upgrader\Tests\Composer\InitPackageCacheTrait;
 use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\SilverstripePackageInfo;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\Output;
 
 class RebuildTest extends TestCase
 {
@@ -21,15 +23,22 @@ class RebuildTest extends TestCase
         "silverstripe/sharedraftcontent" => "~1",
         "symbiote/silverstripe-advancedworkflow" => "~4",
         "ext-json" => '*',
-        "cwp/cwp-core" => "~1.8.0",
+        SilverstripePackageInfo::CWP_CORE => "~1.8.0",
         "composer/semver" => "^1.0",
+        "silverstripe/recipe-blog" => "^1.0",
+        "cwp/agency-extensions" => "^1.0",
     ];
 
     private $groupedDependencies = [
         'system' => ['php', 'ext-json'],
-        'framework' => [SilverstripePackageInfo::RECIPE_CORE, SilverstripePackageInfo::RECIPE_CMS],
-        'recipe' => [],
-        'cwp' => ['cwp/cwp-core'],
+        'framework' => [
+            SilverstripePackageInfo::RECIPE_CMS,
+            SilverstripePackageInfo::RECIPE_CORE,
+            SilverstripePackageInfo::CWP_RECIPE_CORE,
+
+        ],
+        'recipe' => ['silverstripe/recipe-blog'],
+        'cwp' => ['cwp/agency-extensions'],
         'supported' => [
             'silverstripe/contentreview',
             'silverstripe/sharedraftcontent',
@@ -38,55 +47,71 @@ class RebuildTest extends TestCase
         'other' => ['composer/semver'],
     ];
 
-    public function testSwitchToRecipeCore()
+    private $recipeEquivalences = [
+        "silverstripe/framework" => ["silverstripe/recipe-core"],
+        "silverstripe/cms" => ["silverstripe/recipe-cms"],
+        "cwp/cwp-recipe-basic" => ["cwp/cwp-recipe-cms"],
+        "cwp/cwp-recipe-blog" => ["cwp/cwp-recipe-cms", "silverstripe/recipe-blog"],
+        "cwp/cwp-core" => ["cwp/cwp-recipe-core"],
+    ];
+
+    public function testSwitchToRecipes()
     {
         $composer = new ComposerExec(__DIR__);
-        $rule = new Rebuild('1.1');
+        $rule = new Rebuild(["silverstripe/recipe-core" => "1.1"], $this->recipeEquivalences);
 
         // Upgrading a 3.6 framwork only project
-        $result = $rule->switchToRecipeCore([
-            SilverstripePackageInfo::FRAMEWORK => '^3.6'
+        $result = $rule->switchToRecipes([
+            SilverstripePackageInfo::FRAMEWORK => '^3.6',
+            'thirdparty/package' => '^0.1'
         ]);
-        $this->assertEquals($result, [SilverstripePackageInfo::RECIPE_CORE => '1.1']);
-
-        // Upgrading a 4.1 framework only project.
-        $result = $rule->switchToRecipeCore([
-            SilverstripePackageInfo::RECIPE_CORE => '1.0'
-        ]);
-        $this->assertEquals($result, [SilverstripePackageInfo::RECIPE_CORE => '1.1']);
+        $this->assertArrayHasKey(SilverstripePackageInfo::RECIPE_CORE, $result);
+        $this->assertArrayHasKey('thirdparty/package', $result);
+        $this->assertArrayNotHasKey(SilverstripePackageInfo::FRAMEWORK, $result);
 
         // Upgrading a 3.6 CMS project
-        $result = $rule->switchToRecipeCore([
+        $result = $rule->switchToRecipes([
             SilverstripePackageInfo::FRAMEWORK => '^3.6',
             SilverstripePackageInfo::CMS => '^3.6',
         ]);
-        $this->assertEquals($result, [
-            SilverstripePackageInfo::RECIPE_CORE => '1.1',
-            SilverstripePackageInfo::RECIPE_CMS => '1.1'
+        $this->assertArrayHasKey(SilverstripePackageInfo::RECIPE_CORE, $result);
+        $this->assertArrayHasKey(SilverstripePackageInfo::RECIPE_CMS, $result);
+        $this->assertArrayNotHasKey(SilverstripePackageInfo::FRAMEWORK, $result);
+        $this->assertArrayNotHasKey(SilverstripePackageInfo::CMS, $result);
+
+        // Upgrading a CWP project
+        $result = $rule->switchToRecipes([
+            'cwp/cwp-recipe-blog' => '^1',
+            'cwp/cwp-core' => '^1',
         ]);
+        $this->assertArrayHasKey('cwp/cwp-recipe-cms', $result);
+        $this->assertArrayHasKey('silverstripe/recipe-blog', $result);
+        $this->assertArrayHasKey('cwp/cwp-recipe-core', $result);
+        $this->assertArrayNotHasKey('cwp/cwp-recipe-blog', $result);
+        $this->assertArrayNotHasKey('cwp/cwp-core', $result);
     }
 
     public function testGroupDependenciesByType()
     {
         $composer = new ComposerExec(__DIR__);
-        $rule = new Rebuild('1.1.0');
+        $rule = new Rebuild(["silverstripe/recipe-core" => "1.1.0"], $this->recipeEquivalences);
 
         // In practice groupDependenciesByType will only be called after switchToRecipeCore
-        $dependencies = $rule->switchToRecipeCore($this->dependencies);
+        $dependencies = $rule->switchToRecipes($this->dependencies);
 
         $result = $rule->groupDependenciesByType($dependencies);
 
-        $this->assertEquals($result, $this->groupedDependencies);
+        $this->assertEquals($this->groupedDependencies, $result);
     }
 
     public function testRebuild()
     {
-        $composer = new ComposerExec(__DIR__);
-        $rule = new Rebuild('1.1.0');
+        $composer = new ComposerExec(__DIR__, "");
+        $rule = new Rebuild(["silverstripe/recipe-core" => "4.2.0"], $this->recipeEquivalences);
         $schema = $composer->initTemporarySchema();
 
         $rule->rebuild(
-            $rule->switchToRecipeCore($this->dependencies),
+            $rule->switchToRecipes($this->dependencies),
             $this->groupedDependencies,
             $composer,
             $schema
@@ -96,16 +121,16 @@ class RebuildTest extends TestCase
 
         // Unfortunately, our ability to unit test here is limited because the exact dependencies we'll
         // get back will vary base on what the latest version on packagist is.
-        $this->assertEquals($require[SilverstripePackageInfo::RECIPE_CORE], '1.1.0');
-        $this->assertEquals($require[SilverstripePackageInfo::RECIPE_CMS], '1.1.0');
+        $this->assertEquals('4.2.0', $require[SilverstripePackageInfo::RECIPE_CORE]);
+        $this->assertEquals('4.2.0', $require[SilverstripePackageInfo::RECIPE_CMS]);
     }
 
     public function testFindRecipeEquivalence()
     {
         $composer = new ComposerExec(__DIR__);
-        $rule = new Rebuild('1.1.0');
+        $rule = new Rebuild([], $this->recipeEquivalences);
         $schema = $composer->initTemporarySchema();
-        $dependencies = $rule->switchToRecipeCore($this->dependencies);
+        $dependencies = $rule->switchToRecipes($this->dependencies);
 
         // Test a package that has recipe-core and recipe-cms explicitly define
         $composer->require(SilverstripePackageInfo::RECIPE_CORE, '^4.2', $schema->getBasePath());
@@ -149,7 +174,7 @@ class RebuildTest extends TestCase
 
     public function testRecipeCoreTarget()
     {
-        $rule = new Rebuild('4.1.1');
+        $rule = new Rebuild(["silverstripe/recipe-core" => "4.1.1"]);
         $this->assertEquals('1.1.1', $rule->getRecipeCoreTarget());
         $rule->setRecipeCoreTarget('4.2.0');
         $this->assertEquals('4.2.0', $rule->getRecipeCoreTarget());
@@ -168,11 +193,28 @@ class RebuildTest extends TestCase
             "cwp/cwp-recipe-blog" => ["cwp/cwp-recipe-cms", "silverstripe/recipe-blog"],
             "cwp/cwp-core" => ["cwp/cwp-recipe-core"],
         ];
-        $rule = new Rebuild('4.1.1');
+        $rule = new Rebuild();
         $rule->setRecipeEquivalences($payload);
         $this->assertEquals(
             $payload,
             $rule->getRecipeEquivalences()
+        );
+    }
+
+    public function testTargets()
+    {
+        $rule = new Rebuild();
+        $rule->setTargets([
+            "silverstripe/recipe-core" => "4.0.0",
+            "dnadesign/silverstripe-elemental" => "3.0.0"
+        ]);
+
+        $this->assertEquals(
+            [
+                "silverstripe/recipe-core" => "1.0.0",
+                "dnadesign/silverstripe-elemental" => "3.0.0",
+            ],
+            $rule->getTargets()
         );
     }
 }
