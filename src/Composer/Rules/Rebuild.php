@@ -94,6 +94,17 @@ class Rebuild implements DependencyUpgradeRule
      */
     public function setRecipeCoreTarget(string $value):void
     {
+        $this->targets[SilverstripePackageInfo::RECIPE_CORE] = $this->normaliseRecipeVrsion($value);
+    }
+
+    /**
+     * recipe-core and recipe-cms switch from being 1.x based to being 4.x based. This converts 4.0 and 4.1 to the 1.x
+     * version and 1.2 and above to the 4.x version.
+     * @param string $value
+     * @return string
+     */
+    private function normaliseRecipeVrsion(string $value): string
+    {
         if (Comparator::greaterThanOrEqualTo($value, '4.0') &&
             Comparator::lessThan($value, '4.2')) {
             // If the value is between 4.0 and 4.2, convert it to the the 1.x equivalent.
@@ -105,7 +116,8 @@ class Rebuild implements DependencyUpgradeRule
             Comparator::lessThan($value, '2.0')) {
             $value = preg_replace('/^1/', '4', $value);
         }
-        $this->targets[SilverstripePackageInfo::RECIPE_CORE] = $value;
+
+        return $value;
     }
 
     /**
@@ -156,10 +168,10 @@ class Rebuild implements DependencyUpgradeRule
     public function upgrade(array $dependencies, ComposerExec $composer): array
     {
         $this->warnings = [];
-        $original = $dependencies;
 
         // Update base framework version
         $dependencies = $this->switchToRecipes($dependencies);
+        $original = $dependencies;
 
         // Categorise the dependencies
         $groupedDependencies = $this->groupDependenciesByType($dependencies);
@@ -184,6 +196,13 @@ class Rebuild implements DependencyUpgradeRule
         }
 
         $this->findRecipeEquivalence($dependencies, $composer, $schemaFile);
+
+        // Remove wild cards constraint and target specific version
+        if ($this->console) {
+            $this->console->newLine();
+            $this->console->note('Set dependency constraint to specific version.');
+        }
+        $this->fixDependencyVersions($composer, $schemaFile);
 
         // Merge dependencies from our work file with the failed ones.
         $dependencies = $schemaFile->getRequire();
@@ -274,6 +293,12 @@ class Rebuild implements DependencyUpgradeRule
         ComposerExec $composer,
         ComposerFile $schemaFile
     ) {
+        // Add system dependencies
+        foreach ($groupedDependencies['system'] as $package) {
+             $composer->require($package, $dependencies[$package], $schemaFile->getBasePath(), true);
+        }
+        unset($groupedDependencies['system']);
+
         $targetedDependencies = $this->getTargets();
         foreach ($targetedDependencies as $package => $constraint) {
             $composer->require($package, $constraint, $schemaFile->getBasePath(), true);
@@ -283,12 +308,49 @@ class Rebuild implements DependencyUpgradeRule
         foreach ($groupedDependencies as $group) {
             foreach ($group as $package) {
                 if (!array_key_exists($package, $targetedDependencies)) {
-                    $composer->require($package, '', $schemaFile->getBasePath(), true);
+                    $composer->require($package, '*', $schemaFile->getBasePath(), true);
                 }
             }
         }
 
         // Get new dependency versions from the temp file.
+        $schemaFile->parse();
+    }
+
+    public function fixDependencyVersions(
+        ComposerExec $composer,
+        ComposerFile $schemaFile
+    ) {
+        $updatedDependencies = $schemaFile->getRequire();
+
+        // Get the installed dependencies list from the lock file
+        $installedPackages = [];
+        $showOutput = $composer->show($schemaFile->getBasePath());
+        foreach ($showOutput as $record) {
+            $installedPackages[$record['name']] = $record['version'];
+        }
+
+        // Loop through
+        foreach ($updatedDependencies as $package => $constraint) {
+            // Only fix the version if it's a non-system package and we're using a wildcard constraint
+            if (!$this->isSystem($package) && $constraint == "*" && isset($installedPackages[$package])) {
+                // Parsed the installed version number
+                $version = $installedPackages[$package];
+                if (preg_match('/^([0-9]+\.[0-9]+)(\.[0-9]+)?/', $version, $matches)) {
+                    $version = $matches[1] . (empty($matches[2]) ? '.0' : $matches[2]);
+                }
+
+                // Re require the package but with an exact version number
+                $composer->require(
+                    $package,
+                    $version,
+                    $schemaFile->getBasePath(),
+                    true
+                );
+            }
+        }
+
+        // Reload the composer file into our schemaFile
         $schemaFile->parse();
     }
 
