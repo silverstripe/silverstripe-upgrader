@@ -217,4 +217,44 @@ class RebuildTest extends TestCase
             $rule->getTargets()
         );
     }
+
+    public function testFixDependencyVersions()
+    {
+        $composer = new ComposerExec(__DIR__);
+        $rule = new Rebuild([], $this->recipeEquivalences);
+        $schema = $composer->initTemporarySchema();
+        $expected = [];
+
+        // Require specific version of packages
+        $composer->require(SilverstripePackageInfo::FRAMEWORK, '*', $schema->getBasePath());
+        $composer->require('dnadesign/silverstripe-elemental', '*', $schema->getBasePath());
+        $show = $composer->show($schema->getBasePath());
+
+        foreach ($show as $installedPackaged) {
+            if (in_array(
+                $installedPackaged['name'],
+                [SilverstripePackageInfo::FRAMEWORK, 'dnadesign/silverstripe-elemental']
+            )) {
+                $expected[$installedPackaged['name']] = '^' . $installedPackaged['version'];
+            }
+        }
+
+
+
+        // Update the composer file to use wildcards instead
+        $json = json_decode($schema->getContents(), true);
+        foreach ($json['require'] as $package => &$constraint) {
+            $constraint = '*';
+        }
+        $schema->setContents(json_encode($json));
+
+        // Fix dependency which should set them back to our explicit numbers
+        $rule->fixDependencyVersions($composer, $schema);
+        $dependencies = $schema->getRequire();
+
+        $this->assertEquals(
+            $expected,
+            $dependencies
+        );
+    }
 }
