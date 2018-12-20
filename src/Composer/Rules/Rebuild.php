@@ -317,10 +317,16 @@ class Rebuild implements DependencyUpgradeRule
         $schemaFile->parse();
     }
 
+    /**
+     * Remove unbound constraint and replace them with specific version constraint.
+     * @param ComposerExec $composer
+     * @param ComposerFile $schemaFile
+     */
     public function fixDependencyVersions(
         ComposerExec $composer,
         ComposerFile $schemaFile
     ) {
+        $schemaFile->parse();
         $updatedDependencies = $schemaFile->getRequire();
 
         // Get the installed dependencies list from the lock file
@@ -337,7 +343,7 @@ class Rebuild implements DependencyUpgradeRule
                 // Parsed the installed version number
                 $version = $installedPackages[$package];
                 if (preg_match('/^([0-9]+\.[0-9]+)(\.[0-9]+)?/', $version, $matches)) {
-                    $version = $matches[1] . (empty($matches[2]) ? '.0' : $matches[2]);
+                    $version = '^' . $matches[1] . (empty($matches[2]) ? '' : $matches[2]);
                 }
 
                 // Re require the package but with an exact version number
