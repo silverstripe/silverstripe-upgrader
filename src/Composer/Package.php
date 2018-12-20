@@ -26,7 +26,7 @@ class Package
         "cwp/cwp-pdfexport",
         "cwp/cwp-recipe-basic",
         "cwp/cwp-recipe-basic-dev",
-        "cwp/cwp-recipe-blog",
+        // "cwp/cwp-recipe-blog", Not supported in SS 4
         "cwp/cwp-search",
         "cwp/starter-theme",
         "cwp/watea-theme",
