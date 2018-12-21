@@ -18,8 +18,12 @@ class ComposerExec implements ComposerInterface
     "name": "silverstripe-upgrader/temp-project",
     "description": "silverstripe-upgrader-temp-project",
     "license": "proprietary",
-    "minimum-stability": "dev",
     "require": {},
+    "conflict": {
+        "silverstripe/recipe-core": ">=4.0,<4.2",
+        "silverstripe/recipe-cms": ">=4.0,<4.2"
+    },
+    "minimum-stability": "dev",
     "prefer-stable": true
 }
 EOF
