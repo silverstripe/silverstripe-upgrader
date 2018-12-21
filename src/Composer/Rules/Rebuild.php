@@ -9,6 +9,7 @@ use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Composer\Semver\Comparator;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Rule to go through the require list and update the constraint to work with a specific version of Framework.
@@ -293,6 +294,8 @@ class Rebuild implements DependencyUpgradeRule
         ComposerExec $composer,
         ComposerFile $schemaFile
     ) {
+        $fs = new Filesystem();
+
         // Add system dependencies
         foreach ($groupedDependencies['system'] as $package) {
              $composer->require($package, $dependencies[$package], $schemaFile->getBasePath(), true);
@@ -302,6 +305,8 @@ class Rebuild implements DependencyUpgradeRule
         $targetedDependencies = $this->getTargets();
         foreach ($targetedDependencies as $package => $constraint) {
             $composer->require($package, $constraint, $schemaFile->getBasePath(), true);
+            $fs->remove($schemaFile->getBasePath() . '/composer.lock');
+            $fs->remove($schemaFile->getBasePath() . '/vendor');
         }
 
         // Add other dependencies
@@ -309,11 +314,14 @@ class Rebuild implements DependencyUpgradeRule
             foreach ($group as $package) {
                 if (!array_key_exists($package, $targetedDependencies)) {
                     $composer->require($package, '*', $schemaFile->getBasePath(), true);
+                    $fs->remove($schemaFile->getBasePath() . '/composer.lock');
+                    $fs->remove($schemaFile->getBasePath() . '/vendor');
                 }
             }
         }
 
         // Get new dependency versions from the temp file.
+        $composer->update($schemaFile->getBasePath());
         $schemaFile->parse();
     }
 
@@ -322,11 +330,11 @@ class Rebuild implements DependencyUpgradeRule
      * @param ComposerExec $composer
      * @param ComposerFile $schemaFile
      */
+
     public function fixDependencyVersions(
         ComposerExec $composer,
         ComposerFile $schemaFile
     ) {
-        $schemaFile->parse();
         $updatedDependencies = $schemaFile->getRequire();
 
         // Get the installed dependencies list from the lock file
@@ -343,7 +351,7 @@ class Rebuild implements DependencyUpgradeRule
                 // Parsed the installed version number
                 $version = $installedPackages[$package];
                 if (preg_match('/^([0-9]+\.[0-9]+)(\.[0-9]+)?/', $version, $matches)) {
-                    $version = '^' . $matches[1] . (empty($matches[2]) ? '' : $matches[2]);
+                    $version = '^' . $matches[1] . (empty($matches[2]) ? '.0' : $matches[2]);
                 }
 
                 // Re require the package but with an exact version number
