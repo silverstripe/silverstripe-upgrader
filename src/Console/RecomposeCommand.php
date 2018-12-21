@@ -118,11 +118,12 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
         $cwpCoreConstraint = $input->getOption('cwp-constraint');
         $strict = $input->getOption('strict');
         $quick = $input->getOption('quick');
+        $verbose = $input->getOption('verbose');
 
         $console = new SymfonyStyle($input, $output);
 
         // Initialise our composer file.
-        $composer = new ComposerExec($rootPath, $composerPath, $output);
+        $composer = new ComposerExec($rootPath, $composerPath, $output, !$verbose);
         $schema = new ComposerFile($composer, $rootPath);
 
 
