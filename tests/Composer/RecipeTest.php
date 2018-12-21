@@ -130,6 +130,8 @@ class RecipeTest extends TestCase
 
         $this->assertTrue(isset($recipes['silverstripe/recipe-core']));
         $this->assertTrue(isset($recipes['silverstripe/recipe-cms']));
+        $this->assertTrue(isset($recipes['cwp/cwp-recipe-core']));
+        $this->assertTrue(isset($recipes['cwp/cwp-recipe-cms']));
         $this->assertFalse(isset($recipes['silverstripe/cms']));
         $this->assertFalse(isset($recipes['silverstripe/framework']));
     }
