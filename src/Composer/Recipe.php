@@ -11,7 +11,7 @@ class Recipe
     /**
      * Get a list of known recipes.
      * @yields Recipe
-     * @return \Generator
+     * @return \Generator|Recipe[]
      */
     public static function getKnownRecipes()
     {
@@ -70,8 +70,8 @@ class Recipe
         $branch[] = $this->package->getName();
         $tree = [];
         foreach ($requires as $require) {
-            if ($require == 'silverstripe/recipe-plugin') {
-                // Ignore recipe-plugin
+            if ($require == 'silverstripe/recipe-plugin' || Package::isSystem($require)) {
+                // Ignore recipe-plugin or system package
                 continue;
             }
 

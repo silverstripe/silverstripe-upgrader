@@ -290,4 +290,16 @@ class Package
 
         return null;
     }
+
+    /**
+     * Determine if this dependency is for a PHP version or a PHP extension
+     * @param  string $packageName
+     * @return boolean
+     */
+    public static function isSystem(string $packageName): bool
+    {
+        return
+            preg_match('/^php$/', $packageName) ||
+            preg_match('/^ext-[a-z0-9]+$/', $packageName);
+    }
 }

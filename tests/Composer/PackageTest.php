@@ -96,4 +96,11 @@ class PackageTest extends TestCase
             $data['packages'][$name]
         );
     }
+
+    public function testIsSystem()
+    {
+        $this->assertTrue(Package::isSystem('php'));
+        $this->assertTrue(Package::isSystem('ext-json'));
+        $this->assertFalse(Package::isSystem('silverstripe/framework'));
+    }
 }
