@@ -95,7 +95,7 @@ class Rebuild implements DependencyUpgradeRule
      */
     public function setRecipeCoreTarget(string $value):void
     {
-        $this->targets[SilverstripePackageInfo::RECIPE_CORE] = $this->normaliseRecipeVrsion($value);
+        $this->targets[SilverstripePackageInfo::RECIPE_CORE] = $this->normaliseRecipeVersion($value);
     }
 
     /**
@@ -104,7 +104,7 @@ class Rebuild implements DependencyUpgradeRule
      * @param string $value
      * @return string
      */
-    private function normaliseRecipeVrsion(string $value): string
+    private function normaliseRecipeVersion(string $value): string
     {
         if (Comparator::greaterThanOrEqualTo($value, '4.0') &&
             Comparator::lessThan($value, '4.2')) {
@@ -261,7 +261,7 @@ class Rebuild implements DependencyUpgradeRule
         ];
 
         foreach ($dependencies as $dep => $version) {
-            if ($this->isSystem($dep)) {
+            if (Package::isSystem($dep)) {
                 $groups['system'][] = $dep;
             } elseif ($this->isFramework($dep)) {
                 $groups['framework'][] = $dep;
@@ -347,7 +347,7 @@ class Rebuild implements DependencyUpgradeRule
         // Loop through
         foreach ($updatedDependencies as $package => $constraint) {
             // Only fix the version if it's a non-system package and we're using a wildcard constraint
-            if (!$this->isSystem($package) && $constraint == "*" && isset($installedPackages[$package])) {
+            if (!Package::isSystem($package) && $constraint == "*" && isset($installedPackages[$package])) {
                 // Parsed the installed version number
                 $version = $installedPackages[$package];
                 if (preg_match('/^([0-9]+\.[0-9]+)(\.[0-9]+)?/', $version, $matches)) {
@@ -381,18 +381,18 @@ class Rebuild implements DependencyUpgradeRule
         ComposerExec $composer,
         ComposerFile $schemaFile
     ) {
-        $installedDependencies = [];
+        $schemaFile->parse();
         $targetedPackages = array_keys($this->getTargets());
 
         // Get a list of what was installed from composer show
-        $showedDependencies = $composer->show($schemaFile->getBasePath());
-        foreach ($showedDependencies as $dep) {
-            $installedDependencies[] = $dep['name'];
-        }
+        $installedDependencies = array_map(
+            function($dep) {return $dep['name'];},
+            $composer->show($schemaFile->getBasePath())
+        );
 
         // Some dependencies might have failed to install properly. Let's make sure everything that was in the
         // original dependencies is in our list of installed even if it failed.
-        $explicitDependencies = array_keys($originalDependencyConstraints);
+        $explicitDependencies = array_keys(array_merge($originalDependencyConstraints, $schemaFile->getRequire()));
         $installedDependencies = array_merge($installedDependencies, $explicitDependencies);
         $installedDependencies = array_unique($installedDependencies);
 
@@ -402,16 +402,18 @@ class Rebuild implements DependencyUpgradeRule
 
         foreach (Recipe::getKnownRecipes() as $recipe) {
             $recipeName = $recipe->getName();
-            
-            $subset = $recipe->subsetOf($installedDependencies);
-            if ($subset) {
+            $subset = $recipe->subsetOf(array_merge($installedDependencies, $toInstall));
+
+            $subset = array_intersect($subset, array_merge($explicitDependencies, $toInstall));
+            if (!empty($subset)) {
+
                 $toInstall[] = $recipeName;
                 $toRemove = array_merge($toRemove, $subset);
 
                 // Show a message to say what recipe is going to be installed and what it will replace.
                 if ($this->console) {
                     $this->console->text(sprintf('Adding `%s` to substitute:', $recipeName));
-                    $this->console->listing(array_intersect($subset, $explicitDependencies));
+                    $this->console->listing($subset);
                 }
             }
         }
@@ -425,7 +427,7 @@ class Rebuild implements DependencyUpgradeRule
         // Start by removing packages
         foreach ($toRemove as $packageName) {
             // We keep targeted packages in for now to make sure whatever we install respect our targeted constraints
-            if (!in_array($packageName, $targetedPackages)) {
+            if (!in_array($packageName, $targetedPackages) && !Package::isSystem($packageName)) {
                 $composer->remove($packageName, $schemaFile->getBasePath());
             }
         }
@@ -442,18 +444,6 @@ class Rebuild implements DependencyUpgradeRule
 
         // Get new dependency versions from the temp file.
         $schemaFile->parse();
-    }
-
-    /**
-     * Determine if this dependency is for a PHP version or a PHP extension
-     * @param  string $packageName
-     * @return boolean
-     */
-    protected function isSystem(string $packageName): bool
-    {
-        return
-            preg_match('/^php$/', $packageName) ||
-            preg_match('/^ext-[a-z0-9]+$/', $packageName);
     }
 
     /**
