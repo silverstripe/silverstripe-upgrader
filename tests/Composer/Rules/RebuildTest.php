@@ -9,6 +9,7 @@ use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\SilverstripePackageInfo;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class RebuildTest extends TestCase
 {
@@ -110,6 +111,9 @@ class RebuildTest extends TestCase
         $rule = new Rebuild(["silverstripe/recipe-core" => "4.2.0"], $this->recipeEquivalences);
         $schema = $composer->initTemporarySchema();
 
+        $groupedDependencies = $this->groupedDependencies;
+        $groupedDependencies['other'][] = 'acme/non-sensical';
+
         $rule->rebuild(
             $rule->switchToRecipes($this->dependencies),
             $this->groupedDependencies,
@@ -119,10 +123,15 @@ class RebuildTest extends TestCase
 
         $require = $schema->getRequire();
 
-        // Unfortunately, our ability to unit test here is limited because the exact dependencies we'll
-        // get back will vary base on what the latest version on packagist is.
+        // Recipe core is fixed, so we'll always get an exact version
         $this->assertEquals('4.2.0', $require[SilverstripePackageInfo::RECIPE_CORE]);
-        $this->assertEquals('4.2.0', $require[SilverstripePackageInfo::RECIPE_CMS]);
+        // The other dependency will use wildcard
+        $this->assertEquals('*', $require[SilverstripePackageInfo::RECIPE_CMS]);
+        $this->assertEquals('*', $require['cwp/agency-extensions']);
+        $this->assertEquals('*', $require['silverstripe/contentreview']);
+
+        // This last package does not exists, so it should not be in our rebuilt list
+        $this->assertArrayNotHasKey('acme/non-sensical', $require);
     }
 
     public function testFindRecipeEquivalence()
@@ -170,6 +179,31 @@ class RebuildTest extends TestCase
         $this->assertArrayNotHasKey(SilverstripePackageInfo::FRAMEWORK, $require);
         $this->assertArrayNotHasKey(SilverstripePackageInfo::CMS, $require);
         $this->assertArrayNotHasKey('silverstripe/contentreview', $require);
+    }
+
+    public function testFindRecipeEquivalenceWithCWP()
+    {
+        $composer = new ComposerExec(__DIR__);
+        $rule = new Rebuild([], $this->recipeEquivalences);
+        $schema = $composer->initTemporarySchema();
+        $dependencies = [
+            'php' => '*',
+            'cwp/cwp-recipe-core' => '2.1.1',
+            'cwp/cwp-recipe-cms' => '2.1.1',
+            'silverstripe/recipe-blog' => '1.1.1',
+            'cwp/starter-theme' => '*'
+        ];
+
+        $rule->rebuild($dependencies, $rule->groupDependenciesByType($dependencies), $composer, $schema);
+
+        $rule->findRecipeEquivalence($dependencies, $composer, $schema);
+
+        $require = $schema->getRequire();
+
+        // recipe-cms and recipe-core and all should have been substituted with recipe-collaboration
+        $this->assertArrayHasKey('cwp/cwp-recipe-cms', $require);
+        $this->assertArrayHasKey('silverstripe/recipe-blog', $require);
+        $this->assertArrayNotHasKey('cwp/cwp-recipe-core', $require);
     }
 
     public function testRecipeCoreTarget()
@@ -239,14 +273,13 @@ class RebuildTest extends TestCase
             }
         }
 
-
-
         // Update the composer file to use wildcards instead
         $json = json_decode($schema->getContents(), true);
         foreach ($json['require'] as $package => &$constraint) {
             $constraint = '*';
         }
         $schema->setContents(json_encode($json));
+        $schema->parse();
 
         // Fix dependency which should set them back to our explicit numbers
         $rule->fixDependencyVersions($composer, $schema);
