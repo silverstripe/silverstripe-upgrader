@@ -386,7 +386,9 @@ class Rebuild implements DependencyUpgradeRule
 
         // Get a list of what was installed from composer show
         $installedDependencies = array_map(
-            function($dep) {return $dep['name'];},
+            function ($dep) {
+                return $dep['name'];
+            },
             $composer->show($schemaFile->getBasePath())
         );
 
@@ -406,7 +408,6 @@ class Rebuild implements DependencyUpgradeRule
 
             $subset = array_intersect($subset, array_merge($explicitDependencies, $toInstall));
             if (!empty($subset)) {
-
                 $toInstall[] = $recipeName;
                 $toRemove = array_merge($toRemove, $subset);
 
