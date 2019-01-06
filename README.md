@@ -68,7 +68,7 @@ upgrade-code all \
 Example:
 
 ```bash
-upgrade-code all-in-one
+upgrade-code all
 ```
 
 * Unless your site is very simple, it's highly unlikely this command will be successful the first time you run it. It's 
@@ -86,7 +86,7 @@ performed beforehand.
   * webroot
 * the `--skip` flags allows to skip optional steps.
 * `--namespace` and `--psr4` are relayed to the `add-namespace` command.
-* `--strict` and `--recipe-core-constraint` are relayed to the `recompose` command.
+* `--strict`, `cwp-constraint` and `--recipe-core-constraint` are relayed to the `recompose` command.
 
 ### `add-namespace`
 
@@ -119,7 +119,7 @@ that referenced the un-namespaced versions of these classes.
 You can use this command to upgrade your `composer.json` dependencies from SilverStripe 3 to Silverstripe 4.
 
 ```bash
-upgrade-code recompose [--root-dir=<dir>] [--write] [--strict]  [-vvv] [--recipe-core-constraint=*] [--composer-path=composer]
+upgrade-code recompose [--root-dir=<dir>] [--write] [--strict] [-vvv] [--recipe-core-constraint=*] [--cwp-constraint] [--composer-path=composer]
 ```
 
 Example:
@@ -132,6 +132,7 @@ upgrade-code recompose --root-dir=/var/www/SS_project --write --recipe-core-cons
 manually.
 * You can specify which version of SilverStripe you want to upgrade to via the `--recipe-core-constraint` option.
   If left blank, you'll be upgraded to the latest stable version.
+* If you are upgrading a CWP project use `--cwp-constraint` instead of `--recipe-core-constraint`. `--cwp-constraint` allows you to target a specific version of `cwp/cwp-core`.
 * This script relies on composer to fetch the latest dependencies. If `composer` is in your path and is called
 `composer` or `composer.phar`, you don't need to do anything. Otherwise you'll have to specify the `--composer-path`
 option.
