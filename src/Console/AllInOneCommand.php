@@ -31,8 +31,16 @@ class AllInOneCommand extends AbstractCommand
                     'recipe-core-constraint',
                     'R',
                     InputOption::VALUE_OPTIONAL,
-                    'Version of `silverstripe/recipe-core` you are targeting. Defaults to the last stable.',
+                    'Version of `silverstripe/recipe-core` you are targeting. Defaults to the last stable',
                     '*'
+                ),
+                new InputOption(
+                    'cwp-constraint',
+                    null,
+                    InputOption::VALUE_OPTIONAL,
+                    'Version of `cwp/cwp-recipe-core` you are targeting. If left blank, ' .
+                    '`cwp-recipe-core` will not be constrained. Overrides `recipe-core-constraint`.',
+                    ''
                 ),
                 new InputOption(
                     'composer-path',
@@ -85,6 +93,7 @@ class AllInOneCommand extends AbstractCommand
         $rootPath = $this->getRootPath($input);
         $composerPath = $input->getOption('composer-path');
         $recipeCoreConstraint = $input->getOption('recipe-core-constraint');
+        $cwpConstraint = $input->getOption('cwp-constraint');
         $strict = $input->getOption('strict');
 
         $skipAddNamespace = $input->getOption('skip-add-namespace');
@@ -122,6 +131,7 @@ class AllInOneCommand extends AbstractCommand
             [
                 '--composer-path' => $composerPath,
                 '--recipe-core-constraint' => $recipeCoreConstraint,
+                '--cwp-constraint' => $cwpConstraint,
                 '--strict' => $strict,
                 '--root-dir' => $rootPath,
                 'namespace' => $namespace,
