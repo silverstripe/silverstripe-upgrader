@@ -96,6 +96,7 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
                 '--root-dir',
                 '--strict',
                 '--recipe-core-constraint',
+                '--cwp-constraint',
                 '--composer-path'
             ])
         );
@@ -116,6 +117,7 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
         $composerPath = $input->getOption('composer-path');
         $recipeCoreConstraint = $input->getOption('recipe-core-constraint');
         $cwpCoreConstraint = $input->getOption('cwp-constraint');
+
         $strict = $input->getOption('strict');
         $quick = $input->getOption('quick');
         $verbose = $input->getOption('verbose');

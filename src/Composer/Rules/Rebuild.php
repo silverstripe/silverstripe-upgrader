@@ -63,8 +63,8 @@ class Rebuild implements DependencyUpgradeRule
 
     /**
      * Instantiate a new Rebuild Upgrade Rule.
-     * @param string[]     $targets Package to targets and what version
-     * @param string[][]   $recipeEquivalences List of packages that should be substituted with other packages
+     * @param string[]     $targets Package to targets and what version.
+     * @param string[][]   $recipeEquivalences List of packages that should be substituted with other packages.
      * @param SymfonyStyle $console
      */
     public function __construct(
@@ -133,6 +133,7 @@ class Rebuild implements DependencyUpgradeRule
     /**
      * Set a list of specific target package constraint
      * @param string[] $targets
+     * @return void
      */
     public function setTargets(array $targets): void
     {
@@ -154,6 +155,7 @@ class Rebuild implements DependencyUpgradeRule
     /**
      * Set list of packages that should be substituted  by other recipes.
      * @param string[][] $recipeEquivalences
+     * @return void
      */
     public function setRecipeEquivalences(array $recipeEquivalences): void
     {
@@ -329,12 +331,12 @@ class Rebuild implements DependencyUpgradeRule
      * Remove unbound constraint and replace them with specific version constraint.
      * @param ComposerExec $composer
      * @param ComposerFile $schemaFile
+     * @return void
      */
-
     public function fixDependencyVersions(
         ComposerExec $composer,
         ComposerFile $schemaFile
-    ) {
+    ): void {
         $updatedDependencies = $schemaFile->getRequire();
 
         // Get the installed dependencies list from the lock file
