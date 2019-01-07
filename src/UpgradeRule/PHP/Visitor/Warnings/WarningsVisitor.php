@@ -3,9 +3,9 @@
 namespace SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr;
 use PhpParser\NodeVisitor;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\NodeMatchable;
 use SilverStripe\Upgrader\Util\ApiChangeWarningSpec;
 use SilverStripe\Upgrader\Util\ContainsWarnings;
 use SilverStripe\Upgrader\Util\MutableSource;
@@ -18,6 +18,8 @@ use SilverStripe\Upgrader\Util\Warning;
  */
 abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
 {
+    use NodeMatchable;
+
     /**
      * @var ApiChangeWarningSpec[]
      */
@@ -97,88 +99,6 @@ abstract class WarningsVisitor implements NodeVisitor, ContainsWarnings
             $node->getLine(),
             $spec->getFullMessage()
         );
-    }
-
-    /**
-     * Check if a node matches the class and symbol
-     *
-     * @param Node $node
-     * @param string $class FQCN
-     * @param string $symbol
-     * @return bool
-     */
-    protected function nodeMatchesClassSymbol(Node $node, $class, $symbol)
-    {
-        return $this->nodeMatchesSymbol($node, $symbol)
-            && $this->nodeMatchesClass($node, $class);
-    }
-
-    /**
-     * Check if a node matches a name
-     *
-     * @param Node $node
-     * @param string $name
-     * @return bool
-     */
-    protected function nodeMatchesSymbol(Node $node, $name)
-    {
-        // No symbol available
-        if (!isset($node->name)) {
-            return false;
-        }
-        // Don't resolve expressions e.g. $obj->{"get".$name}
-        if ($node->name instanceof Expr) {
-            return false;
-        }
-        return strcasecmp((string)$node->name, $name) === 0;
-    }
-
-    /**
-     * Check if the type of the given node matches the given class name
-     *
-     * @param Node $node
-     * @param string $class
-     * @return bool
-     */
-    protected function nodeMatchesClass(Node $node, $class)
-    {
-        // Validate all classes
-        $classCandidates = $node->getAttribute('contextTypes'); // Classes this node could be
-        if (empty($classCandidates)) {
-            return false;
-        }
-
-        // Check if any possible contexts are of the class type
-        foreach ($classCandidates as $classCandidate) {
-            if ($this->matchesClass($classCandidate, $class)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if the given class matches the spec class
-     *
-     * @param string $candidate Class to test
-     * @param string $class Class to test against
-     * @return bool
-     */
-    protected function matchesClass($candidate, $class)
-    {
-        if (empty($candidate) || empty($class)) {
-            false;
-        }
-        // equality will bypass classloading
-        if (strcasecmp($class, $candidate) === 0) {
-            return true;
-        }
-        // Check if subclass
-        if (class_exists($class) && class_exists($candidate) && is_a($candidate, $class, true)) {
-            return true;
-        }
-        return false;
     }
 
     /**

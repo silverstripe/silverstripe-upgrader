@@ -8,6 +8,7 @@ use SilverStripe\Upgrader\ChangeDisplayer;
 use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\Upgrader;
 use SilverStripe\Upgrader\UpgradeRule\PHP\ApiChangeWarningsRule;
+use SilverStripe\Upgrader\UpgradeRule\PHP\UpdateVisibilityRule;
 use SilverStripe\Upgrader\UpgradeSpec;
 use SilverStripe\Upgrader\Util\PHPStanState;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,7 +27,8 @@ class InspectCommand extends UpgradeCommand implements AutomatedCommand
             ->setDefinition([
                 $this->getPathInputArgument(),
                 $this->getRootInputOption(),
-                $this->getWriteInputOption()
+                $this->getWriteInputOption(),
+                $this->getSkipVisibilityInputOption()
             ]);
     }
 
@@ -44,6 +46,7 @@ class InspectCommand extends UpgradeCommand implements AutomatedCommand
             array_flip([
                 '--write',
                 '--root-dir',
+                '--skip-visibility',
                 'path',
             ])
         );
@@ -63,6 +66,11 @@ class InspectCommand extends UpgradeCommand implements AutomatedCommand
         $spec = new UpgradeSpec();
         $config = $this->getConfig($input);
         $spec->addRule((new ApiChangeWarningsRule($container))->withParameters($config));
+
+        $options = $input->getOptions();
+        if ((!isset($options['skip-visibility']) || !$options['skip-visibility'])) {
+            $spec->addRule((new UpdateVisibilityRule($container))->withParameters($config));
+        }
 
         // Create upgrader with this spec
         $upgrader = new Upgrader($spec);
@@ -110,5 +118,18 @@ class InspectCommand extends UpgradeCommand implements AutomatedCommand
         $collectionLoader = new CollectionAutoloader();
         $collectionLoader->addCollection($codeBase);
         $collectionLoader->register();
+    }
+
+    /**
+     * @return InputOption
+     */
+    private function getSkipVisibilityInputOption(): InputOption
+    {
+        return new InputOption(
+            'skip-visibility',
+            null,
+            InputOption::VALUE_NONE,
+            'Skips updating property visibilities'
+        );
     }
 }
