@@ -100,8 +100,20 @@ abstract class BaseVisitorTest extends TestCase
      */
     protected function traverseWithVisitor(MutableSource $source, ItemInterface $item, NodeVisitor $visitor)
     {
+        $this->traverseWithVisitors($source, $item, [$visitor]);
+    }
+
+    /**
+     * Mock traversing an item with multiple visitors
+     *
+     * @param MutableSource $source
+     * @param ItemInterface $item
+     * @param array $visitor
+     */
+    protected function traverseWithVisitors(MutableSource $source, ItemInterface $item, array $visitors)
+    {
         // Build dummy rule
         $rule = new ApiChangeWarningsRule($this->state->getContainer());
-        $rule->mutateSourceWithVisitors($source, $item, [$visitor]);
+        $rule->mutateSourceWithVisitors($source, $item, $visitors);
     }
 }

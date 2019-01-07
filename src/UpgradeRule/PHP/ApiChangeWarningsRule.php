@@ -10,6 +10,7 @@ use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PHPStanScopeVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\SymbolContextVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\VisibilityVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\ClassWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\ConstantWarningsVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\Warnings\FunctionWarningsVisitor;
@@ -30,6 +31,10 @@ class ApiChangeWarningsRule extends PHPUpgradeRule
      */
     protected $container;
 
+    /**
+     * ApiChangeWarningsRule constructor.
+     * @param Container $container
+     */
     public function __construct(Container $container)
     {
         $this->container = $container;
