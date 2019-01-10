@@ -53,9 +53,15 @@ class VisibilityVisitor implements NodeVisitor
     protected static function changeVisibility($node, $visibility = Class_::MODIFIER_PRIVATE)
     {
         // remove other flags
-        if ($visibility != Class_::MODIFIER_PRIVATE) $node->flags = $node->flags & (~ Class_::MODIFIER_PRIVATE);
-        if ($visibility != Class_::MODIFIER_PROTECTED) $node->flags = $node->flags & (~ Class_::MODIFIER_PROTECTED);
-        if ($visibility != Class_::MODIFIER_PUBLIC) $node->flags = $node->flags & (~ Class_::MODIFIER_PUBLIC);
+        if ($visibility != Class_::MODIFIER_PRIVATE) {
+            $node->flags = $node->flags & (~ Class_::MODIFIER_PRIVATE);
+        }
+        if ($visibility != Class_::MODIFIER_PROTECTED) {
+            $node->flags = $node->flags & (~ Class_::MODIFIER_PROTECTED);
+        }
+        if ($visibility != Class_::MODIFIER_PUBLIC) {
+            $node->flags = $node->flags & (~ Class_::MODIFIER_PUBLIC);
+        }
 
         // add our flag
         $node->flags |= $visibility;
@@ -69,11 +75,15 @@ class VisibilityVisitor implements NodeVisitor
      */
     private static function visibilityToBitMask(string $visibility)
     {
-        switch($visibility) {
-            case 'private': return Class_::MODIFIER_PRIVATE;
-            case 'protected': return Class_::MODIFIER_PROTECTED;
-            case 'public': return Class_::MODIFIER_PUBLIC;
-            default: return null;
+        switch ($visibility) {
+            case 'private':
+                return Class_::MODIFIER_PRIVATE;
+            case 'protected':
+                return Class_::MODIFIER_PROTECTED;
+            case 'public':
+                return Class_::MODIFIER_PUBLIC;
+            default:
+                return null;
         }
     }
 
@@ -108,9 +118,11 @@ class VisibilityVisitor implements NodeVisitor
     public function enterNode(Node $node)
     {
         // the node must be a property or a function
-        if (!($node instanceof Property || $node instanceof ClassMethod)) return;
+        if (!($node instanceof Property || $node instanceof ClassMethod)) {
+            return;
+        }
 
-        foreach($this->visibilities as $symbol => $visibility) {
+        foreach ($this->visibilities as $symbol => $visibility) {
             $visibilityBitMask = static::visibilityToBitMask($visibility['visibility']);
 
             // if the node matches the symbol and does not have the expected visibility
