@@ -44,8 +44,7 @@ trait NodeMatchable
         if ($node instanceof Property) {
             preg_match('/\$([^=\s]+)/', $string, $matches);
             return $matches[1];
-        }
-        elseif ($node instanceof ClassMethod) {
+        } elseif ($node instanceof ClassMethod) {
             preg_match('/function\s+([^\(\s]+)/', $string, $matches);
             return $matches[1];
         }
@@ -63,8 +62,7 @@ trait NodeMatchable
     {
         if (!isset($node->name)) {
             $nodeName = $this->getNodeName($node);
-        }
-        else {
+        } else {
             $nodeName = $node->name;
 
             // Don't resolve expressions e.g. $obj->{"get".$name}
@@ -154,7 +152,8 @@ trait NodeMatchable
      */
     protected function matchesInstanceClassProperty(Node $node, $class, $property)
     {
-        return ($node instanceof PropertyFetch || $node instanceof PropertyProperty || $node instanceof Property || $node instanceof ClassMethod)
+        return ($node instanceof PropertyFetch || $node instanceof PropertyProperty
+                || $node instanceof Property || $node instanceof ClassMethod)
             && $this->nodeMatchesClassSymbol($node, $class, $property);
     }
 
