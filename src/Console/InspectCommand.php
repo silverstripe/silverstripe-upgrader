@@ -68,7 +68,7 @@ class InspectCommand extends UpgradeCommand implements AutomatedCommand
         $spec->addRule((new ApiChangeWarningsRule($container))->withParameters($config));
 
         $options = $input->getOptions();
-        if ((!isset($options['skip-visibility']) || !$options['skip-visibility'])) {
+        if ((!isset($options['skip-visibility']) || !$options['skip-visibility']) && isset($config['visibilities'])) {
             $spec->addRule((new UpdateVisibilityRule($container))->withParameters($config));
         }
 
