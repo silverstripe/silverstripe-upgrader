@@ -177,7 +177,9 @@ class SymbolContextVisitor implements NodeVisitor
         }
 
         // Resolve `protected $prop`
-        if ($node instanceof Node\Stmt\PropertyProperty) {
+        if ($node instanceof Node\Stmt\PropertyProperty ||
+            $node instanceof Node\Stmt\Property
+        ) {
             return [ $scope->getClassReflection()->getName() ];
         }
 

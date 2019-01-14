@@ -3,8 +3,12 @@
 namespace SilverStripe\Upgrader\UpgradeRule\PHP;
 
 use Nette\DI\Container;
+use PhpParser\NodeVisitor\NameResolver;
+use PHPStan\Rules\RuleLevelHelper;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PHPStanScopeVisitor;
+use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\SymbolContextVisitor;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\VisibilityVisitor;
 use SilverStripe\Upgrader\Util\MutableSource;
 
@@ -41,7 +45,11 @@ class UpdateVisibilityRule extends PHPUpgradeRule
         }
         $source = new MutableSource($contents);
 
+        $ruleLevelHelper = $this->container->getByType(RuleLevelHelper::class);
         $tree = $source->getAst();
+        $this->transformWithVisitors($tree, [new NameResolver()]);
+        $this->transformWithVisitors($tree, [new PHPStanScopeVisitor($this->container, $file)]);
+        $this->transformWithVisitors($tree, [new SymbolContextVisitor($ruleLevelHelper)]);
         $this->transformWithVisitors($tree, [
             new VisibilityVisitor($source, $this->parameters['visibilities'])
         ]);
