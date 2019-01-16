@@ -274,7 +274,7 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
     /**
      * Determine if the current project has the required version of recipe core already installed.
      * @param ComposerExec $composer
-     * @param string[] $targetRecipeCore
+     * @param string[] $targets
      * @return bool
      */
     protected function targetsInstalled(ComposerExec $composer, array $targets): bool

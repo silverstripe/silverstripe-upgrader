@@ -5,7 +5,7 @@ use InvalidArgumentException;
 use SilverStripe\Upgrader\Util\ConfigFile;
 
 /**
- * Trait to encapsualte basic logic for retrieving upgrading config.
+ * Trait to encapsulate basic logic for retrieving upgrading config.
  */
 trait ConfigurableCommandTrait
 {
