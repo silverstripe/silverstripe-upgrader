@@ -10,6 +10,8 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Stmt;
 use PhpParser\NodeVisitorAbstract;
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\Util\MutableSource;
 
 /**
@@ -39,11 +41,56 @@ class RenameClassesVisitor extends NodeVisitorAbstract
      */
     protected $skipConfigs;
 
-    public function __construct(MutableSource $source, $map, $skipConfigs = [])
-    {
+    /**
+     * Renames that show explicit warnings as they may be invalid
+     *
+     * @var array
+     */
+    protected $renameWarnings;
+
+    /**
+     * Whether to show a prompt before making ambiguous class replacements or not
+     *
+     * @var bool
+     */
+    protected $showPrompt;
+
+    /**
+     * @var CodeChangeSet
+     */
+    protected $changeSet;
+
+    /**
+     * @var ItemInterface
+     */
+    protected $file;
+
+    /**
+     * RenameClassesVisitor constructor.
+     * @param MutableSource $source
+     * @param $map
+     * @param array $skipConfigs
+     * @param array $renameWarnings
+     * @param bool $showPrompt
+     * @param CodeChangeSet $changeSet
+     * @param ItemInterface $file
+     */
+    public function __construct(
+        MutableSource $source,
+        $map,
+        $skipConfigs = [],
+        $renameWarnings = [],
+        $showPrompt = false,
+        CodeChangeSet $changeSet = null,
+        ItemInterface $file = null
+    ) {
         $this->source = $source;
         $this->map = $map;
         $this->skipConfigs = $skipConfigs;
+        $this->renameWarnings = array_flip($renameWarnings);
+        $this->showPrompt = $showPrompt;
+        $this->changeSet = $changeSet;
+        $this->file = $file;
 
         foreach ($this->map as $k => $v) {
             $slashPos = strrpos($this->map[$k], '\\');
@@ -71,10 +118,37 @@ class RenameClassesVisitor extends NodeVisitorAbstract
                 return;
             }
 
-            // Substitute MyClass::class literal in place of string
             $baseName = $this->logUseStatement($replacement);
-            $replacementNode = new Expr\ClassConstFetch(new Name([ $baseName ]), 'class');
-            $this->source->replaceNode($stringNode, $replacementNode);
+
+            // Show warning if this replacement may be invalid
+            $replace = true;
+            if (isset($this->renameWarnings[$baseName]) && $this->showPrompt) {
+                $replace = null;
+                do {
+                    $input = strtolower(trim(readline('Do you want to rename '
+                        . $baseName . " to " . $replacement
+                        . " at {$this->file->getPath()}:{$stringNode->getLine()}? (Y/n)")));
+                    if ($input == 'y') {
+                        $replace = true;
+                    } elseif ($input == 'n') {
+                        $replace = false;
+                    }
+                } while(is_null($replace));
+            }
+
+            // Substitute MyClass::class literal in place of string
+            if ($replace) {
+                $replacementNode = new Expr\ClassConstFetch(new Name([ $baseName ]), 'class');
+                $this->source->replaceNode($stringNode, $replacementNode);
+
+                if (isset($this->renameWarnings[$baseName])) {
+                    $this->changeSet->addWarning(
+                        $this->file->getPath(),
+                        $stringNode->getLine(),
+                        "Renaming " . $baseName . " to " . $replacement . "\n"
+                    );
+                }
+            }
         }
     }
 
@@ -120,9 +194,15 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         }
 
         if (!$classNode instanceof Node\Name) {
-            echo get_class($classNode) . "\n";
-            echo " - WARNING: New class instantied by a dynamic value on line "
+            $msg = get_class($classNode) . "\n"
+                . " - WARNING: New class instantiated by a dynamic value on line "
                 . $classNode->getAttribute('startLine') . "\n";
+
+            $this->changeSet->addWarning(
+                $this->file->getPath(),
+                $classNode->getLine(),
+                $msg
+            );
             return;
         }
 

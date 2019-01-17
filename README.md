@@ -205,7 +205,7 @@ You can run this command (with a necessary refresh of composer autoload files) w
 
 ```bash
 composer dump-autoload
-upgrade-code inspect <path> [--root-dir=<root>] [--write] [-vvv] [--skip-visibility]
+upgrade-code inspect <path> [--root-dir=<root>] [--write] [-vvv] [--skip-visibility] [---prompt]
 ```
 
 This will load all classes into memory and infer the types of all objects used in each file. It will
@@ -216,6 +216,20 @@ use these inferred types to automatically update method usages.
 The command updates properties and functions to use the correct visibility of its parent if possible.
 
 Add the `--skip-visibility` option to ignore this.
+
+#### Class renaming
+
+You can specify what class renames should be considered ambiguous, example:
+
+```yaml
+renameWarnings:
+  - File
+  - Image
+```
+
+The above config will show warnings when renaming the `File` and `Image` occurrences to their respectful class mappings.
+
+Add the `--prompt` option to manually approve ambiguous class renames.
 
 ### `reorganise`
 

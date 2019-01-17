@@ -37,6 +37,12 @@ class UpgradeCommand extends AbstractCommand implements AutomatedCommand
                     . "<comment> [allowed: [\"code\",\"config\",\"lang\"]]</comment>\n",
                     ['code', 'config']
                 ),
+                new InputOption(
+                    'prompt',
+                    'p',
+                    InputOption::VALUE_NONE,
+                    "Show a prompt before making ambiguous class replacements."
+                ),
                 $this->getRootInputOption(),
                 $this->getWriteInputOption()
             ]);
@@ -116,7 +122,7 @@ class UpgradeCommand extends AbstractCommand implements AutomatedCommand
         // Build rules for this set of upgrades
         $ruleObjects = [];
         if (in_array('code', $rules)) {
-            $ruleObjects[] = new RenameClasses();
+            $ruleObjects[] = new RenameClasses($input->getOption('prompt'));
         }
         if (in_array('config', $rules)) {
             $ruleObjects[] = new UpdateConfigClasses();

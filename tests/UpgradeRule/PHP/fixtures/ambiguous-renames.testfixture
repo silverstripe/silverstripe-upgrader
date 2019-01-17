@@ -1,0 +1,88 @@
+{
+    "mappings": {
+        "ExampleField": "SilverStripe\\Fields\\ExampleField",
+        "ExampleInterface": "SilverStripe\\Fields\\RenamedInterface",
+        "MySpace\\SpaceClass": "SpaceClass",
+        "ExampleNamespace\\NextExampleField": "SilverStripe\\Fields\\NextExampleField",
+        "MySpace\\ExampleField3": "SilverStripe\\Fields\\RenamedExampleField3",
+        "MySpace\\A": "MySpace\\Aye",
+        "MySpace\\B": "MySpace\\Bee",
+        "MySpace\\Traitor": "TraitSpace\\Traitee",
+        "Exception": "MySpace\\NewException",
+        "File": "SilverStripe\\Assets\\File",
+        "Image": "SilverStripe\\Assets\\Image"
+    },
+    "renameWarnings": [
+        "File",
+        "Image"
+    ]
+}
+------
+<?php
+
+use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\ORM\DataObject;
+
+class Food extends DataObject
+{
+    private static $db = [
+        'Name' => 'Varchar',
+    ];
+
+    private static $has_one = [
+        'File' => 'File',
+    ];
+
+    function getCMSFields() {
+
+        $fields = parent::getCMSFields();
+
+        $uploadField = new UploadField(
+            'Image',
+            'Image'
+        );
+
+        $fields->addFieldToTab(
+            'Root.Main',
+            $uploadField
+        );
+
+        return $fields;
+    }
+}
+------
+<?php
+
+use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Assets\File;
+use SilverStripe\Assets\Image;
+
+
+class Food extends DataObject
+{
+    private static $db = [
+        'Name' => 'Varchar',
+    ];
+
+    private static $has_one = [
+        'File' => File::class,
+    ];
+
+    function getCMSFields() {
+
+        $fields = parent::getCMSFields();
+
+        $uploadField = new UploadField(
+            Image::class,
+            Image::class
+        );
+
+        $fields->addFieldToTab(
+            'Root.Main',
+            $uploadField
+        );
+
+        return $fields;
+    }
+}
