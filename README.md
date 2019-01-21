@@ -205,7 +205,7 @@ You can run this command (with a necessary refresh of composer autoload files) w
 
 ```bash
 composer dump-autoload
-upgrade-code inspect <path> [--root-dir=<root>] [--write] [-vvv] [--skip-visibility] [---prompt]
+upgrade-code inspect <path> [--root-dir=<root>] [--write] [-vvv] [--skip-visibility]
 ```
 
 This will load all classes into memory and infer the types of all objects used in each file. It will
@@ -216,20 +216,6 @@ use these inferred types to automatically update method usages.
 The command updates properties and functions to use the correct visibility of its parent if possible.
 
 Add the `--skip-visibility` option to ignore this.
-
-#### Class renaming
-
-You can specify what class renames should be considered ambiguous, example:
-
-```yaml
-renameWarnings:
-  - File
-  - Image
-```
-
-The above config will show warnings when renaming the `File` and `Image` occurrences to their respectful class mappings.
-
-Add the `--prompt` option to manually approve ambiguous class renames.
 
 ### `reorganise`
 
@@ -251,7 +237,7 @@ Example:
 Once you have finished [namespacing your code](#add-namespace), you can run the below code to rename all references.
 
 ```bash
-upgrade-code upgrade <path> [--root-dir=<root>] [--write] [--rule] [-vvv]
+upgrade-code upgrade <path> [--root-dir=<root>] [--write] [--rule] [-vvv] [---prompt]
 ```
 
 Example
@@ -319,6 +305,29 @@ upgrade-code upgrade <path> --rule=lang
 
 Since this upgrade is normally only done on projects that provide their own strings,
 this rule is not included by default when running a normal upgrade.
+
+#### Class renaming
+
+Class mappings can be used to convert string literal references to namespaced classes. Sometimes it is unclear whether a string literal is referring to the mapped class or not. This is where `renameWarnings` are handy.
+
+An example of an ambiguous rename would be:
+```PHP
+private static $has_one = [
+    'Image' => 'Image',
+];
+```
+
+You can specify what class renames should be considered ambiguous with yaml:
+
+```yaml
+renameWarnings:
+  - File
+  - Image
+```
+
+The above config will show warnings when renaming the `File` and `Image` occurrences to their respectful class mappings.
+
+Add the `--prompt` option to manually approve ambiguous class renames.
 
 ## .upgrade.yml spec
 

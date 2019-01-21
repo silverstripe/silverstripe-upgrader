@@ -13,6 +13,10 @@ use PhpParser\NodeVisitorAbstract;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\Util\MutableSource;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * PHP-Parser Visitor to handle class renaming upgrade handler for a renamed class
@@ -66,6 +70,21 @@ class RenameClassesVisitor extends NodeVisitorAbstract
     protected $file;
 
     /**
+     * @var Command
+     */
+    protected $command;
+
+    /**
+     * @var InputInterface
+     */
+    protected $input;
+
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
+
+    /**
      * RenameClassesVisitor constructor.
      * @param MutableSource $source
      * @param $map
@@ -74,6 +93,9 @@ class RenameClassesVisitor extends NodeVisitorAbstract
      * @param bool $showPrompt
      * @param CodeChangeSet $changeSet
      * @param ItemInterface $file
+     * @param $command
+     * @param $input
+     * @param $output
      */
     public function __construct(
         MutableSource $source,
@@ -82,7 +104,10 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         $renameWarnings = [],
         $showPrompt = false,
         CodeChangeSet $changeSet = null,
-        ItemInterface $file = null
+        ItemInterface $file = null,
+        $command = null,
+        $input = null,
+        $output = null
     ) {
         $this->source = $source;
         $this->map = $map;
@@ -91,6 +116,9 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         $this->showPrompt = $showPrompt;
         $this->changeSet = $changeSet;
         $this->file = $file;
+        $this->command = $command;
+        $this->input = $input;
+        $this->output = $output;
 
         foreach ($this->map as $k => $v) {
             $slashPos = strrpos($this->map[$k], '\\');
@@ -121,33 +149,38 @@ class RenameClassesVisitor extends NodeVisitorAbstract
             $baseName = $this->logUseStatement($replacement);
 
             // Show warning if this replacement may be invalid
-            $replace = true;
             if (isset($this->renameWarnings[$baseName]) && $this->showPrompt) {
-                $replace = null;
-                do {
-                    $input = strtolower(trim(readline('Do you want to rename '
-                        . $baseName . " to " . $replacement
-                        . " at {$this->file->getPath()}:{$stringNode->getLine()}? (Y/n)")));
-                    if ($input == 'y') {
-                        $replace = true;
-                    } elseif ($input == 'n') {
-                        $replace = false;
-                    }
-                } while(is_null($replace));
+
+                $before = $this->source->getNodeLine($stringNode, 'question');
+                $str = 'Attempting to rename: ' . PHP_EOL . $before . PHP_EOL
+                    . 'Do you want to rename '
+                    . $baseName . " to " . $replacement
+                    . " at {$this->file->getPath()}:{$stringNode->getLine()}? (Y/n)";
+
+                $helper = $this->command->getHelper('question');
+                $question = new ConfirmationQuestion($str, true);
+
+                if (!$helper->ask($this->input, $this->output, $question)) {
+                    return;
+                }
             }
 
             // Substitute MyClass::class literal in place of string
-            if ($replace) {
-                $replacementNode = new Expr\ClassConstFetch(new Name([ $baseName ]), 'class');
-                $this->source->replaceNode($stringNode, $replacementNode);
+            $replacementNode = new Expr\ClassConstFetch(new Name([ $baseName ]), 'class');
+            $this->source->replaceNode($stringNode, $replacementNode);
 
-                if (isset($this->renameWarnings[$baseName])) {
-                    $this->changeSet->addWarning(
-                        $this->file->getPath(),
-                        $stringNode->getLine(),
-                        "Renaming " . $baseName . " to " . $replacement . "\n"
-                    );
-                }
+            if (isset($this->renameWarnings[$baseName])) {
+                $this->changeSet->addWarning(
+                    $this->file->getPath(),
+                    $stringNode->getLine(),
+                    "Renaming ambiguous string <error>" . $baseName . "</error> to <info>" . $replacement . "</info>\n"
+                );
+            } else {
+                $this->changeSet->addWarning(
+                    $this->file->getPath(),
+                    $stringNode->getLine(),
+                    "Skipping renaming of ambiguous string from <error>" . $baseName . "</error> to <info>" . $replacement . "</info>\n"
+                );
             }
         }
     }

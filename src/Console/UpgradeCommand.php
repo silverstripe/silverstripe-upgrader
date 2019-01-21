@@ -71,7 +71,7 @@ class UpgradeCommand extends AbstractCommand implements AutomatedCommand
     {
         // Build spec
         $spec = new UpgradeSpec();
-        $rules = $this->getRules($input);
+        $rules = $this->getRules($input, $output);
         $rootPath = $this->getRootPath($input);
         $config = $this->getConfig($rootPath);
         foreach ($rules as $rule) {
@@ -106,9 +106,11 @@ class UpgradeCommand extends AbstractCommand implements AutomatedCommand
 
     /**
      * @param InputInterface $input
+     * @param $output
+     * @param $command
      * @return array
      */
-    protected function getRules($input): array
+    protected function getRules($input, $output): array
     {
         $rules = $input->getOption('rule');
         $allowed = ['code', 'config', 'lang'];
@@ -122,7 +124,7 @@ class UpgradeCommand extends AbstractCommand implements AutomatedCommand
         // Build rules for this set of upgrades
         $ruleObjects = [];
         if (in_array('code', $rules)) {
-            $ruleObjects[] = new RenameClasses($input->getOption('prompt'));
+            $ruleObjects[] = new RenameClasses($input->getOption('prompt'), $this, $input, $output);
         }
         if (in_array('config', $rules)) {
             $ruleObjects[] = new UpdateConfigClasses();
