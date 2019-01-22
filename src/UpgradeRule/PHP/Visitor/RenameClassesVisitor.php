@@ -164,6 +164,11 @@ class RenameClassesVisitor extends NodeVisitorAbstract
                 $question = new ConfirmationQuestion($str, true);
 
                 if (!$helper->ask($this->input, $this->output, $question)) {
+                    $this->changeSet->addWarning(
+                        $this->file->getPath(),
+                        $stringNode->getLine(),
+                        "Skipping renaming of ambiguous string from <info>" . $baseName . "</info> to <info>" . $replacement . "</info>\n"
+                    );
                     return;
                 }
             }
@@ -177,12 +182,6 @@ class RenameClassesVisitor extends NodeVisitorAbstract
                     $this->file->getPath(),
                     $stringNode->getLine(),
                     "Renaming ambiguous string <info>" . $baseName . "</info> to <info>" . $replacement . "</info>\n"
-                );
-            } else {
-                $this->changeSet->addWarning(
-                    $this->file->getPath(),
-                    $stringNode->getLine(),
-                    "Skipping renaming of ambiguous string from <info>" . $baseName . "</info> to <info>" . $replacement . "</info>\n"
                 );
             }
         }
