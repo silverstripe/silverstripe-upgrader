@@ -24,7 +24,19 @@ class ClassQualifierVisitor extends NameResolver
     protected $specialNames = [
         'self',
         'parent',
-        'static'
+        'static',
+        'bool',
+        'boolean',
+        'integer',
+        'float',
+        'double',
+        'string',
+        'array',
+        'object',
+        'callable',
+        'iterable',
+        'resource',
+        'NULL',
     ];
 
     /**

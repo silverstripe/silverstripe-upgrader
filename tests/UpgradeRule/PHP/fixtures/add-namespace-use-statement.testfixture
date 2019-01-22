@@ -1,0 +1,52 @@
+{
+    "add-namespace": [
+        {
+            "namespace": "Upgrader\\NewNamespace",
+            "path": "/dir"
+        }
+    ]
+}
+------
+<?php
+
+interface RenamedInterface extends A, B {
+
+    public function foo() : bool;
+
+    public function foo2($hello = NULL): integer;
+
+    public function foo3(string $hello, Acme $bar): boolean;
+
+    public function foo4(float $hello): double;
+
+    public function foo5(object $hello): array;
+
+    public function foo6(callable $hello, resource $bar): iterable;
+
+}
+
+------
+<?php
+
+namespace Upgrader\NewNamespace;
+
+use A;
+use B;
+use Acme;
+
+
+interface RenamedInterface extends A, B {
+
+    public function foo() : bool;
+
+    public function foo2($hello = NULL): integer;
+
+    public function foo3(string $hello, Acme $bar): boolean;
+
+    public function foo4(float $hello): double;
+
+    public function foo5(object $hello): array;
+
+    public function foo6(callable $hello, resource $bar): iterable;
+
+}
