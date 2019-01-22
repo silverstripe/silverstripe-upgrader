@@ -150,12 +150,15 @@ class RenameClassesVisitor extends NodeVisitorAbstract
 
             // Show warning if this replacement may be invalid
             if (isset($this->renameWarnings[$baseName]) && $this->showPrompt) {
-
-                $before = $this->source->getNodeLine($stringNode, 'question');
-                $str = 'Attempting to rename: ' . PHP_EOL . $before . PHP_EOL
-                    . 'Do you want to rename '
-                    . $baseName . " to " . $replacement
-                    . " at {$this->file->getPath()}:{$stringNode->getLine()}? (Y/n)";
+                $line = $this->source->getNodeLine($stringNode, 'question');
+                $str = sprintf(
+                    "Attempting to rename:\n%s\nDo you want to rename %s to %s at %s:%s?",
+                    $line,
+                    $baseName,
+                    $replacement,
+                    $this->file->getPath(),
+                    $stringNode->getLine()
+                );
 
                 $helper = $this->command->getHelper('question');
                 $question = new ConfirmationQuestion($str, true);
@@ -173,13 +176,13 @@ class RenameClassesVisitor extends NodeVisitorAbstract
                 $this->changeSet->addWarning(
                     $this->file->getPath(),
                     $stringNode->getLine(),
-                    "Renaming ambiguous string <error>" . $baseName . "</error> to <info>" . $replacement . "</info>\n"
+                    "Renaming ambiguous string <info>" . $baseName . "</info> to <info>" . $replacement . "</info>\n"
                 );
             } else {
                 $this->changeSet->addWarning(
                     $this->file->getPath(),
                     $stringNode->getLine(),
-                    "Skipping renaming of ambiguous string from <error>" . $baseName . "</error> to <info>" . $replacement . "</info>\n"
+                    "Skipping renaming of ambiguous string from <info>" . $baseName . "</info> to <info>" . $replacement . "</info>\n"
                 );
             }
         }
