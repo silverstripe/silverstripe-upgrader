@@ -45,4 +45,24 @@ class RenameClassesTest extends TestCase
         $this->assertFalse($changset->hasWarnings('test.php'));
         $this->assertEquals($output, $generated);
     }
+
+    public function testRenameClasses()
+    {
+        $fixture = 'ambiguous-renames.testfixture';
+
+        list($parameters, $input, $output) = $this->loadFixture(__DIR__.'/fixtures/'.$fixture);
+        $updater = (new RenameClasses())->withParameters($parameters);
+
+        // Build mock collection
+        $code = new MockCodeCollection([
+            'test.php' => $input
+        ]);
+        $file = $code->itemByPath('test.php');
+        $changeset = new CodeChangeSet();
+
+        $generated = $updater->upgradeFile($input, $file, $changeset);
+
+        $this->assertTrue($changeset->hasWarnings('test.php'));
+        $this->assertEquals($output, $generated);
+    }
 }

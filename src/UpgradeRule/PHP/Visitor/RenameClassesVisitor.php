@@ -10,7 +10,13 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Stmt;
 use PhpParser\NodeVisitorAbstract;
+use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
+use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\Util\MutableSource;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * PHP-Parser Visitor to handle class renaming upgrade handler for a renamed class
@@ -39,11 +45,80 @@ class RenameClassesVisitor extends NodeVisitorAbstract
      */
     protected $skipConfigs;
 
-    public function __construct(MutableSource $source, $map, $skipConfigs = [])
-    {
+    /**
+     * Renames that show explicit warnings as they may be invalid
+     *
+     * @var array
+     */
+    protected $renameWarnings;
+
+    /**
+     * Whether to show a prompt before making ambiguous class replacements or not
+     *
+     * @var bool
+     */
+    protected $showPrompt;
+
+    /**
+     * @var CodeChangeSet
+     */
+    protected $changeSet;
+
+    /**
+     * @var ItemInterface
+     */
+    protected $file;
+
+    /**
+     * @var Command
+     */
+    protected $command;
+
+    /**
+     * @var InputInterface
+     */
+    protected $input;
+
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
+
+    /**
+     * RenameClassesVisitor constructor.
+     * @param MutableSource $source
+     * @param $map
+     * @param array $skipConfigs
+     * @param array $renameWarnings
+     * @param bool $showPrompt
+     * @param CodeChangeSet $changeSet
+     * @param ItemInterface $file
+     * @param $command
+     * @param $input
+     * @param $output
+     */
+    public function __construct(
+        MutableSource $source,
+        $map,
+        $skipConfigs = [],
+        $renameWarnings = [],
+        $showPrompt = false,
+        CodeChangeSet $changeSet = null,
+        ItemInterface $file = null,
+        $command = null,
+        $input = null,
+        $output = null
+    ) {
         $this->source = $source;
         $this->map = $map;
         $this->skipConfigs = $skipConfigs;
+        $this->renameWarnings = array_flip($renameWarnings);
+        $this->showPrompt = $showPrompt;
+        $this->changeSet = $changeSet;
+        $this->file = $file;
+        $this->command = $command;
+        $this->input = $input;
+        $this->output = $output;
 
         foreach ($this->map as $k => $v) {
             $slashPos = strrpos($this->map[$k], '\\');
@@ -71,10 +146,52 @@ class RenameClassesVisitor extends NodeVisitorAbstract
                 return;
             }
 
-            // Substitute MyClass::class literal in place of string
             $baseName = $this->logUseStatement($replacement);
+
+            // Show warning if this replacement may be invalid
+            if (isset($this->renameWarnings[$baseName]) && $this->showPrompt) {
+                $line = $this->source->getNodeLine($stringNode, 'question');
+                $str = sprintf(
+                    "Attempting to rename:\n%s\nDo you want to rename %s to %s at %s:%s?",
+                    $line,
+                    $baseName,
+                    $replacement,
+                    $this->file->getPath(),
+                    $stringNode->getLine()
+                );
+
+                $helper = $this->command->getHelper('question');
+                $question = new ConfirmationQuestion($str, true);
+
+                if (!$helper->ask($this->input, $this->output, $question)) {
+                    $this->changeSet->addWarning(
+                        $this->file->getPath(),
+                        $stringNode->getLine(),
+                        sprintf(
+                            "Skipping renaming of ambiguous string from <info>%s</info> to <info>%s</info>\n",
+                            $baseName,
+                            $replacement
+                        )
+                    );
+                    return;
+                }
+            }
+
+            // Substitute MyClass::class literal in place of string
             $replacementNode = new Expr\ClassConstFetch(new Name([ $baseName ]), 'class');
             $this->source->replaceNode($stringNode, $replacementNode);
+
+            if (isset($this->renameWarnings[$baseName])) {
+                $this->changeSet->addWarning(
+                    $this->file->getPath(),
+                    $stringNode->getLine(),
+                    sprintf(
+                        "Renaming ambiguous string <info>%s</info> to <info>%s</info>\n",
+                        $baseName,
+                        $replacement
+                    )
+                );
+            }
         }
     }
 
@@ -120,9 +237,15 @@ class RenameClassesVisitor extends NodeVisitorAbstract
         }
 
         if (!$classNode instanceof Node\Name) {
-            echo get_class($classNode) . "\n";
-            echo " - WARNING: New class instantied by a dynamic value on line "
+            $msg = get_class($classNode) . "\n"
+                . " - WARNING: New class instantiated by a dynamic value on line "
                 . $classNode->getAttribute('startLine') . "\n";
+
+            $this->changeSet->addWarning(
+                $this->file->getPath(),
+                $classNode->getLine(),
+                $msg
+            );
             return;
         }
 

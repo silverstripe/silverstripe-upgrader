@@ -114,6 +114,34 @@ class MutableSource
     }
 
     /**
+     * Returns the full line the node belongs to
+     *
+     * @param Node $node
+     * @param string|null $tag A tag to add to the node
+     * @return bool|string
+     */
+    public function getNodeLine(Node $node, $tag = null)
+    {
+        list($start, $length) = $this->nodeRange($node);
+        $end = $start + $length;
+
+        $str = $this->getOrigString();
+        $lineStart = strrpos($str, "\n", -strlen($str)+$start);
+        $lineStart = $lineStart ? $lineStart + 1: $start;
+        $lineEnd = strpos($str, "\n", $end) ?: $end;
+        $lineLength = $lineEnd - $lineStart;
+
+        $line = substr($str, $lineStart, $lineLength);
+
+        if ($tag) {
+            $line = substr_replace($line, "<$tag>", $start - $lineStart, 0);
+            $line = substr_replace($line, "</$tag>", $end - $lineEnd + $lineLength + strlen("<$tag>"), 0);
+        }
+
+        return $line;
+    }
+
+    /**
      * @param int $pos Position to insert before
      * @param string|Node|array The entity to insert. A string, Node, or array of Nodes
      */
