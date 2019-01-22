@@ -167,7 +167,11 @@ class RenameClassesVisitor extends NodeVisitorAbstract
                     $this->changeSet->addWarning(
                         $this->file->getPath(),
                         $stringNode->getLine(),
-                        "Skipping renaming of ambiguous string from <info>" . $baseName . "</info> to <info>" . $replacement . "</info>\n"
+                        sprintf(
+                            "Skipping renaming of ambiguous string from <info>%s</info> to <info>%s</info>\n",
+                            $baseName,
+                            $replacement
+                        )
                     );
                     return;
                 }
@@ -181,7 +185,11 @@ class RenameClassesVisitor extends NodeVisitorAbstract
                 $this->changeSet->addWarning(
                     $this->file->getPath(),
                     $stringNode->getLine(),
-                    "Renaming ambiguous string <info>" . $baseName . "</info> to <info>" . $replacement . "</info>\n"
+                    sprintf(
+                        "Renaming ambiguous string <info>%s</info> to <info>%s</info>\n",
+                        $baseName,
+                        $replacement
+                    )
                 );
             }
         }

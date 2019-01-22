@@ -65,7 +65,18 @@ class RenameClasses extends PHPUpgradeRule
         $this->transformWithVisitors($source->getAst(), [
             new NameResolver(), // Add FQN for class references
             new ParentConnector(), // Link child nodes to parents
-            new RenameClassesVisitor($source, $mappings, $skipConfig, $renameWarnings, $showPrompt, $changeset, $file, $this->command, $this->input, $this->output),
+            new RenameClassesVisitor(
+                $source,
+                $mappings,
+                $skipConfig,
+                $renameWarnings,
+                $showPrompt,
+                $changeset,
+                $file,
+                $this->command,
+                $this->input,
+                $this->output
+            )
         ]);
 
         return $source->getModifiedString();
