@@ -23,6 +23,8 @@ interface RenamedInterface extends A, B {
 
     public function foo6(callable $hello, resource $bar): iterable;
 
+    public function foo7(oBjEcT $hello): aRrAy;
+
 }
 
 ------
@@ -48,5 +50,7 @@ interface RenamedInterface extends A, B {
     public function foo5(object $hello): array;
 
     public function foo6(callable $hello, resource $bar): iterable;
+
+    public function foo7(oBjEcT $hello): aRrAy;
 
 }

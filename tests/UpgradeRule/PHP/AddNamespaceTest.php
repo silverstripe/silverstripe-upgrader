@@ -152,12 +152,12 @@ class AddNamespaceTest extends TestCase
      */
     public function testNamespaceUseStatement()
     {
-        list($parameters, $input1, $output1) =
+        list($parameters, $input, $output) =
             $this->loadFixture(__DIR__ .'/fixtures/add-namespace-use-statement.testfixture');
 
         // Build mock collection
         $code = new MockCodeCollection([
-            'dir/test1.php' => $input1,
+            'dir/test1.php' => $input,
         ]);
         $file1 = $code->itemByPath('dir/test1.php');
 
@@ -180,8 +180,8 @@ class AddNamespaceTest extends TestCase
         $this->assertEquals('Upgrader\\NewNamespace', $namespacer->getNamespaceForFile($file1));
 
         // Test upgrading file1
-        $generated1 = $namespacer->upgradeFile($input1, $file1, $changeset);
+        $generated1 = $namespacer->upgradeFile($input, $file1, $changeset);
         $this->assertFalse($changeset->hasWarnings($file1->getPath()));
-        $this->assertEquals($output1, $generated1);
+        $this->assertEquals($output, $generated1);
     }
 }
