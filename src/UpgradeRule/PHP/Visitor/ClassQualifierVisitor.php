@@ -24,7 +24,19 @@ class ClassQualifierVisitor extends NameResolver
     protected $specialNames = [
         'self',
         'parent',
-        'static'
+        'static',
+        'bool',
+        'boolean',
+        'integer',
+        'float',
+        'double',
+        'string',
+        'array',
+        'object',
+        'callable',
+        'iterable',
+        'resource',
+        'null',
     ];
 
     /**
@@ -125,7 +137,7 @@ class ClassQualifierVisitor extends NameResolver
             // If this class is declared in this file, then don't alias,
             // as it will continue to work when applied to the same namespace
             // Classes declared in other files will, however, need a `use` alias.
-            if (!in_array($name, $this->specialNames) && !in_array($name, $this->fileClasses)) {
+            if (!in_array(strtolower($name), $this->specialNames) && !in_array($name, $this->fileClasses)) {
                 $this->newAliases[$name] = $name;
             }
         }

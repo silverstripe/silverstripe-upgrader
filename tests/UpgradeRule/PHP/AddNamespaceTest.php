@@ -146,4 +146,42 @@ class AddNamespaceTest extends TestCase
         $this->assertFalse($changeset->hasWarnings($file4->getPath()));
         $this->assertEquals($output4, $generated4);
     }
+
+    /**
+     * Test applying namespaces to a file using scalar parameter type and return types.
+     */
+    public function testNamespaceUseStatement()
+    {
+        list($parameters, $input, $output) =
+            $this->loadFixture(__DIR__ .'/fixtures/add-namespace-use-statement.testfixture');
+
+        // Build mock collection
+        $code = new MockCodeCollection([
+            'dir/test1.php' => $input,
+        ]);
+        $file1 = $code->itemByPath('dir/test1.php');
+
+        // Add spec to rule
+        $namespacer = new AddNamespaceRule();
+        $namespacer
+            ->withParameters($parameters)
+            ->withRoot('');
+
+        // Test that pre-post hooks detect namespaced classes
+        $changeset = new CodeChangeSet();
+        $namespacer->beforeUpgradeCollection($code, $changeset);
+        $this->assertEquals(
+            ['RenamedInterface'],
+            $namespacer->getClassesInNamespace('Upgrader\\NewNamespace')
+        );
+
+
+        // Check loading namespace from config
+        $this->assertEquals('Upgrader\\NewNamespace', $namespacer->getNamespaceForFile($file1));
+
+        // Test upgrading file1
+        $generated1 = $namespacer->upgradeFile($input, $file1, $changeset);
+        $this->assertFalse($changeset->hasWarnings($file1->getPath()));
+        $this->assertEquals($output, $generated1);
+    }
 }
