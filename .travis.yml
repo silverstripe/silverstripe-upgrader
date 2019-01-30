@@ -9,16 +9,16 @@ cache:
 matrix:
   fast_finish: true
   include:
-#    - php: 7.1
-#      env:
-#        - LINT_TEST=1
-#        - SYMFONY="4.0.*"
-#    - php: 7.2
-#      env:
-#        - SYMFONY="3.2.*"
-#    - php: 7.3
-#      env:
-#        - SYMFONY="^4"
+    - php: 7.1
+      env:
+        - LINT_TEST=1
+        - SYMFONY="4.0.*"
+    - php: 7.2
+      env:
+        - SYMFONY="3.2.*"
+    - php: 7.3
+      env:
+        - SYMFONY="^4"
     - php: 7.2
       env:
         - RELEASE=1
@@ -32,6 +32,10 @@ before_script:
   - export PATH=~/.composer/vendor/bin:$PATH
   - if [[ $SYMFONY ]]; then rm composer.lock; fi
 
+# Temporary fix to bypass bug in composer 1.8.2.
+# Remove when this is fixed https://github.com/composer/composer/pull/7932
+  - composer require composer/composer:1.8.0
+
 # Install composer dependencies
   - composer validate
   - if [[ $SYMFONY ]]; then composer require symfony/console:$SYMFONY symfony/process:$SYMFONY symfony/filesystem:$SYMFONY --no-update; fi
@@ -39,9 +43,8 @@ before_script:
   - composer global require squizlabs/php_codesniffer:^3 --prefer-dist --no-interaction --no-progress --no-suggest -o
 
 script:
-#  - vendor/bin/phpunit --color tests
-#  - if [[ $LINT_TEST ]]; then composer run-script lint; fi
-  - echo no test
+  - vendor/bin/phpunit --color tests
+  - if [[ $LINT_TEST ]]; then composer run-script lint; fi
 
 before_deploy:
   - echo "UPGRADER_VERSION=$TRAVIS_TAG" > .env
