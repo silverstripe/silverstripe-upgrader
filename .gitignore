@@ -1,3 +1,4 @@
 /vendor/
 upgrade-code.phar
 .env
+private.pem

@@ -48,6 +48,12 @@ if ($fs->exists($compiledPath)) { $fs->remove($compiledPath);}
 $compiler->compile($compiledPath);
 $fs->chmod($compiledPath, 0755);
 
+// Sign the phar
+$private = file_get_contents('private.pem');
+$phar = new Phar($compiledPath);
+$phar->setSignatureAlgorithm(Phar::OPENSSL, $private);
+$phar = null;
+
 // Clean up
 $fs->remove(BUILD_FOLDER);
 $process = new Process($compiledPath);
