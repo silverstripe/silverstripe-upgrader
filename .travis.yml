@@ -55,7 +55,7 @@ deploy:
     file: release/upgrade-code.phar
     on:
       tags: true
-      repo: silverstripe/silverstripe-upgrader
+      repo: open-sausages/silverstripe-upgrader
       condition: -n $RELEASE
   - provider: pages
     skip_cleanup: true
