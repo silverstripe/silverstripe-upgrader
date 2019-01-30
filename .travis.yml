@@ -43,6 +43,7 @@ script:
   - if [[ $LINT_TEST ]]; then composer run-script lint; fi
 
 before_deploy:
+  - echo "UPGRADER_VERSION=$TRAVIS_TAG" > .env
   - if [[ ! -f ./release/upgrade-code.phar ]]; then php build.php; fi
   - mkdir -p ./release
   - if [[ -f ./upgrade-code.phar ]]; then mv upgrade-code.phar ./release/; fi
