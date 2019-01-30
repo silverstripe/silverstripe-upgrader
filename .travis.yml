@@ -53,7 +53,8 @@ before_deploy:
   - cp release/upgrade-code.phar release/$TRAVIS_TAG/upgrade-code.phar
   - MD5SUM=`md5sum release/upgrade-code.phar`
   - echo "$MD5SUM  ./release/$TRAVIS_TAG/upgrade-code.phar" >> release/MD5SUM
-  - grep -v "release/upgrade-code.phar" release/MD5SUM > release/MD5SUM
+  - grep -v "release/upgrade-code.phar" release/MD5SUM > release/MD5SUM.tmp
+  - mv elease/MD5SUM.tmp release/MD5SUM
   - echo "$MD5SUM  ./release/upgrade-code.phar" >> release/MD5SUM
 
 deploy:
