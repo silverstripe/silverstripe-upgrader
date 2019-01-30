@@ -45,11 +45,17 @@ script:
   - echo $TRAVIS_REPO_SLUG
 
 before_deploy:
+  - git clone https://github.com/$TRAVIS_REPO_SLUG.git release
   - echo "UPGRADER_VERSION=$TRAVIS_TAG" > .env
-  - if [[ ! -f ./release/upgrade-code.phar ]]; then php build.php; fi
-  - mkdir -p ./release
-  - if [[ -f ./upgrade-code.phar ]]; thencd
+  - php build.php
+  - if [[ -f ./upgrade-code.phar ]]; then
   - mv upgrade-code.phar ./release/
+  - mkdir release/$TRAVIS_TAG
+  - cp release/upgrade-code.phar release/$TRAVIS_TAG/upgrade-code.phar
+  - MD5SUM=`md5sum release/upgrade-code.phar`
+  - echo "$MD5SUM  ./release/$TRAVIS_TAG/upgrade-code.phar" >> release/MD5SUM
+  - grep -v "release/upgrade-code.phar" release/MD5SUM > release/MD5SUM
+  - echo "$MD5SUM  ./release/upgrade-code.phar" >> release/MD5SUM
   - fi
 
 deploy:
