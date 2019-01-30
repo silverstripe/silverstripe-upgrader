@@ -9,16 +9,16 @@ cache:
 matrix:
   fast_finish: true
   include:
-    - php: 7.1
-      env:
-        - LINT_TEST=1
-        - SYMFONY="4.0.*"
-    - php: 7.2
-      env:
-        - SYMFONY="3.2.*"
-    - php: 7.3
-      env:
-        - SYMFONY="^4"
+#    - php: 7.1
+#      env:
+#        - LINT_TEST=1
+#        - SYMFONY="4.0.*"
+#    - php: 7.2
+#      env:
+#        - SYMFONY="3.2.*"
+#    - php: 7.3
+#      env:
+#        - SYMFONY="^4"
     - php: 7.2
       env:
         - RELEASE=1
@@ -39,8 +39,9 @@ before_script:
   - composer global require squizlabs/php_codesniffer:^3 --prefer-dist --no-interaction --no-progress --no-suggest -o
 
 script:
-  - vendor/bin/phpunit --color tests
-  - if [[ $LINT_TEST ]]; then composer run-script lint; fi
+#  - vendor/bin/phpunit --color tests
+#  - if [[ $LINT_TEST ]]; then composer run-script lint; fi
+  - echo no test
 
 before_deploy:
   - echo "UPGRADER_VERSION=$TRAVIS_TAG" > .env
