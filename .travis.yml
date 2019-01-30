@@ -39,10 +39,9 @@ before_script:
   - composer global require squizlabs/php_codesniffer:^3 --prefer-dist --no-interaction --no-progress --no-suggest -o
 
 script:
+  - echo do nothing
 #  - vendor/bin/phpunit --color tests
 #  - if [[ $LINT_TEST ]]; then composer run-script lint; fi
-  - git remote get-url origin
-  - echo $TRAVIS_REPO_SLUG
 
 before_deploy:
   - git clone https://github.com/$TRAVIS_REPO_SLUG.git release
