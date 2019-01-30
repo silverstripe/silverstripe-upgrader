@@ -25,7 +25,7 @@ use M1\Env\Parser;
 $version = '1.4.0';
 $dotEnvPath = __DIR__ . '/../.env';
 if (file_exists($dotEnvPath)) {
-    $env = new Parser(file_get_contents('.env'));
+    $env = new Parser(file_get_contents($dotEnvPath));
     $envVars = $env->getContent();
     if (isset($envVars['UPGRADER_VERSION'])) {
         $version = $envVars['UPGRADER_VERSION'];
