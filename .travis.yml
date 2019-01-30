@@ -47,7 +47,7 @@ before_deploy:
   - git clone https://github.com/$TRAVIS_REPO_SLUG.git release
   - echo "UPGRADER_VERSION=$TRAVIS_TAG" > .env
   - php build.php
-  - if [[ ! -f ./upgrade-code.phar ]]; then exit(1); fi
+  - if [[ ! -f ./upgrade-code.phar ]]; then exit 1; fi
   - mv upgrade-code.phar ./release/
   - mkdir release/$TRAVIS_TAG
   - cp release/upgrade-code.phar release/$TRAVIS_TAG/upgrade-code.phar
