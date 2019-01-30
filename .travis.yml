@@ -32,10 +32,6 @@ before_script:
   - export PATH=~/.composer/vendor/bin:$PATH
   - if [[ $SYMFONY ]]; then rm composer.lock; fi
 
-# Temporary fix to bypass bug in composer 1.8.2.
-# Remove when this is fixed https://github.com/composer/composer/pull/7932
-  - composer require composer/composer:1.8.0
-
 # Install composer dependencies
   - composer validate
   - if [[ $SYMFONY ]]; then composer require symfony/console:$SYMFONY symfony/process:$SYMFONY symfony/filesystem:$SYMFONY --no-update; fi
@@ -47,13 +43,11 @@ script:
   - if [[ $LINT_TEST ]]; then composer run-script lint; fi
 
 before_deploy:
-  - echo $PRIVATE_KEY > private.pem
-  - echo $PUBLIC_KEY > upgrade-code.phar.pubkey
   - echo "UPGRADER_VERSION=$TRAVIS_TAG" > .env
   - if [[ ! -f ./release/upgrade-code.phar ]]; then php build.php; fi
   - mkdir -p ./release
   - if [[ -f ./upgrade-code.phar ]]; then
-  - mv upgrade-code.phar* ./release/
+  - mv upgrade-code.phar ./release/
   - fi
 
 deploy:
