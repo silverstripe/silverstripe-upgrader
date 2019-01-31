@@ -2,9 +2,8 @@
 
 namespace SilverStripe\Upgrader\Console;
 
-use Humbug\SelfUpdate\Strategy\GithubStrategy;
+use SilverStripe\Upgrader\Util\UpdateChecker;
 use Symfony\Component\Console\Command\Command;
-use Humbug\SelfUpdate\Updater;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -46,7 +45,7 @@ class SelfUpdateCommand extends Command
      */
     private function update(SymfonyStyle $console, bool $yes)
     {
-        $updater = $this->getUpdater();
+        $updater = UpdateChecker::getUpdater($this->getApplication()->getVersion());
 
         if (!$updater->hasUpdate()) {
             $console->success('You\'re already running the latest stable release.');
@@ -84,7 +83,7 @@ class SelfUpdateCommand extends Command
      */
     private function rollback(SymfonyStyle $console, bool $yes)
     {
-        $updater = $this->getUpdater();
+        $updater = UpdateChecker::getUpdater($this->getApplication()->getVersion());
 
         // Check that we are running as a phar.
         if (!\Phar::running()) {
@@ -100,21 +99,5 @@ class SelfUpdateCommand extends Command
                 $console->success("You have rollback your Upgrader installation.");
             }
         }
-    }
-
-    /**
-     * Build an updater object.
-     * @return Updater
-     */
-    private function getUpdater()
-    {
-        $checkSignature = false;
-        $updater = new Updater('', $checkSignature, Updater::STRATEGY_GITHUB);
-        /** @var GithubStrategy $strategy */
-        $strategy = $updater->getStrategy();
-        $strategy->setPharName('upgrade-code.phar');
-        $strategy->setPackageName('silverstripe/upgrader');
-        $strategy->setCurrentLocalVersion($this->getApplication()->getVersion());
-        return $updater;
     }
 }

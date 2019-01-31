@@ -18,6 +18,7 @@ foreach ($paths as $path) {
 }
 
 use SilverStripe\Upgrader\Console as Upgrader;
+use SilverStripe\Upgrader\Util\UpdateChecker;
 use Symfony\Component\Console\Application;
 use M1\Env\Parser;
 
@@ -30,6 +31,12 @@ if (file_exists($dotEnvPath)) {
     if (isset($envVars['UPGRADER_VERSION'])) {
         $version = $envVars['UPGRADER_VERSION'];
     }
+}
+
+$nextVersion = UpdateChecker::getShowNewVersion($version);
+if ($nextVersion && $nextVersion != $version) {
+    echo "A new version of the silverstripe upgrader is available. " .
+        "Run the `self-update` command to get version $nextVersion. \n\n";
 }
 
 $application = new Application();
