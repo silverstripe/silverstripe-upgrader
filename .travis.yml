@@ -44,6 +44,7 @@ script:
 #  - if [[ $LINT_TEST ]]; then composer run-script lint; fi
 
 before_deploy:
+  - if [ -d "release" ]; then rm -rf release ; fi
   - git clone https://github.com/$TRAVIS_REPO_SLUG.git release
   - echo "UPGRADER_VERSION=$TRAVIS_TAG" > .env
   - php build.php
