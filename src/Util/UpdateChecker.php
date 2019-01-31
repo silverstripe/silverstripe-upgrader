@@ -12,7 +12,7 @@ use SilverStripe\Upgrader\Composer\SilverstripePackageInfo;
 use Symfony\Component\Console\Exception\LogicException;
 
 /**
- * Utility class to help switch to using the public webroot. Only use by the `webroot` command.
+ * Class to help check if the current PHAR executable is outdated.
  */
 class UpdateChecker
 {
