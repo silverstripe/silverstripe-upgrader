@@ -45,7 +45,7 @@ script:
 
 before_deploy:
   - if [ -d "release" ]; then rm -rf release ; fi
-  - git clone https://github.com/$TRAVIS_REPO_SLUG.git release
+  - git clone --single-branch --branch gh-pages https://github.com/$TRAVIS_REPO_SLUG.git release
   - echo "UPGRADER_VERSION=$TRAVIS_TAG" > .env
   - php build.php
   - if [[ ! -f ./upgrade-code.phar ]]; then exit 1; fi
