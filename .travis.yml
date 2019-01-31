@@ -9,16 +9,16 @@ cache:
 matrix:
   fast_finish: true
   include:
-#    - php: 7.1
-#      env:
-#        - LINT_TEST=1
-#        - SYMFONY="4.0.*"
-#    - php: 7.2
-#      env:
-#        - SYMFONY="3.2.*"
-#    - php: 7.3
-#      env:
-#        - SYMFONY="^4"
+    - php: 7.1
+      env:
+        - LINT_TEST=1
+        - SYMFONY="4.0.*"
+    - php: 7.2
+      env:
+        - SYMFONY="3.2.*"
+    - php: 7.3
+      env:
+        - SYMFONY="^4"
     - php: 7.1
       env:
         - RELEASE=1
