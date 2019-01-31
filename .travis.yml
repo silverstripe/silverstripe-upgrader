@@ -39,9 +39,8 @@ before_script:
   - composer global require squizlabs/php_codesniffer:^3 --prefer-dist --no-interaction --no-progress --no-suggest -o
 
 script:
-  - echo do nothing
-#  - vendor/bin/phpunit --color tests
-#  - if [[ $LINT_TEST ]]; then composer run-script lint; fi
+  - vendor/bin/phpunit --color tests
+  - if [[ $LINT_TEST ]]; then composer run-script lint; fi
 
 before_deploy:
   - if [ -d "release" ]; then rm -rf release ; fi
@@ -63,7 +62,7 @@ deploy:
     file: release/upgrade-code.phar
     on:
       tags: true
-      #repo: silverstripe/silverstripe-upgrader
+      repo: silverstripe/silverstripe-upgrader
       condition: -n $RELEASE
   - provider: pages
     skip_cleanup: true
@@ -72,5 +71,5 @@ deploy:
     local-dir: release
     on:
       tags: true
-      #repo: silverstripe/silverstripe-upgrader
+      repo: silverstripe/silverstripe-upgrader
       condition: -n $RELEASE
