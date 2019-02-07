@@ -55,7 +55,7 @@ class DiskCollection implements CollectionInterface
     }
 
     /**
-     * Returns an iterator, yieldig all ItemInterface items in this collectinn
+     * Returns an iterator, yielding all ItemInterface items in this collection
      *
      * @return Iterator
      */
