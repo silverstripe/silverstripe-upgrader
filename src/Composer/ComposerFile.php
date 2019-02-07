@@ -157,7 +157,7 @@ class ComposerFile extends DiskItem
         // Build our propose new output
         $jsonData = $this->composerJson;
         $jsonData['require'] = $dependencies;
-        $upgradedContent = $this->encode($jsonData);
+        $upgradedContent = self::encode($jsonData);
 
         // Finally get our diff
         $change = new CodeChangeSet();
@@ -173,10 +173,10 @@ class ComposerFile extends DiskItem
      * @param array $json
      * @return string
      */
-    private function encode(array $json): string
+    public static function encode(array $json): string
     {
         // Recast some keys as object to avoid them being outputted as empty arrays in the JSON.
-        $keys = ['require', 'require-dev', 'extra', 'config'];
+        $keys = ['require', 'require-dev', 'extra', 'config', 'autoload', 'autoload-dev'];
         foreach ($keys as $key) {
             if (isset($json[$key])) {
                 $json[$key] = (object)$json[$key];

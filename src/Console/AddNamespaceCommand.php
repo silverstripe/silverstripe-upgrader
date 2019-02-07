@@ -7,6 +7,7 @@ use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\Upgrader;
 use SilverStripe\Upgrader\UpgradeRule\PHP\AddNamespaceRule;
 use SilverStripe\Upgrader\UpgradeSpec;
+use SilverStripe\Upgrader\Util\AddAutoloadEntry;
 use SilverStripe\Upgrader\Util\ConfigFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -40,6 +41,18 @@ class AddNamespaceCommand extends AbstractCommand implements AutomatedCommand
                     'p',
                     InputOption::VALUE_NONE,
                     'When used with the recursive option, assume directories and namespaces are PSR-4 compliant.'
+                ),
+                new InputOption(
+                    'autoload',
+                    null,
+                    InputOption::VALUE_NONE,
+                    'Add a matching entry to the composer file\'s autoload key.'
+                ),
+                new InputOption(
+                    'autoload-dev',
+                    null,
+                    InputOption::VALUE_NONE,
+                    'Add a matching entry to the composer file\'s autoload-dev key.'
                 ),
                 $this->getRootInputOption(),
                 $this->getWriteInputOption()
@@ -81,10 +94,18 @@ class AddNamespaceCommand extends AbstractCommand implements AutomatedCommand
         $namespace = $settings['namespace'];
         $recursive = !empty($settings['recursive']);
         $psr4 = !empty($settings['psr4']);
+        $autoload = !empty($settings['autoload']);
+        $autoloadDev = !empty($settings['autoload-dev']);
 
         // Capture missing double-escape in CLI for namespaces. :)
         if (stripos($namespace, "\\") === false) {
             throw new \InvalidArgumentException("Namespace \"{$namespace}\" doesn't seem escaped properly");
+        }
+
+        if ($autoload && $autoloadDev) {
+            throw new \InvalidArgumentException(
+                "`autoload` and `autoload-dev` can not be used simultaneously."
+            );
         }
 
         // Find module name
@@ -129,9 +150,19 @@ class AddNamespaceCommand extends AbstractCommand implements AutomatedCommand
         $changes = $upgrader->upgrade($code);
         $this->setDiff($changes);
 
+        // Update composer.json
+        if ($autoload || $autoloadDev) {
+            $rootCode = new DiskCollection($rootPath);
+            $addAutoloadEntry = new AddAutoloadEntry($rootPath, $filePath, $namespace, $autoloadDev);
+            $composerChange = $addAutoloadEntry->upgrade($rootCode);
+        }
+
         // Display the resulting changes
         $display = new ChangeDisplayer();
         $display->displayChanges($output, $changes);
+        if (isset($composerChange)) {
+            $display->displayChanges($output, $composerChange);
+        }
 
         // Apply them to the project
         if ($writeChanges) {
@@ -145,6 +176,9 @@ class AddNamespaceCommand extends AbstractCommand implements AutomatedCommand
                 );
             }
             $code->applyChanges($changes);
+            if (isset($rootCode) && isset($composerChange)) {
+                $rootCode->applyChanges($composerChange);
+            }
         } else {
             $output->writeln("Changes not saved; Run with --write to commit to disk");
         }
