@@ -51,9 +51,7 @@ before_deploy:
   - mv upgrade-code.phar ./release/
   - mkdir release/$TRAVIS_TAG
   - cp release/upgrade-code.phar release/$TRAVIS_TAG/upgrade-code.phar
-  - cd release
-  - md5sum upgrade-code.phar */upgrade-code.phar > MD5SUM
-  - cd ..
+  - (cd release && md5sum upgrade-code.phar */upgrade-code.phar > MD5SUM)
 
 deploy:
   - provider: releases

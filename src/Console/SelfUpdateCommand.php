@@ -49,6 +49,7 @@ class SelfUpdateCommand extends Command
 
         if (!$updater->hasUpdate()) {
             $console->success('You\'re already running the latest stable release.');
+            return;
         }
 
         $nextVersion = $updater->getNewVersion();
@@ -92,7 +93,7 @@ class SelfUpdateCommand extends Command
         }
 
         if ($yes || $console->confirm("Do you want to rollback the silverstripe upgrader?", false)) {
-            // This can fail for a variety of reason. We'll just let the exception bubble up.
+            // This can fail for a variety of reasons. We'll just let the exception bubble up.
             $result = $updater->rollback();
 
             if ($result) {

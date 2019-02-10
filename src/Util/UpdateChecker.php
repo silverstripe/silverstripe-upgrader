@@ -46,14 +46,15 @@ class UpdateChecker
     /**
      * Get the latest upgrader version available if the message has not been displayed or false otherwise.
      *
-     * This save the value in memory. So you don't always get the message.
+     * This saves the value in memory, so you don't always get the message.
      *
      * @return false|string
      */
     public static function getShowNewVersion($currentVersion)
     {
         $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . '.upgrade-code.phar.latestversion';
-        if (file_exists($path)) {
+        // Check if we have check the date in the last 2 days.
+        if (file_exists($path) && filemtime($path) > (time() - 48 * 60 * 60)) {
             return false;
         }
 
