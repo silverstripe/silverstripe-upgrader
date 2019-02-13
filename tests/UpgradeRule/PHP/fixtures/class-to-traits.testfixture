@@ -1,0 +1,21 @@
+{
+}
+------
+<?php
+
+class AnyClass extends Object
+{
+}
+
+------
+<?php
+
+use SilverStripe\Core\Extensible;
+use SilverStripe\Core\Injector\Injectable;
+use SilverStripe\Core\Config\Configurable;
+class AnyClass
+{
+    use Extensible;
+    use Injectable;
+    use Configurable;
+}
