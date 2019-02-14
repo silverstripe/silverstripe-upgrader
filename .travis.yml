@@ -19,7 +19,7 @@ matrix:
     - php: 7.3
       env:
         - SYMFONY="^4"
-    - php: 7.2
+    - php: 7.1
       env:
         - RELEASE=1
 
@@ -43,9 +43,15 @@ script:
   - if [[ $LINT_TEST ]]; then composer run-script lint; fi
 
 before_deploy:
-  - if [[ ! -f ./release/upgrade-code.phar ]]; then php build.php; fi
-  - mkdir -p ./release
-  - if [[ -f ./upgrade-code.phar ]]; then mv upgrade-code.phar ./release/; fi
+  - if [ -d "release" ]; then rm -rf release ; fi
+  - git clone --single-branch --branch gh-pages https://github.com/$TRAVIS_REPO_SLUG.git release
+  - echo "UPGRADER_VERSION=$TRAVIS_TAG" > .env
+  - php build.php
+  - if [[ ! -f ./upgrade-code.phar ]]; then exit 1; fi
+  - mv upgrade-code.phar ./release/
+  - mkdir release/$TRAVIS_TAG
+  - cp release/upgrade-code.phar release/$TRAVIS_TAG/upgrade-code.phar
+  - (cd release && md5sum upgrade-code.phar */upgrade-code.phar > MD5SUM)
 
 deploy:
   - provider: releases

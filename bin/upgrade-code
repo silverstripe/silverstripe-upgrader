@@ -18,11 +18,30 @@ foreach ($paths as $path) {
 }
 
 use SilverStripe\Upgrader\Console as Upgrader;
+use SilverStripe\Upgrader\Util\UpdateChecker;
 use Symfony\Component\Console\Application;
+use M1\Env\Parser;
+
+// Get Upgrader version from environment file
+$version = '1.4.0';
+$dotEnvPath = __DIR__ . '/../.env';
+if (file_exists($dotEnvPath)) {
+    $env = new Parser(file_get_contents($dotEnvPath));
+    $envVars = $env->getContent();
+    if (isset($envVars['UPGRADER_VERSION'])) {
+        $version = $envVars['UPGRADER_VERSION'];
+    }
+}
+
+$nextVersion = UpdateChecker::getShowNewVersion($version);
+if ($nextVersion && $nextVersion != $version) {
+    echo "A new version of the silverstripe upgrader is available. " .
+        "Run the `self-update` command to get version $nextVersion. \n\n";
+}
 
 $application = new Application();
 $application->setName("SilverStripe Upgrader");
-$application->setVersion('1.3.0');
+$application->setVersion($version);
 $application->add(new Upgrader\UpgradeCommand());
 $application->add(new Upgrader\AddNamespaceCommand());
 $application->add(new Upgrader\DoctorCommand());
@@ -32,4 +51,5 @@ $application->add(new Upgrader\RecomposeCommand());
 $application->add(new Upgrader\ReorganiseCommand());
 $application->add(new Upgrader\WebrootCommand());
 $application->add(new Upgrader\AllInOneCommand());
+$application->add(new Upgrader\SelfUpdateCommand());
 $application->run();

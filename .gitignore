@@ -1,2 +1,4 @@
 /vendor/
 upgrade-code.phar
+.env
+.idea

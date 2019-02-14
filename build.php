@@ -26,6 +26,7 @@ $fs->mirror(PACKAGE_ROOT . 'bin', BUILD_FOLDER . '/bin');
 $fs->mirror(PACKAGE_ROOT . 'src', BUILD_FOLDER . '/src');
 $fs->copy(PACKAGE_ROOT . 'composer.json', BUILD_FOLDER . '/composer.json');
 $fs->copy(PACKAGE_ROOT . 'composer.lock', BUILD_FOLDER . '/composer.lock');
+$fs->copy(PACKAGE_ROOT . '.env', BUILD_FOLDER . '/.env');
 
 // Install dependencies
 $composerStatement = sprintf(
@@ -38,6 +39,7 @@ $process->run();
 // Compile the executable
 $compiler = new Compiler(BUILD_FOLDER);
 $compiler->addIndexFile('bin/upgrade-code');
+$compiler->addFile('.env');
 $compiler->addDirectory('src');
 $compiler->addDirectory('vendor');
 
