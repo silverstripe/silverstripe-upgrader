@@ -28,7 +28,7 @@ class PhpVersion implements DependencyUpgradeRule
      * @param  ComposerExec $composer Composer executable.
      * @return array Upgraded dependencies.
      */
-    public function upgrade(array $dependencies, ComposerExec $composer): array
+    public function upgrade(array $dependencies, array $devDependencies, ComposerExec $composer): array
     {
         $this->warnings = [];
 
@@ -60,5 +60,10 @@ class PhpVersion implements DependencyUpgradeRule
     public function getWarnings(): array
     {
         return $this->warnings;
+    }
+
+    public function applicability(): int
+    {
+        return DependencyUpgradeRule::REGULAR_DEPENDENCY_RULE;
     }
 }

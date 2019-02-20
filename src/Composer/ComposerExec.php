@@ -258,13 +258,15 @@ EOF
      * @param  string  $workingDir   Path to the directory containing the `composer.json`. Defaults to this instance's
      *    $workingDir.
      * @param  boolean $showFeedback Write out some information about what is going on.
+     * @param  boolean $dev          Whatever this is a development dependency.
      * @return void
      */
     public function require(
         string $package,
         string $constraint = '*',
         string $workingDir = '',
-        bool   $showFeedback = false
+        bool   $showFeedback = false,
+        bool   $dev = false
     ):void {
         // Constrain our package to some version.
         if ($constraint) {
@@ -277,16 +279,16 @@ EOF
             $this->out->write(sprintf(' * Requiring %s ', $package));
         }
 
-        $process = $this->run(
-            "require $package",
-            [
-                '--working-dir' => $workingDir,
-                '--prefer-stable' => '',
-                '--ignore-platform-reqs' => '',
-                '--no-plugins' => ''
-            ],
-            $showFeedback
-        );
+        $args = [
+            '--working-dir' => $workingDir,
+            '--prefer-stable' => '',
+            '--ignore-platform-reqs' => '',
+            '--no-plugins' => '',
+        ];
+        if ($dev) {
+            $args['--dev'] = '';
+        }
+        $process = $this->run("require $package", $args, $showFeedback);
 
         if ($process->isSuccessful()) {
             if ($showFeedback) {
