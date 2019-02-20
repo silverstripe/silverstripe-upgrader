@@ -5,6 +5,7 @@ namespace SilverStripe\Upgrader\Composer;
 use SilverStripe\Upgrader\CodeCollection\DiskItem;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use InvalidArgumentException;
+use SilverStripe\Upgrader\Composer\Rules\DependencyUpgradeRule;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
@@ -116,7 +117,16 @@ class ComposerFile extends DiskItem
      */
     public function getRequire(): array
     {
-        return $this->composerJson['require'];
+        return isset($this->composerJson['require']) ? $this->composerJson['require']: [];
+    }
+
+    /**
+     * Get the requirements as defined by the `require` key in the composer file.
+     * @return array
+     */
+    public function getRequireDev(): array
+    {
+        return isset($this->composerJson['require-dev']) ? $this->composerJson['require-dev'] : [];
     }
 
 
@@ -131,9 +141,15 @@ class ComposerFile extends DiskItem
         // Apply the change
         $original = $this->getRequire();
         $dependencies = $this->getRequire();
+        $devOriginal = $this->getRequireDev();
+        $devDependencies = $this->getRequireDev();
         foreach ($rules as $rule) {
             $console && $console->title($rule->getActionTitle());
-            $dependencies = $rule->upgrade($dependencies, $this->exec);
+            if ($rule->applicability() == DependencyUpgradeRule::REGULAR_DEPENDENCY_RULE) {
+                $dependencies = $rule->upgrade($dependencies, $devDependencies, $this->exec);
+            } elseif ($rule->applicability() == DependencyUpgradeRule::DEV_DEPENDENCY_RULE) {
+                $devDependencies = $rule->upgrade($dependencies, $devDependencies, $this->exec);
+            }
 
             $warnings = $rule->getWarnings();
             if (empty($warnings)) {
@@ -154,9 +170,20 @@ class ComposerFile extends DiskItem
         }
         $dependencies = array_merge($sortedDependencies, $dependencies);
 
+        // Try to use the same order as the original file, so the diff looks more relevant.
+        $sortedDependencies = [];
+        foreach ($devOriginal as $key => $constraint) {
+            if (isset($devDependencies[$key])) {
+                $sortedDependencies[$key] = $devDependencies[$key];
+                unset($devDependencies[$key]);
+            }
+        }
+        $devDependencies = array_merge($sortedDependencies, $devDependencies);
+
         // Build our propose new output
         $jsonData = $this->composerJson;
         $jsonData['require'] = $dependencies;
+        $jsonData['require-dev'] = $devDependencies;
         $upgradedContent = self::encode($jsonData);
 
         // Finally get our diff

@@ -290,4 +290,10 @@ class RebuildTest extends TestCase
             $dependencies
         );
     }
+
+    public function testApplicability()
+    {
+        $rule = new Rebuild();
+        $this->assertEquals(DependencyUpgradeRule::REGULAR_DEPENDENCY_RULE, $rule->applicability());
+    }
 }

@@ -5,6 +5,7 @@ namespace SilverStripe\Upgrader\Tests\Composer\Rules;
 use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
+use SilverStripe\Upgrader\Composer\Rules\DependencyUpgradeRule;
 use SilverStripe\Upgrader\Composer\Rules\StrictVersion;
 use InvalidArgumentException;
 
@@ -55,5 +56,11 @@ class StrictVersionTest extends TestCase
             $rule->upgrade($input, $composer),
             $output
         );
+    }
+
+    public function testApplicability()
+    {
+        $rule = new StrictVersion();
+        $this->assertEquals(DependencyUpgradeRule::REGULAR_DEPENDENCY_RULE, $rule->applicability());
     }
 }
