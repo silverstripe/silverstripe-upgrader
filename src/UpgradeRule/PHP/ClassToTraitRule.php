@@ -12,7 +12,6 @@ use SilverStripe\Upgrader\Util\MutableSource;
  * Replaces occurrences of class extensions with traits.
  *
  * Class ClassToTraitRule
- * @package SilverStripe\Upgrader\UpgradeRule\PHP
  */
 class ClassToTraitRule extends PHPUpgradeRule
 {
