@@ -172,4 +172,28 @@ JSON;
 
         $this->assertEquals($expected, $jsonStr);
     }
+
+    public function testSetRequire()
+    {
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $schema->setRequire(['silverstripe/framework' => '4.0.0']);
+
+        $this->assertEquals(['silverstripe/framework' => '4.0.0'], $schema->getRequire());
+
+        $jsonReadFromFile = json_decode($schema->getContents(), true);
+        $this->assertEquals(['silverstripe/framework' => '4.0.0'], $jsonReadFromFile['require']);
+    }
+
+    public function testSetRequireDev()
+    {
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $schema->setRequireDev(['phpunit/phpunit' => '^5.7']);
+
+        $this->assertEquals(['phpunit/phpunit' => '^5.7'], $schema->getRequireDev());
+
+        $jsonReadFromFile = json_decode($schema->getContents(), true);
+        $this->assertEquals(['phpunit/phpunit' => '^5.7'], $jsonReadFromFile['require-dev']);
+    }
 }
