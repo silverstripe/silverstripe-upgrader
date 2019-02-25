@@ -13,7 +13,8 @@ use SilverStripe\Upgrader\Util\MutableSource;
 
 /**
  * Class ClassToTraitVisitor
- * @package SilverStripe\Upgrader\UpgradeRule\PHP\Visitor
+ *
+ * Replaces occurrences of class extensions with traits.
  */
 class ClassToTraitVisitor implements NodeVisitor
 {
