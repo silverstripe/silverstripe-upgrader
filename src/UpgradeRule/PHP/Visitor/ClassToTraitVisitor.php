@@ -29,6 +29,11 @@ class ClassToTraitVisitor implements NodeVisitor
      */
     protected $classToTraits;
 
+    /**
+     * @var Node|null The last `use` import found in the source
+     */
+    protected $lastUse;
+
     public function __construct(MutableSource $source, array $classToTraits)
     {
         $this->source = $source;
@@ -52,7 +57,7 @@ class ClassToTraitVisitor implements NodeVisitor
                         $newClassNode->stmts []= new TraitUse([new Name($traitClass)]);
 
                         $parts = explode("\\", $traitNamespace);
-                        $this->source->insertBefore($node, new Use_([new UseUse(new Name($parts))]));
+                        $this->source->insertBefore($this->lastUse ?: $node, new Use_([new UseUse(new Name($parts))]));
                     }
 
                     $this->source->replaceNode($node, $newClassNode);
@@ -75,6 +80,11 @@ class ClassToTraitVisitor implements NodeVisitor
      */
     public function beforeTraverse(array $nodes)
     {
+        foreach ($nodes as $node) {
+            if ($node instanceof Use_) {
+                $this->lastUse = $node;
+            }
+        }
     }
 
     /**

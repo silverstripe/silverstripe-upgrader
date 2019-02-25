@@ -3,6 +3,8 @@
 ------
 <?php
 
+use Test;
+
 class AnyClass extends Object
 {
 }
@@ -13,6 +15,8 @@ class AnyClass extends Object
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Core\Config\Configurable;
+use Test;
+
 class AnyClass
 {
     use Extensible;
