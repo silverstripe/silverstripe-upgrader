@@ -46,7 +46,7 @@ interface DependencyUpgradeRule
      * Define to what kind of dependency the rule should apply. Possible values are:
      * * DependencyUpgradeRule::DEV_DEPENDENCY_RULE
      * * DependencyUpgradeRule::REGULAR_DEPENDENCY_RULE
-     * @return int
+     * @return integer
      */
     public function applicability(): int;
 }

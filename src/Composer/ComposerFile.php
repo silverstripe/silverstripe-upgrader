@@ -121,12 +121,32 @@ class ComposerFile extends DiskItem
     }
 
     /**
+     * Explicitly set the `require` key on this schema.
+     * @param array $require
+     */
+    public function setRequire(array $require): void
+    {
+        $this->composerJson['require'] = $require;
+        $this->writeSchema();
+    }
+
+    /**
      * Get the requirements as defined by the `require` key in the composer file.
      * @return array
      */
     public function getRequireDev(): array
     {
         return isset($this->composerJson['require-dev']) ? $this->composerJson['require-dev'] : [];
+    }
+
+    /**
+     * Explicitly set the `require` key on this schema.
+     * @param array $require
+     */
+    public function setRequireDev(array $require): void
+    {
+        $this->composerJson['require-dev'] = $require;
+        $this->writeSchema();
     }
 
 
@@ -214,5 +234,13 @@ class ComposerFile extends DiskItem
             $json,
             JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
         );
+    }
+
+    /**
+     * Write the current working schema to the file.
+     */
+    private function writeSchema(): void
+    {
+        $this->setContents($this->encode($this->composerJson));
     }
 }

@@ -19,7 +19,8 @@ class MockDevRule implements DependencyUpgradeRule
         return $devDependencies;
     }
 
-    public function getWarnings(): array {
+    public function getWarnings(): array
+    {
         return ['mock warning'];
     }
 
@@ -33,5 +34,4 @@ class MockDevRule implements DependencyUpgradeRule
     {
         return DependencyUpgradeRule::DEV_DEPENDENCY_RULE;
     }
-
 }

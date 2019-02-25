@@ -19,7 +19,8 @@ class MockRule implements DependencyUpgradeRule
         return $dependencies;
     }
 
-    public function getWarnings(): array {
+    public function getWarnings(): array
+    {
         return ['mock warning'];
     }
 
@@ -33,5 +34,4 @@ class MockRule implements DependencyUpgradeRule
     {
         return DependencyUpgradeRule::REGULAR_DEPENDENCY_RULE;
     }
-
 }
