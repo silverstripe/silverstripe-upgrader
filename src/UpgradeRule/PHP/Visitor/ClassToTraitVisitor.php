@@ -53,9 +53,15 @@ class ClassToTraitVisitor implements NodeVisitor
                     $newClassNode->extends = null;
 
                     // add the new traits to the class
-                    foreach($traits as $traitNamespace => $traitClass) {
-                        $newClassNode->stmts []= new TraitUse([new Name($traitClass)]);
+                    $reversed = array_values(array_reverse($traits));
+                    foreach($reversed as $traitClass) {
+                        // add the trait to the class
+                        $traitUse = new TraitUse([new Name($traitClass)]);
+                        array_unshift($newClassNode->stmts, $traitUse);
+                    }
 
+                    // and add the namespace import
+                    foreach($traits as $traitNamespace => $traitClass) {
                         $parts = explode("\\", $traitNamespace);
                         $this->source->insertBefore($this->lastUse ?: $node, new Use_([new UseUse(new Name($parts))]));
                     }

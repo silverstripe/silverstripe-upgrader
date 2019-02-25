@@ -5,8 +5,14 @@
 
 use Test;
 
-class AnyClass extends Object
+abstract class AnyClass extends Object implements TestImplement
 {
+    protected abstract function getValue();
+
+    public function printValue()
+    {
+        echo $this->getValue();
+    }
 }
 
 ------
@@ -17,9 +23,14 @@ use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Core\Config\Configurable;
 use Test;
 
-class AnyClass
+abstract class AnyClass implements TestImplement
 {
     use Extensible;
     use Injectable;
     use Configurable;
+    protected abstract function getValue();
+    public function printValue()
+    {
+        echo $this->getValue();
+    }
 }
