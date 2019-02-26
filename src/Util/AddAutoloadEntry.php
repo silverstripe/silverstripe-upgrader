@@ -29,7 +29,7 @@ class AddAutoloadEntry
      * @param string $rootPath Root of the project or module where the composer file is.
      * @param string $filePath Path where namespace are to be added.
      * @param string $namespace Namespace of the file.
-     * @param bool $devPath Whatever this is a dev autoload entry or a regular entry.
+     * @param bool $devPath Whether this is a dev autoload entry or a regular entry.
      */
     public function __construct(string $rootPath, string $filePath, string $namespace, bool $devPath)
     {
@@ -40,7 +40,7 @@ class AddAutoloadEntry
     }
 
     /**
-     * Update a composer file to include a PSR-4 auto load entry.
+     * Update a composer file to include a PSR-4 autoload entry.
      * @param CollectionInterface $code
      * @throws InvalidArgumentException if no composer file is present in the provided code collection.
      * @return CodeChangeSet
