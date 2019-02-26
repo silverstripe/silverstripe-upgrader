@@ -132,4 +132,32 @@ EOF
         $this->assertEquals($diff->newContents($schema->getFullPath()), $expectedContent);
         $this->assertEquals($diff->oldContents($schema->getFullPath()), $initialContent);
     }
+
+    public function testEncode()
+    {
+        $data = [
+            'require' => [],
+            'require-dev' => [],
+            'extra' => [],
+            'config' => [],
+            'autoload' => [],
+            'autoload-dev' => [],
+            'repositories' => []
+        ];
+
+        $jsonStr = ComposerFile::encode($data);
+        $expected = <<<JSON
+{
+    "require": {},
+    "require-dev": {},
+    "extra": {},
+    "config": {},
+    "autoload": {},
+    "autoload-dev": {},
+    "repositories": []
+}
+JSON;
+
+        $this->assertEquals($expected, $jsonStr);
+    }
 }
