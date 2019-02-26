@@ -47,7 +47,7 @@ class ClassToTraitVisitor implements NodeVisitor
             $extends = $node->extends;
             $extendsName = $this->getNodeName($extends);
 
-            foreach($this->classToTraits as $class => $traits) {
+            foreach ($this->classToTraits as $class => $traits) {
                 if ($class == $extendsName) {
                     // remove 'extends' from the class
                     $newClassNode = clone $node;
@@ -55,14 +55,14 @@ class ClassToTraitVisitor implements NodeVisitor
 
                     // add the new traits to the class
                     $reversed = array_values(array_reverse($traits));
-                    foreach($reversed as $traitClass) {
+                    foreach ($reversed as $traitClass) {
                         // add the trait to the class
                         $traitUse = new TraitUse([new Name($traitClass)]);
                         array_unshift($newClassNode->stmts, $traitUse);
                     }
 
                     // and add the namespace import
-                    foreach($traits as $traitNamespace => $traitClass) {
+                    foreach ($traits as $traitNamespace => $traitClass) {
                         $parts = explode("\\", $traitNamespace);
                         $this->source->insertBefore($this->lastUse ?: $node, new Use_([new UseUse(new Name($parts))]));
                     }

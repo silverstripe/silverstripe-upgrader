@@ -212,7 +212,7 @@ class MutableSource
         if ($entity instanceof Node) {
             $string = $this->getPrettyPrinter()->prettyPrint([$entity]);
 
-            if (!($entity instanceof Use_)){
+            if (!($entity instanceof Use_)) {
                 // Single nodes don't get trailling ;s
                 if (substr($string, -1) === ';') {
                     $string = substr($string, 0, -1);
