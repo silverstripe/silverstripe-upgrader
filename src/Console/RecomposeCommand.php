@@ -164,6 +164,7 @@ class RecomposeCommand extends AbstractCommand implements AutomatedCommand
         $rules = [
             new Rules\PhpVersion(),
             new Rules\Rebuild($targets, $recipeEquivalences, $console),
+            new Rules\RebuildDev(['phpunit/phpunit' => '^5.7'], $console)
         ];
         if ($strict) {
             $rules[] = new Rules\StrictVersion();

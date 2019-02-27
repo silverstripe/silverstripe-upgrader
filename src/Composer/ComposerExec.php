@@ -54,7 +54,7 @@ EOF
      * @param string          $workingDir     Main Path where the composer project reside.
      * @param string          $execPath       Path to the composer executable.
      * @param OutputInterface $out            Output that can be used to push message to the cli.
-     * @param boolean         $suppressErrors Whatever errors should be suppress. If false, composer errors will be
+     * @param boolean         $suppressErrors Whether errors should be suppressed. If false, composer errors will be
      *                                        printed on the CLI. Defaults to `true`. This is meant for testing only.
      */
     public function __construct(
@@ -166,7 +166,7 @@ EOF
 
         $process = new Process($statement);
 
-        // Choose whatever to display a progress indicator or not.
+        // Choose whether to display a progress indicator or not.
         if ($showProgress && $this->out) {
             $process->start();
             $i = 0;
@@ -213,7 +213,7 @@ EOF
      * `composer.lock`.
      * @param  string  $path           Path to our composer file. Leave blank if you want to validate the file in the
      *                                 working dir.
-     * @param  boolean $throwException Whatever to throw an exception on invalid file. Default: false.
+     * @param  boolean $throwException Whether to throw an exception on invalid file or not. Default: false.
      * @throws RuntimeException If validation fails and $throwException is true.
      * @return boolean
      */
@@ -258,13 +258,15 @@ EOF
      * @param  string  $workingDir   Path to the directory containing the `composer.json`. Defaults to this instance's
      *    $workingDir.
      * @param  boolean $showFeedback Write out some information about what is going on.
+     * @param  boolean $dev          Whether this is a development dependency or not.
      * @return void
      */
     public function require(
         string $package,
         string $constraint = '*',
         string $workingDir = '',
-        bool   $showFeedback = false
+        bool   $showFeedback = false,
+        bool   $dev = false
     ):void {
         // Constrain our package to some version.
         if ($constraint) {
@@ -277,16 +279,16 @@ EOF
             $this->out->write(sprintf(' * Requiring %s ', $package));
         }
 
-        $process = $this->run(
-            "require $package",
-            [
-                '--working-dir' => $workingDir,
-                '--prefer-stable' => '',
-                '--ignore-platform-reqs' => '',
-                '--no-plugins' => ''
-            ],
-            $showFeedback
-        );
+        $args = [
+            '--working-dir' => $workingDir,
+            '--prefer-stable' => '',
+            '--ignore-platform-reqs' => '',
+            '--no-plugins' => '',
+        ];
+        if ($dev) {
+            $args['--dev'] = '';
+        }
+        $process = $this->run("require $package", $args, $showFeedback);
 
         if ($process->isSuccessful()) {
             if ($showFeedback) {
@@ -304,7 +306,7 @@ EOF
      * @param  string  $workingDir   Path to the directory containing the `composer.json`. Defaults to this instance's
      *    $workingDir.
      * @param  boolean $showFeedback Write out some information about what is going on.
-     * @param  boolean $allowPlugins Whatever we let composer plugins run. Defaults to false.
+     * @param  boolean $allowPlugins Whether we let composer plugins run or not. Defaults to false.
      * @throws RuntimeException If update fails.
      * @return void
      */

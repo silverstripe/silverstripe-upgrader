@@ -3,6 +3,7 @@
 namespace SilverStripe\Upgrader\Tests\Composer\Rules;
 
 use PHPUnit\Framework\TestCase;
+use SilverStripe\Upgrader\Composer\Rules\DependencyUpgradeRule;
 use SilverStripe\Upgrader\Composer\Rules\Rebuild;
 use SilverStripe\Upgrader\Tests\Composer\InitPackageCacheTrait;
 use SilverStripe\Upgrader\Composer\ComposerExec;
@@ -289,5 +290,11 @@ class RebuildTest extends TestCase
             $expected,
             $dependencies
         );
+    }
+
+    public function testApplicability()
+    {
+        $rule = new Rebuild();
+        $this->assertEquals(DependencyUpgradeRule::REGULAR_DEPENDENCY_RULE, $rule->applicability());
     }
 }

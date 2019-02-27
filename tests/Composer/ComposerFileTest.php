@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 use SilverStripe\Upgrader\Composer\ComposerExec;
 use SilverStripe\Upgrader\Composer\ComposerFile;
 use SilverStripe\Upgrader\Composer\Rules\PhpVersion;
+use SilverStripe\Upgrader\Tests\Composer\Rules\MockDevRule;
+use SilverStripe\Upgrader\Tests\Composer\Rules\MockRule;
 use Symfony\Component\Console\Exception\RuntimeException;
 
 class ComposerFileTest extends TestCase
@@ -60,7 +62,8 @@ class ComposerFileTest extends TestCase
         $composer->setWorkingDir($schema->getBasePath());
 
         $this->assertEmpty($schema->getRequire(), 'getRequire should be empty when run against an empty file.');
-        $composer->require('php', '*');
+        $composer->require('php', '*', '', false, false);
+        $composer->require('phpunit/phpunit', '*', '', false, true);
 
         // Test parse and require after updating the composer file.
         $schema->parse();
@@ -68,6 +71,11 @@ class ComposerFileTest extends TestCase
             $schema->getRequire(),
             ['php' => '*'],
             'Parsing an updated file should cause getRequire to get the latest value.'
+        );
+        $this->assertEquals(
+            $schema->getRequireDev(),
+            ['phpunit/phpunit' => '*'],
+            'Parsing an updated file should cause getRequireDev to get the latest value.'
         );
     }
 
@@ -113,10 +121,14 @@ EOF
     "description": "Add extra functionality to enhance CMS user collaboration",
     "license": "BSD-3-Clause",
     "require": {
-        "php": ">=5.6"
+        "php": ">=5.6",
+        "silverstripe-upgrader/mock-rule": "~1.2.3"
     },
     "prefer-stable": true,
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "require-dev": {
+        "silverstripe-upgrader/mock-dev-rule": "~1.2.3"
+    }
 }
 EOF
         ;
@@ -127,37 +139,33 @@ EOF
         $schema->parse();
 
         // Run the most simple command on our simple schema and see if the results matches what we expect.
-        $diff = $schema->upgrade([new PhpVersion()]);
+        $diff = $schema->upgrade([new PhpVersion(), new MockRule(), new MockDevRule()]);
 
         $this->assertEquals($diff->newContents($schema->getFullPath()), $expectedContent);
         $this->assertEquals($diff->oldContents($schema->getFullPath()), $initialContent);
     }
 
-    public function testEncode()
+    public function testSetRequire()
     {
-        $data = [
-            'require' => [],
-            'require-dev' => [],
-            'extra' => [],
-            'config' => [],
-            'autoload' => [],
-            'autoload-dev' => [],
-            'repositories' => []
-        ];
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $schema->setRequire(['silverstripe/framework' => '4.0.0']);
 
-        $jsonStr = ComposerFile::encode($data);
-        $expected = <<<JSON
-{
-    "require": {},
-    "require-dev": {},
-    "extra": {},
-    "config": {},
-    "autoload": {},
-    "autoload-dev": {},
-    "repositories": []
-}
-JSON;
+        $this->assertEquals(['silverstripe/framework' => '4.0.0'], $schema->getRequire());
 
-        $this->assertEquals($expected, $jsonStr);
+        $jsonReadFromFile = json_decode($schema->getContents(), true);
+        $this->assertEquals(['silverstripe/framework' => '4.0.0'], $jsonReadFromFile['require']);
+    }
+
+    public function testSetRequireDev()
+    {
+        $composer = new ComposerExec(__DIR__);
+        $schema = $composer->initTemporarySchema();
+        $schema->setRequireDev(['phpunit/phpunit' => '^5.7']);
+
+        $this->assertEquals(['phpunit/phpunit' => '^5.7'], $schema->getRequireDev());
+
+        $jsonReadFromFile = json_decode($schema->getContents(), true);
+        $this->assertEquals(['phpunit/phpunit' => '^5.7'], $jsonReadFromFile['require-dev']);
     }
 }

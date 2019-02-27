@@ -165,10 +165,11 @@ class Rebuild implements DependencyUpgradeRule
     /**
      * @inheritDoc
      * @param  array $dependencies Dependencies to upgrade.
+     * @param  array $devDependencies Development Dependencies to upgrade.
      * @param  ComposerExec $composer Composer executable.
      * @return array Upgraded dependencies.
      */
-    public function upgrade(array $dependencies, ComposerExec $composer): array
+    public function upgrade(array $dependencies, array $devDependencies, ComposerExec $composer): array
     {
         $this->warnings = [];
 
@@ -497,5 +498,13 @@ class Rebuild implements DependencyUpgradeRule
     protected function isSupported(string $packageName): bool
     {
         return in_array($packageName, Package::SUPPORTED_MODULES);
+    }
+
+    /**
+     * @return int
+     */
+    public function applicability(): int
+    {
+        return DependencyUpgradeRule::REGULAR_DEPENDENCY_RULE;
     }
 }

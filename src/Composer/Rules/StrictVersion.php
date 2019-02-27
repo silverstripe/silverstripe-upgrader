@@ -25,10 +25,11 @@ class StrictVersion implements DependencyUpgradeRule
     /**
      * @inheritDoc
      * @param  array $dependencies Dependencies to upgrade.
+     * @param  array $devDependencies Development Dependencies to upgrade.
      * @param  ComposerExec $composer Composer executable.
      * @return array Upgraded dependencies.
      */
-    public function upgrade(array $dependencies, ComposerExec $composer): array
+    public function upgrade(array $dependencies, array $devDependencies, ComposerExec $composer): array
     {
         $this->warnings = [];
         $regex = '/^\^(\d+\.\d+)(\.[0-9a-z]+)?/';
@@ -60,5 +61,13 @@ class StrictVersion implements DependencyUpgradeRule
     public function getWarnings(): array
     {
         return $this->warnings;
+    }
+
+    /**
+     * @return int
+     */
+    public function applicability(): int
+    {
+        return DependencyUpgradeRule::REGULAR_DEPENDENCY_RULE;
     }
 }
