@@ -123,6 +123,7 @@ class ComposerFile extends DiskItem
     /**
      * Explicitly set the `require` key on this schema.
      * @param array $require
+     * @return void
      */
     public function setRequire(array $require): void
     {
@@ -142,6 +143,7 @@ class ComposerFile extends DiskItem
     /**
      * Explicitly set the `require` key on this schema.
      * @param array $require
+     * @return void
      */
     public function setRequireDev(array $require): void
     {
@@ -238,6 +240,7 @@ class ComposerFile extends DiskItem
 
     /**
      * Write the current working schema to the file.
+     * @return void
      */
     private function writeSchema(): void
     {

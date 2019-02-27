@@ -53,7 +53,7 @@ class StrictVersionTest extends TestCase
         ];
 
         $this->assertEquals(
-            $rule->upgrade($input, $composer),
+            $rule->upgrade($input, [], $composer),
             $output
         );
     }

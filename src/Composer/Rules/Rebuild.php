@@ -165,6 +165,7 @@ class Rebuild implements DependencyUpgradeRule
     /**
      * @inheritDoc
      * @param  array $dependencies Dependencies to upgrade.
+     * @param  array $devDependencies Development Dependencies to upgrade.
      * @param  ComposerExec $composer Composer executable.
      * @return array Upgraded dependencies.
      */
@@ -499,6 +500,9 @@ class Rebuild implements DependencyUpgradeRule
         return in_array($packageName, Package::SUPPORTED_MODULES);
     }
 
+    /**
+     * @return int
+     */
     public function applicability(): int
     {
         return DependencyUpgradeRule::REGULAR_DEPENDENCY_RULE;

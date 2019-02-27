@@ -25,6 +25,7 @@ class StrictVersion implements DependencyUpgradeRule
     /**
      * @inheritDoc
      * @param  array $dependencies Dependencies to upgrade.
+     * @param  array $devDependencies Development Dependencies to upgrade.
      * @param  ComposerExec $composer Composer executable.
      * @return array Upgraded dependencies.
      */
@@ -62,6 +63,9 @@ class StrictVersion implements DependencyUpgradeRule
         return $this->warnings;
     }
 
+    /**
+     * @return int
+     */
     public function applicability(): int
     {
         return DependencyUpgradeRule::REGULAR_DEPENDENCY_RULE;
