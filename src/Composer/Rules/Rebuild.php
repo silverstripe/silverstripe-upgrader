@@ -212,7 +212,12 @@ class Rebuild implements DependencyUpgradeRule
         $dependencies = $schemaFile->getRequire();
         foreach ($failedKeys as $failedKey) {
             $dependencies[$failedKey] = $original[$failedKey];
-            $this->warnings[] = sprintf('Could not find a compatible version of `%s`', $failedKey);
+            $this->warnings[] = sprintf(
+                'Could not find a compatible version of `%s`.' . PHP_EOL
+                . '   For suggestions on resolving conflicts, please see '
+                . 'https://docs.silverstripe.org/en/4/upgrading/upgrading_project/#resolving-conflicts',
+                $failedKey
+            );
         }
 
         // Add a new line to space out the output.
