@@ -4,6 +4,7 @@ namespace SilverStripe\Upgrader\Util;
 
 use PhpParser\Lexer;
 use PhpParser\Node\Stmt\Property;
+use PhpParser\Node\Stmt\Use_;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter;
 use PhpParser\Node;
@@ -209,11 +210,17 @@ class MutableSource
         }
 
         if ($entity instanceof Node) {
-            // Single nodes don't get trailling ;s
             $string = $this->getPrettyPrinter()->prettyPrint([$entity]);
-            if (substr($string, -1) === ';') {
-                $string = substr($string, 0, -1);
+
+            if (!($entity instanceof Use_)) {
+                // Single nodes don't get trailling ;s
+                if (substr($string, -1) === ';') {
+                    $string = substr($string, 0, -1);
+                }
+            } else {
+                $string .= PHP_EOL;
             }
+
             return $string;
         }
 

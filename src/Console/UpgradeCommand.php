@@ -6,13 +6,13 @@ use InvalidArgumentException;
 use SilverStripe\Upgrader\ChangeDisplayer;
 use SilverStripe\Upgrader\CodeCollection\DiskCollection;
 use SilverStripe\Upgrader\Upgrader;
+use SilverStripe\Upgrader\UpgradeRule\PHP\ClassToTraitRule;
 use SilverStripe\Upgrader\UpgradeRule\PHP\RenameClasses;
 use SilverStripe\Upgrader\UpgradeRule\PHP\RenameTranslateKeys;
 use SilverStripe\Upgrader\UpgradeRule\SS\RenameTemplateLangKeys;
 use SilverStripe\Upgrader\UpgradeRule\YML\RenameYMLLangKeys;
 use SilverStripe\Upgrader\UpgradeRule\YML\UpdateConfigClasses;
 use SilverStripe\Upgrader\UpgradeSpec;
-use SilverStripe\Upgrader\Util\ConfigFile;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -76,6 +76,11 @@ class UpgradeCommand extends AbstractCommand implements AutomatedCommand
         $config = $this->getConfig($rootPath);
         foreach ($rules as $rule) {
             $spec->addRule($rule->withParameters($config));
+        }
+
+        $classToTraits = isset($config['classToTraits']) ? $config['classToTraits'] : [];
+        if (count($classToTraits)) {
+            $spec->addRule((new ClassToTraitRule($classToTraits))->withParameters($config));
         }
 
         // Create upgrader with this spec

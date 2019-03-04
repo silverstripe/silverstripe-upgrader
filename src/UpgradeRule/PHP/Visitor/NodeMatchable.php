@@ -6,6 +6,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticPropertyFetch;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\PropertyProperty;
@@ -47,6 +48,8 @@ trait NodeMatchable
         } elseif ($node instanceof ClassMethod) {
             preg_match('/function\s+([^\(\s]+)/', $string, $matches);
             return $matches[1];
+        } elseif ($node instanceof Name) {
+            return $node->getLast();
         }
         return $node->getName();
     }
@@ -90,7 +93,11 @@ trait NodeMatchable
                 return false;
             }
 
-            $distances = $node->getAttribute('scope')->getClassReflection()->getClassHierarchyDistances();
+            $scope = $node->getAttribute('scope');
+            if (!$scope->isInClass()) {
+                return false;
+            }
+            $distances = $scope->getClassReflection()->getClassHierarchyDistances();
             return array_key_exists($class, $distances);
         }
 

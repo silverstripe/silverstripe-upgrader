@@ -1,0 +1,36 @@
+{
+}
+------
+<?php
+
+use Test;
+
+abstract class AnyClass extends Object implements TestImplement
+{
+    protected abstract function getValue();
+
+    public function printValue()
+    {
+        echo $this->getValue();
+    }
+}
+
+------
+<?php
+
+use SilverStripe\Core\Extensible;
+use SilverStripe\Core\Injector\Injectable;
+use SilverStripe\Core\Config\Configurable;
+use Test;
+
+abstract class AnyClass implements TestImplement
+{
+    use Extensible;
+    use Injectable;
+    use Configurable;
+    protected abstract function getValue();
+    public function printValue()
+    {
+        echo $this->getValue();
+    }
+}
