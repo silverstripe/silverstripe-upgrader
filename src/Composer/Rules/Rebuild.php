@@ -506,7 +506,7 @@ class Rebuild implements DependencyUpgradeRule
     }
 
     /**
-     * @return int
+     * @return integer
      */
     public function applicability(): int
     {
