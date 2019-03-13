@@ -64,7 +64,7 @@ class StrictVersion implements DependencyUpgradeRule
     }
 
     /**
-     * @return int
+     * @return integer
      */
     public function applicability(): int
     {
