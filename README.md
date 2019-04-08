@@ -45,6 +45,7 @@ The following commands are available:
 * [`environment`](#environment): Migrate settings from `_ss_environment.php` to .env
 * [`inspect`](#inspect): Runs additional post-upgrade inspections, warnings, and rewrites to tidy up loose ends
 * [`reorganise`](#reorganise): Reorganise project folders from the SS3 `mysite` convention to the SS4 `app` convention
+* [`self-update`](#self-update): Get the latest version of the SilverStripe upgrader.
 * [`upgrade`](#upgrade): Upgrade a set of code files to work with a newer version of a library.
 * [`webroot`](#webroot): Update a SilverStripe project to use the `public` webroot.
 
@@ -231,6 +232,15 @@ Example:
 * If you want to just do a dry-run, skip the `--write` params.
 * The command will attempt to find any occurrence of _mysite_ in your codebase and show those as warnings.
 
+
+### `self-update`
+
+This command will update the upgrader tool itself to the newest release. It does not take any arguments.
+It's important to keep the tool updated since its under active development, and continuously improves.
+
+```
+upgrade-code self-update
+```
 
 ### `upgrade`
 
