@@ -23,7 +23,7 @@ use Symfony\Component\Console\Application;
 use M1\Env\Parser;
 
 // Get Upgrader version from environment file
-$version = '1.4.0';
+$version = '1.4.1';
 $dotEnvPath = __DIR__ . '/../.env';
 if (file_exists($dotEnvPath)) {
     $env = new Parser(file_get_contents($dotEnvPath));
