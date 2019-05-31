@@ -87,6 +87,8 @@ class AddNamespaceCommand extends AbstractCommand implements AutomatedCommand
             throw new \InvalidArgumentException("Namespace \"{$namespace}\" doesn't seem escaped properly");
         }
 
+        $namespace = trim($settings['namespace'], '\\');
+
         // Find module name
         $module = $this->getModuleName($filePath, $rootPath);
         if (empty($module)) {
