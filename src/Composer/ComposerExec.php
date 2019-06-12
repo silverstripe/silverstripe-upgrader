@@ -165,6 +165,7 @@ EOF
         }
 
         $process = new Process($statement);
+        $process->setTimeout(300);
 
         // Choose whether to display a progress indicator or not.
         if ($showProgress && $this->out) {
