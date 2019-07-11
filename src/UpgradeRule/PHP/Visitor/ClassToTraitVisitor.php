@@ -43,7 +43,7 @@ class ClassToTraitVisitor implements NodeVisitor
 
     public function enterNode(Node $node)
     {
-        if ($node instanceof Class_) {
+        if ($node instanceof Class_ && $node->extends) {
             $extends = $node->extends;
             $extendsName = $this->getNodeName($extends);
 

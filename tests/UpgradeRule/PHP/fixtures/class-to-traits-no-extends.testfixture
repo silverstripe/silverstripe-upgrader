@@ -1,0 +1,21 @@
+{
+}
+------
+<?php
+
+namespace Foo\View;
+
+class MyClass
+{
+    public $ID;
+}
+
+------
+<?php
+
+namespace Foo\View;
+
+class MyClass
+{
+    public $ID;
+}

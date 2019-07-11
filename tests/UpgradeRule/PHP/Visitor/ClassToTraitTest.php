@@ -45,4 +45,38 @@ class ClassToTraitTest extends BaseVisitorTest
 
         $this->assertEquals($generated, $expected);
     }
+
+    /**
+     * @runInSeparateProcess
+     * @throws \Exception
+     */
+    public function testReplaceClassWithTraitsWithoutExtends()
+    {
+        list($parameters, $input, $expected) =
+            $this->loadFixture(__DIR__ . '/../fixtures/class-to-traits-no-extends.testfixture');
+
+        $classToTraits = [
+            'SS_Object' => [
+                'SilverStripe\Core\Extensible'=> 'Extensible',
+                'SilverStripe\Core\Injector\Injectable'=> 'Injectable',
+                'SilverStripe\Core\Config\Configurable'=> 'Configurable'
+            ],
+            'Object' => [
+                'SilverStripe\Core\Extensible'=> 'Extensible',
+                'SilverStripe\Core\Injector\Injectable'=> 'Injectable',
+                'SilverStripe\Core\Config\Configurable'=> 'Configurable'
+            ]
+        ];
+
+        $code = new MockCodeCollection([
+            'dir/test.php' => $input,
+        ]);
+        $classToTraitRule = new ClassToTraitRule($classToTraits);
+        $changeset = new CodeChangeSet();
+        $classToTraitRule->beforeUpgradeCollection($code, $changeset);
+        $file = $code->itemByPath('dir/test.php');
+        $generated = $classToTraitRule->upgradeFile($input, $file, $changeset);
+
+        $this->assertEquals($generated, $expected);
+    }
 }
