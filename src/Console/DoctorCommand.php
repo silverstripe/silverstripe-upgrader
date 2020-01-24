@@ -6,6 +6,7 @@ use BadMethodCallException;
 use SilverStripe\Upgrader\Util\ConfigFile;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DoctorCommand extends AbstractCommand
 {
@@ -27,6 +28,8 @@ class DoctorCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $console = new SymfonyStyle($input, $output);
+
         $rootPath = $this->getRootPath($input);
 
         // Load the code to be upgraded and run the upgrade process
@@ -34,12 +37,26 @@ class DoctorCommand extends AbstractCommand
         $config = ConfigFile::loadCombinedConfig($rootPath);
         $tasks = isset($config['doctorTasks']) ? $config['doctorTasks']: [];
         if (empty($tasks)) {
-            $output->writeln("No tasks configured for this installation");
-            return null;
+            $console->text("No tasks configured for this installation.");
+            return;
         }
 
         $count = count($tasks);
-        $output->writeln("Running {$count} doctor tasks on \"{$rootPath}\"");
+
+        $console->section("Running {$count} doctor tasks on \"{$rootPath}\"");
+        $console->listing(array_keys($tasks));
+
+        $console->warning(
+            'These cleanup tasks are arbitrary PHP code snippets that ship with individual modules. They are not ' .
+            'part of the SilverStripe upgrader and may have destructive side-affects. Make sure you understand ' .
+            'what each task is meant to do and back up your changes before continuing.' . "\n\n" .
+            'DO NOT PROCEED IF YOU ARE UNSURE.'
+        );
+
+        if (!$console->confirm('Do you want to run the cleanup tasks?', false)) {
+            return;
+        };
+
 
         foreach ($tasks as $class => $path) {
             if (!file_exists($path)) {
@@ -54,11 +71,11 @@ class DoctorCommand extends AbstractCommand
                 );
             }
             // Invoke
-            $output->writeln("Running task <info>{$class}</info>...");
+            $console->title("Running task <info>{$class}</info>...");
             $task($input, $output, $rootPath);
         }
 
-        $output->writeln("All tasks run");
+        $console->success("All tasks run");
         return null;
     }
 }
