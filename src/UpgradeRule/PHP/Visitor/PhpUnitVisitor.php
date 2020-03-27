@@ -57,7 +57,7 @@ class PhpUnitVisitor implements NodeVisitor
      */
     public function beforeTraverse(array $nodes)
     {
-        // TODO: Implement beforeTraverse() method.
+        // noop
     }
 
     /**
@@ -65,23 +65,26 @@ class PhpUnitVisitor implements NodeVisitor
      */
     public function enterNode(Node $node)
     {
+        $changed = false;
         if ($node instanceof Node\Stmt\ClassMethod) {
             switch (strtolower($node->name)) {
                 case 'setup':
-                    $this->source->replaceNode($node, static::changeVisibility($node));
-                    break;
                 case 'teardown':
-                    $this->source->replaceNode($node, static::changeVisibility($node));
+                    if (!$node->isProtected()) {
+                        $changed = true;
+                        static::changeVisibility($node, Class_::MODIFIER_PROTECTED);
+                    }
                     break;
                 case 'setUpBeforeClass':
-                    $node = static::changeVisibility($node, Class_::MODIFIER_PUBLIC);
-                    $node = static::makeStatic($node);
-                    $this->source->replaceNode($node, $node);
-                    break;
                 case 'tearDownAfterClass':
-                    $node = static::changeVisibility($node, Class_::MODIFIER_PUBLIC);
-                    $node = static::makeStatic($node);
-                    $this->source->replaceNode($node, $node);
+                    if (!$node->isPublic()) {
+                        $changed = true;
+                        static::changeVisibility($node, Class_::MODIFIER_PUBLIC);
+                    }
+                    if (!$node->isStatic()) {
+                        $changed = true;
+                        static::makeStatic($node);
+                    }
                     break;
             }
             if ($docBlock = $node->getDocComment()) {
@@ -93,70 +96,82 @@ class PhpUnitVisitor implements NodeVisitor
                     if ($rawLine && preg_match('/^@([a-z]+)\s+(.*)/i', $rawLine, $matches)) {
                         $annotation = $matches[1];
                         $argument = $matches[2];
-                        if (in_array($annotation, ['expectedException', 'expectedExceptionCode', 'expectedExceptionMessage', 'expectedExceptionMessageRegExp'])) {
-                            $update = true;
-                            switch ($annotation) {
-                                case 'expectedException':
-                                    $call = new Node\Expr\MethodCall(
-                                        new Node\Expr\Variable('this'),
-                                        'expectedException',
-                                        [
-                                            new Node\Arg(new Node\Expr\ClassConstFetch(
-                                                new Node\Name($argument),
-                                                'class'
-                                            )),
-                                        ]
-                                    );
-                                    array_unshift($node->stmts, $call);
-                                    break;
-                                case 'expectedExceptionMessageRegExp':
-                                    $call = new Node\Expr\MethodCall(
-                                        new Node\Expr\Variable('this'),
-                                        'expectExceptionMessageMatches',
-                                        [
-                                            new Node\Arg(new Node\Scalar\String_($argument)),
-                                        ]
-                                    );
-                                    array_unshift($node->stmts, $call);
-                                    break;
-                                case 'expectedExceptionCode':
-                                    $call = new Node\Expr\MethodCall(
-                                        new Node\Expr\Variable('this'),
-                                        'expectedExceptionCode',
-                                        [
-                                            new Node\Arg(new Node\Scalar\String_($argument)),
-                                        ]
-                                    );
-                                    array_unshift($node->stmts, $call);
-                                    break;
-                                case 'expectedExceptionMessage':
-                                    $call = new Node\Expr\MethodCall(
-                                        new Node\Expr\Variable('this'),
-                                        'expectedExceptionMessage',
-                                        [
-                                            new Node\Arg(new Node\Scalar\String_($argument)),
-                                        ]
-                                    );
-                                    array_unshift($node->stmts, $call);
-                                    break;
-                            }
-                        } else {
-                            $newComment[] = $line;
+                        switch ($annotation) {
+                            case 'expectedException':
+                                $call = new Node\Expr\MethodCall(
+                                    new Node\Expr\Variable('this'),
+                                    'expectedException',
+                                    [
+                                        new Node\Arg(new Node\Expr\ClassConstFetch(
+                                            new Node\Name($argument),
+                                            'class'
+                                        )),
+                                    ]
+                                );
+                                array_unshift($node->stmts, $call);
+                                $update = true;
+                                break;
+                            case 'expectedExceptionMessageRegExp':
+                                $call = new Node\Expr\MethodCall(
+                                    new Node\Expr\Variable('this'),
+                                    'expectExceptionMessageMatches',
+                                    [
+                                        new Node\Arg(new Node\Scalar\String_($argument)),
+                                    ]
+                                );
+                                array_unshift($node->stmts, $call);
+                                $update = true;
+                                break;
+                            case 'expectedExceptionCode':
+                                $call = new Node\Expr\MethodCall(
+                                    new Node\Expr\Variable('this'),
+                                    'expectedExceptionCode',
+                                    [
+                                        new Node\Arg(new Node\Scalar\String_($argument)),
+                                    ]
+                                );
+                                array_unshift($node->stmts, $call);
+                                $update = true;
+                                break;
+                            case 'expectedExceptionMessage':
+                                $call = new Node\Expr\MethodCall(
+                                    new Node\Expr\Variable('this'),
+                                    'expectedExceptionMessage',
+                                    [
+                                        new Node\Arg(new Node\Scalar\String_($argument)),
+                                    ]
+                                );
+                                array_unshift($node->stmts, $call);
+                                $update = true;
+                                break;
+                            default:
+                                $newComment[] = $line;
                         }
                     } else {
                         $newComment[] = $line;
                     }
                 }
                 if ($update) {
-                    if (count($newComment) === 2) {
-                        // empty comment
-                        $comment = new Doc('', $docBlock->getLine(), $docBlock->getFilePos());
-                    } else {
-                        $comment = new Doc(implode("\n", array_reverse($newComment)), $docBlock->getLine(), $docBlock->getFilePos());
-                    }
+                    $changed = true;
+                    $commentText = count($newComment) === 2 ? '' : implode("\n", array_reverse($newComment));
+                    $comment = new Doc($commentText, $docBlock->getLine(), $docBlock->getFilePos());
                     $node->setDocComment($comment);
-                    $this->source->replaceNode($node, $node);
                 }
+            }
+            if (in_array(strtolower($node->name), ['setup', 'teardown', 'setupbeforeclass', 'teardownafterclass'])) {
+                if ($node->getReturnType() !== 'void') {
+                    $changed = true;
+                    $node = new Node\Stmt\ClassMethod($node->name, [
+                        'flags' => $node->flags,
+                        'byRef' => $node->returnsByRef(),
+                        'params' => $node->getParams(),
+                        'returnType' => 'void',
+                        'stmts' => $node->getStmts(),
+                    ], $node->getAttributes());
+                }
+            }
+            if ($changed) {
+                $this->source->replaceNode($node, $node);
             }
         }
         return null;
@@ -167,6 +182,7 @@ class PhpUnitVisitor implements NodeVisitor
      */
     public function leaveNode(Node $node)
     {
+        // noop
     }
 
     /**
@@ -174,6 +190,6 @@ class PhpUnitVisitor implements NodeVisitor
      */
     public function afterTraverse(array $nodes)
     {
-        // TODO: Implement afterTraverse() method.
+        // noop
     }
 }
