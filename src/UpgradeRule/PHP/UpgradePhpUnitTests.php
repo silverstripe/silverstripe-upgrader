@@ -2,6 +2,7 @@
 
 namespace SilverStripe\Upgrader\UpgradeRule\PHP;
 
+use PhpParser\ParserFactory;
 use SilverStripe\Upgrader\CodeCollection\CodeChangeSet;
 use SilverStripe\Upgrader\CodeCollection\ItemInterface;
 use SilverStripe\Upgrader\UpgradeRule\PHP\Visitor\PhpUnitVisitor;
@@ -22,7 +23,7 @@ class UpgradePhpUnitTests extends PHPUpgradeRule
         if (!$this->appliesTo($file)) {
             return $contents;
         }
-        $source = new MutableSource($contents);
+        $source = new MutableSource($contents, ParserFactory::PREFER_PHP7);
 
         $tree = $source->getAst();
         $this->transformWithVisitors($tree, [
