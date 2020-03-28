@@ -101,7 +101,7 @@ class PhpUnitVisitor implements NodeVisitor
                             case 'expectedException':
                                 $call = new Node\Expr\MethodCall(
                                     new Node\Expr\Variable('this'),
-                                    'expectedException',
+                                    'expectException',
                                     [
                                         new Node\Arg(new Node\Expr\ClassConstFetch(
                                             new Node\Name($argument),
@@ -126,7 +126,7 @@ class PhpUnitVisitor implements NodeVisitor
                             case 'expectedExceptionCode':
                                 $call = new Node\Expr\MethodCall(
                                     new Node\Expr\Variable('this'),
-                                    'expectedExceptionCode',
+                                    'expectExceptionCode',
                                     [
                                         new Node\Arg(new Node\Scalar\String_($argument)),
                                     ]
@@ -137,7 +137,7 @@ class PhpUnitVisitor implements NodeVisitor
                             case 'expectedExceptionMessage':
                                 $call = new Node\Expr\MethodCall(
                                     new Node\Expr\Variable('this'),
-                                    'expectedExceptionMessage',
+                                    'expectExceptionMessage',
                                     [
                                         new Node\Arg(new Node\Scalar\String_($argument)),
                                     ]
