@@ -46,9 +46,9 @@ class Animal extends Living
     private static $db = array('Name' => 'Varchar');
 
     protected function myMethod()
-{
-    echo "Hello, world!";
-}
+    {
+        echo "Hello, world!";
+    }
 
     public static $do_not_change_me = "foobar";
 }
