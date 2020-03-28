@@ -9,6 +9,7 @@ use SilverStripe\Upgrader\Upgrader;
 use SilverStripe\Upgrader\UpgradeRule\PHP\ClassToTraitRule;
 use SilverStripe\Upgrader\UpgradeRule\PHP\RenameClasses;
 use SilverStripe\Upgrader\UpgradeRule\PHP\RenameTranslateKeys;
+use SilverStripe\Upgrader\UpgradeRule\PHP\UpgradePhpUnitTests;
 use SilverStripe\Upgrader\UpgradeRule\SS\RenameTemplateLangKeys;
 use SilverStripe\Upgrader\UpgradeRule\YML\RenameYMLLangKeys;
 use SilverStripe\Upgrader\UpgradeRule\YML\UpdateConfigClasses;
@@ -130,6 +131,7 @@ class UpgradeCommand extends AbstractCommand implements AutomatedCommand
         $ruleObjects = [];
         if (in_array('code', $rules)) {
             $ruleObjects[] = new RenameClasses($input->getOption('prompt'), $this, $input, $output);
+            $ruleObjects[] = new UpgradePhpUnitTests();
         }
         if (in_array('config', $rules)) {
             $ruleObjects[] = new UpdateConfigClasses();
