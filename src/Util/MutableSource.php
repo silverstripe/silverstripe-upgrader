@@ -280,9 +280,15 @@ class MutableSource
                 . "Check your Lexer usedAttributes option!");
         }
 
+        $start = $attributes['startFilePos'];
+        $docBlock = $node->getDocComment();
+        if ($docBlock) {
+            $start = $docBlock->getFilePos();
+        }
+
         return [
-            $attributes['startFilePos'],
-            $attributes['endFilePos'] - $attributes['startFilePos'] + 1,
+            $start,
+            $attributes['endFilePos'] - $start + 1,
         ];
     }
 }

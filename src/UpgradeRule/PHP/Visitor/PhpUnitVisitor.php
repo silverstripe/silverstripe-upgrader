@@ -67,7 +67,7 @@ class PhpUnitVisitor implements NodeVisitor
     {
         $changed = false;
         if ($node instanceof Node\Stmt\ClassMethod) {
-            $oldNode = $node;
+            $oldNode = clone $node;
             switch (strtolower($node->name)) {
                 case 'setup':
                 case 'teardown':
