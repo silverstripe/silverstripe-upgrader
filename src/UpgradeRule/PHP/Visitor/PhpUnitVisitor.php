@@ -67,6 +67,7 @@ class PhpUnitVisitor implements NodeVisitor
     {
         $changed = false;
         if ($node instanceof Node\Stmt\ClassMethod) {
+            $oldNode = $node;
             switch (strtolower($node->name)) {
                 case 'setup':
                 case 'teardown':
@@ -171,7 +172,7 @@ class PhpUnitVisitor implements NodeVisitor
                 }
             }
             if ($changed) {
-                $this->source->replaceNode($node, $node);
+                $this->source->replaceNode($oldNode, $node);
             }
         }
         return null;
