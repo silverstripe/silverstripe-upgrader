@@ -168,4 +168,31 @@ EOF
         $jsonReadFromFile = json_decode($schema->getContents(), true);
         $this->assertEquals(['phpunit/phpunit' => '^5.7'], $jsonReadFromFile['require-dev']);
     }
+
+
+    public function testEncode()
+    {
+        $data = [
+            'require' => [],
+            'require-dev' => [],
+            'extra' => [],
+            'config' => [],
+            'autoload' => [],
+            'autoload-dev' => [],
+            'repositories' => []
+        ];
+        $jsonStr = ComposerFile::encode($data);
+        $expected = <<<JSON
+{
+    "require": {},
+    "require-dev": {},
+    "extra": {},
+    "config": {},
+    "autoload": {},
+    "autoload-dev": {},
+    "repositories": []
+}
+JSON;
+        $this->assertEquals($expected, $jsonStr);
+    }
 }
