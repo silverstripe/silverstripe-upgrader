@@ -77,13 +77,25 @@ class MutableString
         return $this->string;
     }
 
+    protected static function indentString($string, $indent)
+    {
+        $lines = explode(PHP_EOL, $string);
+        return implode(PHP_EOL . $indent, $lines);
+    }
+
     public function getModifiedString()
     {
         $result = '';
         $startPos = 0;
         foreach ($this->getSortedModifications() as list($pos, $len, $newString)) {
             $result .= substr($this->string, $startPos, $pos - $startPos);
-            $result .= $newString;
+            // find the current indent size by finding the spaces since the last new line
+            $indent = false;
+            if (preg_match('/([[:blank:]]+)$/', $result, $matches)) {
+                $indent = $matches[1];
+            }
+            $indentedString = $indent ? static::indentString($newString, $indent) : $newString;
+            $result .= $indentedString;
             $startPos = $pos + $len;
         }
         $result .= substr($this->string, $startPos);

@@ -33,7 +33,7 @@ class MutableSource
      */
     private $prettyPrinter = null;
 
-    public function __construct($source)
+    public function __construct($source, $kind = ParserFactory::PREFER_PHP5)
     {
         $this->source = new MutableString($source);
         $this->prettyPrinter = new PrettyPrinter\Standard();
@@ -41,7 +41,7 @@ class MutableSource
         $lexer = new Lexer\Emulative([
             'usedAttributes' => ['comments', 'startFilePos', 'endFilePos', 'startLine', 'endLine']
         ]);
-        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP5, $lexer);
+        $parser = (new ParserFactory())->create($kind, $lexer);
         $this->ast = $parser->parse($source);
     }
 
@@ -280,9 +280,15 @@ class MutableSource
                 . "Check your Lexer usedAttributes option!");
         }
 
+        $start = $attributes['startFilePos'];
+        $docBlock = $node->getDocComment();
+        if ($docBlock) {
+            $start = $docBlock->getFilePos();
+        }
+
         return [
-            $attributes['startFilePos'],
-            $attributes['endFilePos'] - $attributes['startFilePos'] + 1,
+            $start,
+            $attributes['endFilePos'] - $start + 1,
         ];
     }
 }
