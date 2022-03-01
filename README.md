@@ -1,3 +1,5 @@
+**The Silverstripe CMS Upgrader has mostly served its purpose. The core Silverstripe CMS team is not actively looking at doing more work on it in the near future. If a community member would like become a maintainer, then we're happy to grant them merge access after some basic due diligence. Please raise an issue to let us know if you would like to maintain this repo.**
+
 # Upgrader
 
 [![Build Status](https://api.travis-ci.com/silverstripe/silverstripe-upgrader.svg?branch=master)](https://travis-ci.com/silverstripe/silverstripe-upgrader)
