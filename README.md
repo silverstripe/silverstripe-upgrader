@@ -1,3 +1,5 @@
+**The upgrader has mostly served its purpose. We're not actively looking at doing more work on it in the near future. If a community member would like become a maintainer then we're happy to grant them access on it. Please raise an issue to let us know if you would like to maintain this.**
+
 # Upgrader
 
 [![Build Status](https://api.travis-ci.com/silverstripe/silverstripe-upgrader.svg?branch=master)](https://travis-ci.com/silverstripe/silverstripe-upgrader)
