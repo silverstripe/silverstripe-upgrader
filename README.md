@@ -2,7 +2,7 @@
 
 # Upgrader
 
-[![Build Status](https://api.travis-ci.com/silverstripe/silverstripe-upgrader.svg?branch=master)](https://travis-ci.com/silverstripe/silverstripe-upgrader)
+[![CI](https://github.com/silverstripe/silverstripe-upgrader/actions/workflows/ci.yml/badge.svg)](https://github.com/silverstripe/silverstripe-upgrader/actions/workflows/ci.yml)
 [![SilverStripe supported module](https://img.shields.io/badge/silverstripe-supported-0071C4.svg)](https://www.silverstripe.org/software/addons/silverstripe-commercially-supported-module-list/)
 
 Upgrader is a framework for automating the upgrade of code to handle API changes in dependent libraries.
