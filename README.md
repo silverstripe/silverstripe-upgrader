@@ -2,9 +2,6 @@
 
 # Upgrader
 
-[![Build Status](https://api.travis-ci.com/silverstripe/silverstripe-upgrader.svg?branch=master)](https://travis-ci.com/silverstripe/silverstripe-upgrader)
-[![SilverStripe supported module](https://img.shields.io/badge/silverstripe-supported-0071C4.svg)](https://www.silverstripe.org/software/addons/silverstripe-commercially-supported-module-list/)
-
 Upgrader is a framework for automating the upgrade of code to handle API changes in dependent libraries.
 See the [4.x upgrading guide](https://docs.silverstripe.org/en/4/upgrading/) for step-by-step instructions.
 
@@ -40,16 +37,16 @@ use --root-dir=/path.
 ### Overview
 
 The following commands are available:
-* [`all`](#all): Aggregate all the commands required to upgrade a SilverStripe project.
+* [`all`](#all): Aggregate all the commands required to upgrade a Silverstripe project.
 * [`add-namespace`](#add-namespace): Add a namespace to a file.
 * [`recompose`](#recompose): Upgrade a composer file to use the latest version of SilverStripe.
 * [`doctor`](#doctor): Run all cleanup tasks configured for this project
 * [`environment`](#environment): Migrate settings from `_ss_environment.php` to .env
 * [`inspect`](#inspect): Runs additional post-upgrade inspections, warnings, and rewrites to tidy up loose ends
 * [`reorganise`](#reorganise): Reorganise project folders from the SS3 `mysite` convention to the SS4 `app` convention
-* [`self-update`](#self-update): Get the latest version of the SilverStripe upgrader.
+* [`self-update`](#self-update): Get the latest version of the Silverstripe upgrader.
 * [`upgrade`](#upgrade): Upgrade a set of code files to work with a newer version of a library.
-* [`webroot`](#webroot): Update a SilverStripe project to use the `public` webroot.
+* [`webroot`](#webroot): Update a Silverstripe project to use the `public` webroot.
 
 ### `all`
 
@@ -118,7 +115,7 @@ that referenced the un-namespaced versions of these classes.
 
 ### `recompose`
 
-You can use this command to upgrade your `composer.json` dependencies from SilverStripe 3 to Silverstripe 4.
+You can use this command to upgrade your `composer.json` dependencies from Silverstripe 3 to Silverstripe 4.
 
 ```bash
 upgrade-code recompose [--root-dir=<dir>] [--write] [--strict] [-vvv] [--recipe-core-constraint=*] [--cwp-constraint] [--composer-path=composer]
@@ -132,7 +129,7 @@ upgrade-code recompose --root-dir=/var/www/SS_project --write --recipe-core-cons
 
 * You may end up with broken dependencies after running this command. You'll have to resolve those broken issues
 manually.
-* You can specify which version of SilverStripe you want to upgrade to via the `--recipe-core-constraint` option.
+* You can specify which version of Silverstripe you want to upgrade to via the `--recipe-core-constraint` option.
   If left blank, you'll be upgraded to the latest stable version.
 * If you are upgrading a CWP project use `--cwp-constraint` instead of `--recipe-core-constraint`. `--cwp-constraint` allows you to target a specific version of `cwp/cwp-core`.
 * This script relies on composer to fetch the latest dependencies. If `composer` is in your path and is called
@@ -172,8 +169,8 @@ user-made customisations to `.htaccess` or other project files.
 
 ### `environment`
 
-You can use this command to migrate an SilverStripe 3 `_ss_environment.php` file to the `.env` format used by
-SilverStripe 4.
+You can use this command to migrate an Silverstripe 3 `_ss_environment.php` file to the `.env` format used by
+Silverstripe 4.
 
 ```bash
 upgrade-code environment [--root-dir=<dir>] [--write] [-vvv]
@@ -185,7 +182,7 @@ Example:
 upgrade-code environment --root-dir=/var/www/SS_project --write -vvv
 ```
 
-* The command doesn't assume your `_ss_environment.php` file is in your root folder. Like SilverStripe 3, it will
+* The command doesn't assume your `_ss_environment.php` file is in your root folder. Like Silverstripe 3, it will
 recursively check the parent folder until it finds an `_ss_environment.php` or an unreadable folder.
 * If your `_ss_environment.php` file contains unusual logic (conditional statements or loops), you will get a warning.
 `upgrade-code` will still try to convert the file, but you should double-check the output.
@@ -221,7 +218,7 @@ Add the `--skip-visibility` option to ignore this.
 
 ### `reorganise`
 
-You can use this command to reorganise your folder structure to conform to the new structure introduced with SilverStripe 4.1.
+You can use this command to reorganise your folder structure to conform to the new structure introduced with Silverstripe 4.1.
 Your `mysite` folder will be renamed to `app` and your `code` folder will be rename to `src`.
 
 `upgrade-code reorganise [--root-dir=<dir>] [--write] [--recursive] [-vvv]`
@@ -232,7 +229,6 @@ Example:
 
 * If you want to just do a dry-run, skip the `--write` params.
 * The command will attempt to find any occurrence of _mysite_ in your codebase and show those as warnings.
-
 
 ### `self-update`
 
@@ -289,7 +285,7 @@ as these are not ambiguous, and the upgrader can safely update these references.
 
 #### Upgrading Database references to now namespaced DataObject subclasses
 
-If any DataObject subclasses have been namespaced, we will need to specify them in a config file ie. legacy.yml. This tells SilverStripe to remap these class names when dev/build is run.
+If any DataObject subclasses have been namespaced, we will need to specify them in a config file ie. legacy.yml. This tells Silverstripe to remap these class names when dev/build is run.
 
 ```YML
 ---
@@ -407,7 +403,7 @@ excludedPaths:
 
 ### `webroot`
 
-Configure your project to use the `public` web root structure introduced with SilverStripe 4.1 ([details]((https://docs.silverstripe.org/en/4/changelogs/4.1.0/#upgrade-public-folder-optional)).
+Configure your project to use the `public` web root structure introduced with Silverstripe 4.1 ([details]((https://docs.silverstripe.org/en/4/changelogs/4.1.0/#upgrade-public-folder-optional)).
 
 ```bash
 upgrade-code webroot [--root-dir=<root>] [--write] [--composer-path=composer] [-vvv]
